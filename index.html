@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoltRef MX — Referencia Técnica Industrial</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.4/dexie.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --bg:      #08090e;
+  --s1:      #0f1219;
+  --s2:      #161c28;
+  --s3:      #1e2535;
+  --s4:      #252e42;
+  --border:  #2d3a55;
+  --bd2:     #1a2235;
+  --volt:    #f59e0b;
+  --volt2:   #fbbf24;
+  --steel:   #60a5fa;
+  --ok:      #34d399;
+  --warn:    #fbbf24;
+  --danger:  #f87171;
+  --purple:  #a78bfa;
+  --text:    #e2e8f4;
+  --muted:   #4a5a7a;
+  --label:   #7a8fba;
+  --mono:    'JetBrains Mono', monospace;
+  --display: 'Rajdhani', sans-serif;
+  --grid-color: rgba(245,158,11,.03);
+  --shadow:  0 2px 12px rgba(0,0,0,.4);
+}
+
+/* ── LIGHT MODE ── */
+body.light {
+  --bg:      #f0f3f8;
+  --s1:      #ffffff;
+  --s2:      #e8ecf4;
+  --s3:      #dde2ee;
+  --s4:      #d0d7e8;
+  --border:  #b8c4d8;
+  --bd2:     #ccd4e4;
+  --volt:    #c47a00;
+  --volt2:   #d98f00;
+  --steel:   #1a6fcc;
+  --ok:      #0d9e6a;
+  --warn:    #b07000;
+  --danger:  #cc2222;
+  --purple:  #6d4fc4;
+  --text:    #111828;
+  --muted:   #7a8aaa;
+  --label:   #4a5878;
+  --grid-color: rgba(180,160,100,.06);
+  --shadow:  0 2px 12px rgba(0,0,0,.1);
+}
+body.light header{background:linear-gradient(135deg,#1a2035 0%,#1e2840 60%,#222e48 100%)!important}
+body.light .logo-ref{color:#e2e8f4!important}
+body.light .logo-mx{color:var(--volt)!important}
+body.light input,body.light select{background:var(--s1);color:var(--text)}
+body.light select option{background:var(--s1);color:var(--text)}
+body.light .vg input{background:var(--s2)}
+body.light .vg input:focus{background:var(--s3)}
+body.light .cable-row-ref{background:var(--s2);border-color:var(--bd2)}
+body.light .cable-row-ref:hover{background:var(--s3)}
+body.light .charola-opt{background:var(--s2);border-color:var(--bd2)}
+body.light .charola-opt.active{background:rgba(196,122,0,.07)}
+body.light .xfmr-visual{background:var(--s2)}
+body.light .tbl th{background:var(--s2)}
+body.light .tbl td{border-bottom-color:var(--bd2)}
+body.light .tbl tr:hover td{background:rgba(0,0,0,.02)}
+body.light .tbl tr.hl td{background:rgba(196,122,0,.06)}
+body.light .fml{background:var(--s2);border-left-color:var(--border)}
+body.light .rbox{background:var(--s2)}
+body.light .pbar{background:var(--s2)}
+body.light .hist-item{background:var(--s1)}
+body.light .fb-box{background:var(--s2)}
+body.light .ov-box{background:var(--s1)}
+body.light .toast{background:var(--s2)}
+body.light .usos-bar{background:var(--s2)}
+body.light .nav{background:var(--s2)}
+
+/* ── THEME TOGGLE ── */
+.theme-btn{background:var(--s3);border:1px solid var(--border);border-radius:16px;padding:4px 10px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:var(--display);font-size:10px;font-weight:700;letter-spacing:1px;color:var(--label);transition:all .25s;white-space:nowrap;flex-shrink:0}
+.theme-btn:hover{border-color:var(--volt);color:var(--volt)}
+.theme-btn .th-icon{font-size:14px;line-height:1;transition:transform .3s}
+.theme-btn:hover .th-icon{transform:rotate(20deg)}
+.theme-btn .th-lbl{display:none}
+@media(min-width:480px){.theme-btn .th-lbl{display:inline}}
+
+/* ── DESKTOP LAYOUT ── */
+@media(min-width:900px){
+  .main{max-width:1120px;padding:24px 36px}
+  .desktop-2col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+  .desktop-2col>.card{margin-bottom:0}
+  .nav{justify-content:flex-start;padding:0 36px}
+  .ntab{padding:13px 26px;font-size:12px}
+  .colores-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .colores-grid .country-section{margin-bottom:0}
+  .rg{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .usos-bar,.limit-banner{padding-left:36px;padding-right:36px}
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden;transition:background .25s,color .25s}
+
+/* grid texture */
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(var(--grid-color) 1px,transparent 1px),linear-gradient(90deg,var(--grid-color) 1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none;z-index:0}
+
+/* ── HEADER ── */
+header{position:relative;z-index:10;background:linear-gradient(135deg,#08090e 0%,#0d1220 60%,#111828 100%);border-bottom:1px solid var(--border);padding:0 24px}
+.header-inner{display:flex;align-items:center;gap:0;height:60px}
+.logo-block{display:flex;align-items:baseline;gap:6px;margin-right:20px}
+.logo-volt{font-family:var(--display);font-weight:700;font-size:26px;color:var(--volt);letter-spacing:1px;text-shadow:0 0 30px rgba(245,158,11,.5)}
+.logo-ref{font-family:var(--display);font-weight:400;font-size:26px;color:var(--text);letter-spacing:1px}
+.logo-mx{font-family:var(--display);font-weight:700;font-size:13px;color:var(--volt);letter-spacing:3px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);padding:2px 7px;border-radius:2px;margin-left:4px;align-self:center}
+.header-divider{width:1px;height:32px;background:var(--border);margin:0 20px}
+.header-sub{font-family:var(--display);font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
+.header-right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.hbadge{font-family:var(--display);font-weight:600;font-size:10px;letter-spacing:2px;padding:3px 9px;border-radius:2px}
+.hb-v{background:var(--volt);color:#000}
+.hb-db{background:var(--s3);color:var(--steel);border:1px solid rgba(96,165,250,.3)}
+.hb-beta{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
+
+/* ── USOS BAR ── */
+.usos-bar{background:var(--s1);border-bottom:1px solid var(--bd2);padding:7px 24px;display:flex;align-items:center;gap:12px;font-size:11px;position:relative;z-index:5}
+.usos-label{font-family:var(--display);letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-size:10px}
+.usos-pips{display:flex;gap:5px}
+.pip{width:24px;height:5px;border-radius:1px;background:var(--s4);transition:all .4s}
+.pip.on{background:var(--volt);box-shadow:0 0 6px rgba(245,158,11,.5)}
+.pip.last{background:var(--danger);box-shadow:0 0 6px rgba(248,113,113,.5)}
+.usos-txt{font-family:var(--mono);font-size:11px;color:var(--label)}
+.usos-hint{color:var(--muted);font-size:10px;margin-left:auto;font-family:var(--display);letter-spacing:1px}
+.limit-banner{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);padding:8px 24px;font-size:11px;color:var(--warn);display:flex;align-items:center;gap:8px;font-family:var(--display);letter-spacing:1px}
+.limit-banner.hidden{display:none}
+
+/* ── NAV TABS ── */
+.nav{background:var(--s1);border-bottom:1px solid var(--bd2);display:flex;overflow-x:auto;scrollbar-width:none;position:relative;z-index:5}
+.nav::-webkit-scrollbar{display:none}
+.ntab{font-family:var(--display);font-weight:600;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:12px 18px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;user-select:none;flex-shrink:0;display:flex;align-items:center;gap:6px}
+.ntab:hover{color:var(--text)}
+.ntab.active{color:var(--volt);border-bottom-color:var(--volt);background:rgba(245,158,11,.04)}
+.ntab.t-ref{color:var(--purple)!important}
+.ntab.t-ref.active{border-bottom-color:var(--purple)!important;background:rgba(167,139,250,.04)!important}
+.ntab .dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5}
+
+/* ── MAIN ── */
+.main{padding:20px 24px;max-width:860px;margin:0 auto;position:relative;z-index:1}
+.panel{display:none;animation:fadeUp .2s ease}
+.panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── PROJECT BAR ── */
+.pbar{background:var(--s2);border:1px solid var(--bd2);border-radius:6px;display:flex;align-items:center;gap:10px;padding:8px 14px;margin-bottom:16px}
+.pbar-label{font-family:var(--display);font-size:10px;letter-spacing:2px;color:var(--muted);white-space:nowrap}
+.pbar input{background:transparent;border:none;color:var(--steel);font-family:var(--mono);font-size:13px;flex:1}
+.pbar input:focus{outline:none}
+.pbar-count{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap}
+
+/* ── CARD ── */
+.card{background:var(--s1);border:1px solid var(--bd2);border-radius:6px;padding:18px;margin-bottom:16px;position:relative}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--volt),transparent);border-radius:6px 6px 0 0;opacity:.4}
+.chd{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--volt);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.chd::before{content:'';width:3px;height:14px;background:var(--volt);border-radius:1px}
+.chd.blue{color:var(--steel)}
+.chd.blue::before{background:var(--steel)}
+.chd.purple{color:var(--purple)}
+.chd.purple::before{background:var(--purple)}
+.chd.green{color:var(--ok)}
+.chd.green::before{background:var(--ok)}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:580px){.g2,.g3,.g4{grid-template-columns:1fr}}
+@media(max-width:720px){.g3{grid-template-columns:1fr 1fr}}
+
+/* ── FORM ── */
+.field{display:flex;flex-direction:column;gap:4px}
+label{font-family:var(--display);font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--label)}
+input,select{background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;padding:8px 11px;transition:border-color .2s;width:100%;-webkit-appearance:none}
+input:focus,select:focus{outline:none;border-color:var(--volt)}
+select option{background:var(--s2)}
+.mono{font-family:var(--mono);font-size:13px;color:var(--steel)}
+
+/* ── VOLT GROUP ── */
+.vg{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.vg select{flex:1;border:none;border-right:1px solid var(--border);border-radius:0;background:var(--bg);min-width:0}
+.vg input{width:80px;border:none;border-radius:0;background:var(--s2);color:var(--volt);font-family:var(--mono);font-size:14px;font-weight:600;padding:8px 8px;text-align:center;flex-shrink:0}
+.vg input:focus{outline:none;background:var(--s3)}
+.vg-unit{background:var(--s3);color:var(--muted);font-family:var(--display);font-size:11px;letter-spacing:1px;padding:8px 10px;display:flex;align-items:center;flex-shrink:0}
+
+/* ── BUTTONS ── */
+.btn{font-family:var(--display);font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:9px 18px;border:none;border-radius:4px;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:6px}
+.btn-volt{background:var(--volt);color:#000}
+.btn-volt:hover{background:var(--volt2);transform:translateY(-1px)}
+.btn-steel{background:rgba(96,165,250,.1);color:var(--steel);border:1px solid rgba(96,165,250,.25)}
+.btn-steel:hover{background:rgba(96,165,250,.18)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--bd2)}
+.btn-ghost:hover{border-color:var(--volt);color:var(--text)}
+.btn-purple{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.25)}
+.btn-purple:hover{background:rgba(167,139,250,.18)}
+.btn-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+
+/* ── RESULTS ── */
+.rbox{background:var(--bg);border:1px solid var(--bd2);border-radius:5px;padding:14px;margin-top:14px}
+.rg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.ri{display:flex;flex-direction:column;gap:2px}
+.rl{font-family:var(--display);font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.rv{font-family:var(--display);font-size:27px;font-weight:700;line-height:1.1}
+.ru{font-size:10px;color:var(--muted);margin-top:1px}
+.cv{color:var(--volt)}.cs{color:var(--steel)}.co{color:var(--ok)}.cw{color:var(--warn)}.cd{color:var(--danger)}.ct{color:var(--text)}.cp{color:var(--purple)}
+
+/* ── STATUS ── */
+.sbar{display:flex;align-items:center;gap:8px;padding:9px 13px;border-radius:4px;margin-top:10px;font-family:var(--display);font-size:11px;font-weight:600;letter-spacing:1px}
+.s-ok{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:var(--ok)}
+.s-warn{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);color:var(--warn)}
+.s-bad{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:var(--danger)}
+
+/* ── FORMULA ── */
+.fml{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--s2);border-left:2px solid var(--border);padding:10px 13px;border-radius:0 4px 4px 0;margin-top:10px;line-height:1.9}
+.fml span{color:var(--steel)}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{background:var(--bg);padding:7px 10px;text-align:left;font-family:var(--display);font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+.tbl td{padding:7px 10px;border-bottom:1px solid rgba(45,58,85,.5);font-family:var(--mono);font-size:11px}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.tbl tr.hl td{background:rgba(245,158,11,.06)}
+.tbl tr.hl .tc{color:var(--volt);font-weight:700}
+
+/* ── COLOR SWATCH ── */
+.swatch{display:inline-block;width:28px;height:14px;border-radius:2px;border:1px solid rgba(255,255,255,.15);vertical-align:middle;margin-right:6px}
+.country-section{margin-bottom:20px}
+.country-title{font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--label);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.country-flag{font-size:18px}
+.cable-row-ref{display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:4px;margin-bottom:4px;background:var(--s2);border:1px solid var(--bd2);transition:background .15s}
+.cable-row-ref:hover{background:var(--s3)}
+.cable-name{font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:1px;flex:1}
+.cable-note{font-size:11px;color:var(--muted);flex:2}
+.cable-norm{font-family:var(--mono);font-size:10px;color:var(--muted)}
+
+/* ── CHAROLA SELECTOR ── */
+.charola-opts{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.charola-opt{flex:1;min-width:120px;background:var(--s2);border:1px solid var(--bd2);border-radius:5px;padding:12px;cursor:pointer;transition:all .2s;text-align:center}
+.charola-opt:hover{border-color:var(--volt)}
+.charola-opt.active{border-color:var(--volt);background:rgba(245,158,11,.07)}
+.charola-opt .co-icon{font-size:24px;margin-bottom:6px;display:block}
+.charola-opt .co-name{font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text)}
+.charola-opt .co-factor{font-family:var(--mono);font-size:12px;color:var(--volt);margin-top:3px}
+.charola-opt .co-desc{font-size:10px;color:var(--muted);margin-top:3px;line-height:1.4}
+
+/* ── TRANSFORMER VISUAL ── */
+.xfmr-visual{background:var(--s2);border:1px solid var(--bd2);border-radius:5px;padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:0;overflow:hidden}
+.xfmr-side{flex:1;padding:10px;text-align:center}
+.xfmr-side .side-label{font-family:var(--display);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.xfmr-side .side-v{font-family:var(--display);font-size:22px;font-weight:700;color:var(--volt)}
+.xfmr-side .side-i{font-family:var(--mono);font-size:13px;color:var(--steel);margin-top:4px}
+.xfmr-mid{width:60px;text-align:center;flex-shrink:0;position:relative}
+.xfmr-mid::before,.xfmr-mid::after{content:'';position:absolute;top:50%;width:100%;height:1px;background:linear-gradient(90deg,var(--volt),transparent)}
+.xfmr-mid::before{left:0}
+.xfmr-mid::after{right:0;transform:scaleX(-1)}
+.xfmr-icon{font-size:28px;line-height:1;position:relative;z-index:1}
+.xfmr-pct{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px}
+
+/* ── HISTORY ── */
+.hist-item{background:var(--s1);border:1px solid var(--bd2);border-radius:5px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;transition:border-color .15s}
+.hist-item:hover{border-color:var(--border)}
+.hist-tipo{font-family:var(--display);font-weight:700;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:2px;flex-shrink:0}
+.ht-ct{background:rgba(245,158,11,.15);color:var(--volt)}
+.ht-amp{background:rgba(96,165,250,.15);color:var(--steel)}
+.ht-mot{background:rgba(52,211,153,.15);color:var(--ok)}
+.ht-con{background:rgba(251,191,36,.15);color:var(--warn)}
+.ht-xfmr{background:rgba(167,139,250,.15);color:var(--purple)}
+.hist-body{flex:1;min-width:0}
+.hist-proy{font-weight:600;font-size:13px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-res{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-fecha{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap}
+.hist-btns{display:flex;gap:5px;flex-shrink:0}
+.bm{font-family:var(--display);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:4px 9px;border:none;border-radius:3px;cursor:pointer;transition:all .15s}
+.bm-p{background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.2)}
+.bm-p:hover{background:rgba(248,113,113,.22)}
+.bm-d{background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--bd2)}
+.bm-d:hover{color:var(--danger);border-color:var(--danger)}
+.hist-empty{text-align:center;padding:40px;color:var(--muted);font-family:var(--display);font-size:14px;letter-spacing:3px}
+
+/* ── CON ROW ── */
+.con-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--s3);border:1px solid var(--ok);border-radius:5px;padding:10px 16px;font-family:var(--display);font-size:12px;letter-spacing:1px;color:var(--ok);z-index:1000;transform:translateY(60px);opacity:0;transition:all .3s;pointer-events:none;max-width:280px}
+.toast.show{transform:none;opacity:1}
+
+/* ── BETA OVERLAY ── */
+.overlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(8,9,14,.96);backdrop-filter:blur(10px)}
+.ov-box{background:var(--s1);border:1px solid var(--border);border-radius:8px;max-width:460px;width:100%;padding:30px;text-align:center;animation:fadeUp .3s ease}
+.ov-icon{font-size:44px;margin-bottom:14px}
+.ov-pips{display:flex;gap:8px;justify-content:center;margin-bottom:18px}
+.ov-pip{width:14px;height:14px;border-radius:50%;background:var(--volt);border:1px solid var(--volt);box-shadow:0 0 8px rgba(245,158,11,.5)}
+.ov-title{font-family:var(--display);font-weight:700;font-size:24px;letter-spacing:3px;color:var(--volt);margin-bottom:8px}
+.ov-sub{font-size:13px;color:var(--label);line-height:1.7;margin-bottom:20px}
+.ov-sub strong{color:var(--text)}
+.fb-box{background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:14px;margin-bottom:16px;text-align:left}
+.fb-box label{display:block;font-family:var(--display);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.fb-box textarea{width:100%;background:transparent;border:none;color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;line-height:1.6;resize:vertical;min-height:85px}
+.fb-box textarea:focus{outline:none}
+.fb-box textarea::placeholder{color:var(--muted)}
+.ov-actions{display:flex;flex-direction:column;gap:8px}
+.btn-wa{background:#25d366;color:#000;font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:11px 20px;border:none;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.btn-wa:hover{background:#1fba59;transform:translateY(-1px)}
+.btn-cp{background:var(--s3);color:var(--steel);font-family:var(--display);font-weight:600;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:9px 20px;border:1px solid rgba(96,165,250,.25);border-radius:5px;cursor:pointer;transition:all .2s}
+.btn-cp:hover{background:rgba(96,165,250,.1)}
+.ov-note{font-size:10px;color:var(--muted);margin-top:12px;line-height:1.6}
+
+hr{border:none;border-top:1px solid var(--bd2);margin:14px 0}
+
+/* ── BOTÓN FLOTANTE RETRO ── */
+.fab-retro{position:fixed;bottom:22px;right:22px;z-index:200;background:var(--volt);color:#000;border:none;border-radius:50px;padding:10px 16px;font-family:var(--display);font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 20px rgba(245,158,11,.4);display:flex;align-items:center;gap:7px;transition:all .2s;white-space:nowrap}
+.fab-retro:hover{background:var(--volt2);transform:translateY(-2px);box-shadow:0 6px 24px rgba(245,158,11,.5)}
+.fab-retro .fab-icon{font-size:15px;line-height:1}
+@media(max-width:480px){.fab-retro .fab-txt{display:none}.fab-retro{padding:12px 14px;border-radius:50%}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-block">
+      <span class="logo-volt">Volt</span><span class="logo-ref">Ref</span>
+      <span class="logo-mx">MX</span>
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-sub">Referencia Técnica Industrial</div>
+    <div class="header-right">
+      <span class="hbadge hb-beta">BETA</span>
+      <span class="hbadge hb-db" id="db-count">● 0 reg.</span>
+      <span class="hbadge hb-v">v3.0</span>
+    </div>
+  </div>
+</header>
+
+<div class="usos-bar">
+  <span class="usos-label">Usos beta</span>
+  <div class="usos-pips" id="usos-pips"></div>
+  <span class="usos-txt" id="usos-txt"></span>
+  <span class="usos-hint" id="usos-hint"></span>
+  <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">
+    <span class="th-icon" id="th-icon">🌙</span>
+    <span class="th-lbl" id="th-txt">CLARO</span>
+  </button>
+</div>
+<div class="limit-banner hidden" id="limit-banner">
+  ⚡ Te queda <strong id="usos-restantes"></strong> — cada cálculo guardado consume un uso beta.
+</div>
+
+<div class="nav">
+  <div class="ntab active" onclick="showTab('caida')"><span class="dot"></span>Caída de Tensión</div>
+  <div class="ntab" onclick="showTab('ampacity')"><span class="dot"></span>Ampacidad</div>
+  <div class="ntab" onclick="showTab('motor')"><span class="dot"></span>Motor</div>
+  <div class="ntab" onclick="showTab('conduit')"><span class="dot"></span>Conduit</div>
+  <div class="ntab" onclick="showTab('xfmr')"><span class="dot"></span>Transformador</div>
+  <div class="ntab t-ref" onclick="showTab('colores')"><span class="dot"></span>Colores</div>
+  <div class="ntab t-ref" onclick="showTab('historial')">📋 Historial</div>
+</div>
+
+<div class="main">
+<div class="pbar">
+  <span class="pbar-label">Proyecto</span>
+  <input id="g-proy" type="text" placeholder="Nombre del proyecto...">
+  <span class="pbar-count" id="db-count2"></span>
+</div>
+
+<!-- ══════════════ CAÍDA DE TENSIÓN ══════════════ -->
+<div id="tab-caida" class="panel active">
+<div class="card">
+  <div class="chd">Parámetros del Circuito</div>
+  <div class="g2" style="margin-bottom:12px">
+    <div class="field">
+      <label>Sistema eléctrico</label>
+      <select id="cd-sis" onchange="calcCaida()">
+        <option value="mono">Monofásico</option>
+        <option value="tri" selected>Trifásico</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Tensión de alimentación</label>
+      <div class="vg">
+        <select id="cd-vpre" onchange="cdPre()">
+          <option value="">— Preset —</option>
+          <option value="127">127 V</option><option value="208">208 V</option>
+          <option value="220" selected>220 V</option><option value="440">440 V</option>
+          <option value="480">480 V</option><option value="575">575 V</option>
+          <option value="custom">Personalizado</option>
+        </select>
+        <input class="mono" id="cd-vn" type="number" value="220" min="1" oninput="calcCaida()">
+        <span class="vg-unit">V</span>
+      </div>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="field"><label>Corriente (A)</label><input class="mono" type="number" id="cd-I" value="20" min="0.1" step="0.1" oninput="calcCaida()"></div>
+    <div class="field"><label>Longitud (m)</label><input class="mono" type="number" id="cd-L" value="30" min="1" oninput="calcCaida()"></div>
+    <div class="field"><label>Límite NOM</label>
+      <select id="cd-lim" onchange="calcCaida()">
+        <option value="3" selected>3 % — ramales</option>
+        <option value="5">5 % — alimentadores</option>
+        <option value="2">2 % — crítico</option>
+      </select>
+    </div>
+    <div class="field"><label>Conductor</label>
+      <select id="cd-mat" onchange="calcCaida()">
+        <option value="58">Cobre (Cu)</option><option value="35">Aluminio (Al)</option>
+      </select>
+    </div>
+    <div class="field" style="grid-column:span 2"><label>Calibre</label><select id="cd-cal" onchange="calcCaida()"></select></div>
+  </div>
+  <div id="cd-res" class="rbox" style="display:none">
+    <div class="rg">
+      <div class="ri"><span class="rl">Caída ΔV</span><span class="rv cv" id="cd-dv">—</span><span class="ru">Voltios</span></div>
+      <div class="ri"><span class="rl">Porcentaje</span><span class="rv" id="cd-pct">—</span><span class="ru">%</span></div>
+      <div class="ri"><span class="rl">V en carga</span><span class="rv cs" id="cd-vc">—</span><span class="ru">V</span></div>
+      <div class="ri"><span class="rl">R tramo</span><span class="rv ct" id="cd-r">—</span><span class="ru">Ω ida+vuelta</span></div>
+    </div>
+    <div id="cd-st" class="sbar" style="display:none"></div>
+    <div class="fml">ΔV = <span id="cd-fk">√3</span> × ρ × L × I / S &nbsp;|&nbsp; ρ<sub>Cu</sub>=1/58 &nbsp;|&nbsp; ρ<sub>Al</sub>=1/35 Ω·mm²/m</div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-volt" onclick="calcCaida()">Calcular</button>
+    <button class="btn btn-steel" onclick="guardar('caida')">💾 Guardar</button>
+    <button class="btn btn-ghost" onclick="exportPDF('caida')">📄 PDF</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ AMPACIDAD ══════════════ -->
+<div id="tab-ampacity" class="panel">
+<div class="card">
+  <div class="chd">Selección de Calibre por Carga</div>
+  <div class="g2">
+    <div class="field"><label>Corriente de diseño (A)</label><input class="mono" type="number" id="amp-I" value="25" min="1" step="0.5" oninput="calcAmp()"></div>
+    <div class="field"><label>Material</label>
+      <select id="amp-mat" onchange="calcAmp()"><option value="cu" selected>Cobre</option><option value="al">Aluminio</option></select>
+    </div>
+    <div class="field"><label>Temperatura ambiente</label>
+      <select id="amp-temp" onchange="calcAmp()">
+        <option value="1.00">25°C — F: 1.00</option><option value="0.94" selected>30°C — F: 0.94</option>
+        <option value="0.88">35°C — F: 0.88</option><option value="0.82">40°C — F: 0.82</option>
+        <option value="0.75">45°C — F: 0.75</option><option value="0.67">50°C — F: 0.67</option>
+      </select>
+    </div>
+    <div class="field"><label>Instalación</label>
+      <select id="amp-inst" onchange="calcAmp()">
+        <option value="conduit_1">Conduit — 1 a 3 cond. (1.00)</option>
+        <option value="conduit_4">Conduit — 4 a 6 cond. (0.80)</option>
+        <option value="conduit_7">Conduit — 7 a 9 cond. (0.70)</option>
+        <option value="conduit_10">Conduit — 10 a 20 cond. (0.50)</option>
+        <option value="charola_p">Charola — Peinado separado (0.95)</option>
+        <option value="charola_c">Charola — Cama/juntos (0.80)</option>
+        <option value="charola_t">Charola — Trébol/apilado (0.65)</option>
+      </select>
+    </div>
+  </div>
+  <!-- Charola info -->
+  <div id="charola-info" style="display:none;margin-top:12px">
+    <div class="charola-opts">
+      <div class="charola-opt" id="co-p" onclick="setCharola('p')">
+        <span class="co-icon">➖➖➖</span>
+        <div class="co-name">Peinado</div>
+        <div class="co-factor">F = 0.95</div>
+        <div class="co-desc">Una capa, separación ≥ 1 diámetro entre conductores</div>
+      </div>
+      <div class="charola-opt" id="co-c" onclick="setCharola('c')">
+        <span class="co-icon">▬▬▬</span>
+        <div class="co-name">Cama</div>
+        <div class="co-factor">F = 0.80</div>
+        <div class="co-desc">Una capa, conductores en contacto sin separación</div>
+      </div>
+      <div class="charola-opt" id="co-t" onclick="setCharola('t')">
+        <span class="co-icon">⣿⣿⣿</span>
+        <div class="co-name">Trébol / Apilado</div>
+        <div class="co-factor">F = 0.65</div>
+        <div class="co-desc">Multicapa o agrupados. Peor disipación térmica</div>
+      </div>
+    </div>
+  </div>
+  <div id="amp-res" class="rbox" style="display:none">
+    <div class="rg">
+      <div class="ri"><span class="rl">I diseño</span><span class="rv cv" id="amp-id">—</span><span class="ru">A requeridos</span></div>
+      <div class="ri"><span class="rl">Calibre mínimo</span><span class="rv co" id="amp-cal">—</span><span class="ru">mm² / AWG / kcmil</span></div>
+      <div class="ri"><span class="rl">Amp. base</span><span class="rv cs" id="amp-base">—</span><span class="ru">A @ 75°C</span></div>
+      <div class="ri"><span class="rl">Amp. corregida</span><span class="rv ct" id="amp-corr">—</span><span class="ru">A efectivos</span></div>
+    </div>
+    <div class="fml">Calibre donde: <span>(Amp_base × F_temp × F_inst) ≥ I_diseño</span></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-volt" onclick="calcAmp()">Calcular</button>
+    <button class="btn btn-steel" onclick="guardar('ampacity')">💾 Guardar</button>
+    <button class="btn btn-ghost" onclick="exportPDF('ampacity')">📄 PDF</button>
+  </div>
+</div>
+<div class="card">
+  <div class="chd blue">Tabla Ampacidad — Cobre 75°C — AWG + kcmil</div>
+  <div style="overflow-x:auto">
+  <table class="tbl" id="amp-tbl">
+    <thead><tr><th>mm²</th><th>AWG / kcmil</th><th>Base</th><th>30°C</th><th>40°C</th><th>50°C</th><th>Charola peinado</th><th>Charola cama</th><th>Charola trébol</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ MOTOR ══════════════ -->
+<div id="tab-motor" class="panel">
+<div class="card">
+  <div class="chd">Datos del Motor</div>
+  <div class="g3">
+    <div class="field"><label>Potencia</label><input class="mono" type="number" id="mot-P" value="5" min="0.1" step="0.1" oninput="calcMotor()"></div>
+    <div class="field"><label>Unidad</label><select id="mot-unit" onchange="calcMotor()"><option value="hp" selected>HP</option><option value="kw">kW</option></select></div>
+    <div class="field"><label>Sistema</label><select id="mot-sis" onchange="calcMotor()"><option value="tri" selected>Trifásico</option><option value="mono">Monofásico</option></select></div>
+    <div class="field" style="grid-column:span 2">
+      <label>Tensión nominal motor</label>
+      <div class="vg">
+        <select id="mot-vpre" onchange="motPre()">
+          <option value="">— Preset —</option>
+          <option value="127">127 V</option><option value="208">208 V</option>
+          <option value="220" selected>220 V</option><option value="440">440 V</option>
+          <option value="460">460 V</option><option value="480">480 V</option>
+          <option value="575">575 V</option><option value="custom">Personalizado</option>
+        </select>
+        <input class="mono" id="mot-V" type="number" value="220" min="1" oninput="calcMotor()">
+        <span class="vg-unit">V</span>
+      </div>
+    </div>
+    <div class="field"><label>FP (cos φ)</label><input class="mono" type="number" id="mot-fp" value="0.85" min="0.5" max="1" step="0.01" oninput="calcMotor()"></div>
+    <div class="field"><label>Eficiencia (η)</label><input class="mono" type="number" id="mot-eff" value="0.90" min="0.5" max="1" step="0.01" oninput="calcMotor()"></div>
+    <div class="field"><label>Tipo arranque</label>
+      <select id="mot-start" onchange="calcMotor()">
+        <option value="dol" selected>Directo (DOL)</option>
+        <option value="yd">Estrella-Triángulo</option>
+        <option value="vfd">VFD</option>
+        <option value="soft">Arrancador suave</option>
+      </select>
+    </div>
+  </div>
+  <div id="mot-res" class="rbox" style="display:none">
+    <div class="rg">
+      <div class="ri"><span class="rl">FLA plena carga</span><span class="rv cv" id="mot-fla">—</span><span class="ru">A</span></div>
+      <div class="ri"><span class="rl">I arranque</span><span class="rv cd" id="mot-ia">—</span><span class="ru">A</span></div>
+      <div class="ri"><span class="rl">Breaker mín.</span><span class="rv co" id="mot-brk">—</span><span class="ru">A</span></div>
+      <div class="ri"><span class="rl">Cable ×1.25</span><span class="rv cs" id="mot-cab">—</span><span class="ru">mm²</span></div>
+      <div class="ri"><span class="rl">Guardamotor Ir</span><span class="rv ct" id="mot-gmp">—</span><span class="ru">A</span></div>
+      <div class="ri"><span class="rl">kW</span><span class="rv ct" id="mot-kw">—</span><span class="ru">kW</span></div>
+    </div>
+    <div id="mot-nota" class="fml" style="margin-top:10px"></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-volt" onclick="calcMotor()">Calcular</button>
+    <button class="btn btn-steel" onclick="guardar('motor')">💾 Guardar</button>
+    <button class="btn btn-ghost" onclick="exportPDF('motor')">📄 PDF</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ CONDUIT ══════════════ -->
+<div id="tab-conduit" class="panel">
+<div class="card">
+  <div class="chd">Llenado de Conduit EMT</div>
+  <div class="g2">
+    <div class="field"><label>Diámetro conduit</label>
+      <select id="con-d" onchange="calcConduit()">
+        <option value="12.7">½" (12.7 mm)</option><option value="19.05" selected>¾" (19.0 mm)</option>
+        <option value="25.4">1" (25.4 mm)</option><option value="31.75">1¼" (31.8 mm)</option>
+        <option value="38.1">1½" (38.1 mm)</option><option value="50.8">2" (50.8 mm)</option>
+        <option value="63.5">2½" (63.5 mm)</option><option value="76.2">3" (76.2 mm)</option>
+        <option value="101.6">4" (101.6 mm)</option>
+      </select>
+    </div>
+    <div class="field"><label>Tipo cable</label>
+      <select id="con-tipo"><option value="thw">THW / THHN 75°C</option><option value="thwn">THWN-2 90°C</option></select>
+    </div>
+  </div>
+  <div id="con-cables"></div>
+  <div class="btn-row" style="margin-top:8px"><button class="btn btn-ghost" onclick="addConRow()">+ Calibre</button></div>
+  <div id="con-res" class="rbox" style="display:none">
+    <div class="rg">
+      <div class="ri"><span class="rl">Área total</span><span class="rv cs" id="con-at">—</span><span class="ru">mm²</span></div>
+      <div class="ri"><span class="rl">Útil 40%</span><span class="rv cv" id="con-au">—</span><span class="ru">mm²</span></div>
+      <div class="ri"><span class="rl">Ocupada</span><span class="rv ct" id="con-ao">—</span><span class="ru">mm²</span></div>
+      <div class="ri"><span class="rl">% llenado</span><span class="rv" id="con-pct">—</span><span class="ru">%</span></div>
+    </div>
+    <div id="con-st" class="sbar" style="display:none"></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-volt" onclick="calcConduit()">Calcular</button>
+    <button class="btn btn-steel" onclick="guardar('conduit')">💾 Guardar</button>
+    <button class="btn btn-ghost" onclick="exportPDF('conduit')">📄 PDF</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ TRANSFORMADOR ══════════════ -->
+<div id="tab-xfmr" class="panel">
+<div class="card">
+  <div class="chd purple">Datos del Transformador</div>
+  <div class="g3">
+    <div class="field"><label>Potencia (kVA)</label><input class="mono" type="number" id="xf-kva" value="45" min="0.1" step="0.5" oninput="calcXfmr()"></div>
+    <div class="field"><label>Tipo</label>
+      <select id="xf-tipo" onchange="calcXfmr()">
+        <option value="tri" selected>Trifásico</option>
+        <option value="mono">Monofásico</option>
+      </select>
+    </div>
+    <div class="field"><label>Impedancia %Z (placa)</label><input class="mono" type="number" id="xf-z" value="4.5" min="1" max="20" step="0.1" oninput="calcXfmr()"></div>
+    <div class="field">
+      <label>Tensión primario</label>
+      <div class="vg">
+        <select id="xf-vp-pre" onchange="xfVpPre()">
+          <option value="">Preset</option><option value="220">220 V</option>
+          <option value="440" selected>440 V</option><option value="480">480 V</option>
+          <option value="13800">13.8 kV</option><option value="custom">Custom</option>
+        </select>
+        <input class="mono" id="xf-vp" type="number" value="440" min="1" oninput="calcXfmr()">
+        <span class="vg-unit">V</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Tensión secundario</label>
+      <div class="vg">
+        <select id="xf-vs-pre" onchange="xfVsPre()">
+          <option value="">Preset</option><option value="127">127 V</option>
+          <option value="220" selected>220 V</option><option value="440">440 V</option>
+          <option value="480">480 V</option><option value="24">24 V</option>
+          <option value="custom">Custom</option>
+        </select>
+        <input class="mono" id="xf-vs" type="number" value="220" min="1" oninput="calcXfmr()">
+        <span class="vg-unit">V</span>
+      </div>
+    </div>
+    <div class="field"><label>FP carga (cos φ)</label><input class="mono" type="number" id="xf-fp" value="0.85" min="0.5" max="1" step="0.01" oninput="calcXfmr()"></div>
+  </div>
+
+  <!-- Visual -->
+  <div class="xfmr-visual" id="xf-visual" style="display:none">
+    <div class="xfmr-side">
+      <div class="side-label">Primario</div>
+      <div class="side-v" id="xf-vp-show">—</div>
+      <div class="side-i" id="xf-ip-show">— A</div>
+    </div>
+    <div class="xfmr-mid">
+      <div class="xfmr-icon">🔄</div>
+      <div class="xfmr-pct" id="xf-z-show">%Z: —</div>
+    </div>
+    <div class="xfmr-side">
+      <div class="side-label">Secundario</div>
+      <div class="side-v" id="xf-vs-show">—</div>
+      <div class="side-i" id="xf-is-show">— A</div>
+    </div>
+  </div>
+
+  <div id="xf-res" class="rbox" style="display:none">
+    <div class="rg">
+      <div class="ri"><span class="rl">I primario</span><span class="rv cv" id="xf-ip">—</span><span class="ru">A</span></div>
+      <div class="ri"><span class="rl">I secundario</span><span class="rv cp" id="xf-is">—</span><span class="ru">A</span></div>
+      <div class="ri"><span class="rl">Prot. primario</span><span class="rv co" id="xf-bp">—</span><span class="ru">A mín.</span></div>
+      <div class="ri"><span class="rl">Prot. secundario</span><span class="rv cs" id="xf-bs">—</span><span class="ru">A mín.</span></div>
+      <div class="ri"><span class="rl">I inrush (10×)</span><span class="rv cd" id="xf-inr">—</span><span class="ru">A pico</span></div>
+      <div class="ri"><span class="rl">Regulación %VR</span><span class="rv ct" id="xf-vr">—</span><span class="ru">% @ plena carga</span></div>
+    </div>
+    <div id="xf-st" class="sbar" style="display:none"></div>
+    <div class="fml">
+      I = kVA×1000 / (√3×V) trifásico &nbsp;|&nbsp; I = kVA×1000 / V monofásico<br>
+      %VR ≈ <span>%Z × FP + (%X × sen φ)</span> &nbsp;|&nbsp; Inrush ≈ 8–12× I_nominal<br>
+      Prot. primario NEC 450: ≤ 125% In &nbsp;|&nbsp; Prot. secundario: ≤ 125% In_sec
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-volt" onclick="calcXfmr()">Calcular</button>
+    <button class="btn btn-steel" onclick="guardar('xfmr')">💾 Guardar</button>
+    <button class="btn btn-ghost" onclick="exportPDF('xfmr')">📄 PDF</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ COLORES DE CABLE ══════════════ -->
+<div id="tab-colores" class="panel">
+<div class="card">
+  <div class="chd purple">Identificador de Colores de Cable por País / Norma</div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">Referencia rápida de convenciones de color para conductores eléctricos según norma aplicable. Siempre verificar con el plano del proyecto.</p>
+
+  <div class="colores-grid">
+  <!-- MÉXICO / NOM-001-SEDE VIGENTE -->
+  <div class="country-section">
+    <div class="country-title"><span class="country-flag">🇲🇽</span> México — NOM-001-SEDE <span style="font-size:10px;color:var(--ok);background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);padding:2px 7px;border-radius:2px;margin-left:6px;letter-spacing:1px">VIGENTE</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#111;border-color:#555"></span><span class="cable-name">Fase L1</span><span class="cable-note">Negro</span><span class="cable-norm">NOM-001</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#c00"></span><span class="cable-name">Fase L2</span><span class="cable-note">Rojo</span><span class="cable-norm">NOM-001</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#00c"></span><span class="cable-name">Fase L3</span><span class="cable-note">Azul</span><span class="cable-norm">NOM-001</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#eee"></span><span class="cable-name">Neutro</span><span class="cable-note">Blanco o Gris</span><span class="cable-norm">NOM-001</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#060;border-color:#0a0"></span><span class="cable-name">Tierra física (PE)</span><span class="cable-note">Verde o Verde/Amarillo</span><span class="cable-norm">NOM-001</span></div>
+    <hr>
+    <div style="font-family:var(--display);font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px">CONTROL (convención)</div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#c00"></span><span class="cable-name">+24V DC</span><span class="cable-note">Rojo</span><span class="cable-norm">IEC 60446</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#00c"></span><span class="cable-name">0V / COM DC</span><span class="cable-note">Azul</span><span class="cable-norm">IEC 60446</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#111;border-color:#555"></span><span class="cable-name">120V CA control</span><span class="cable-note">Negro / Naranja</span><span class="cable-norm">Convención</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#c80"></span><span class="cable-name">Señal análoga 4–20mA</span><span class="cable-note">Par trenzado apantallado</span><span class="cable-norm">ISA</span></div>
+  </div>
+
+  <!-- MÉXICO ANTIGUO / 440V INDUSTRIA -->
+  <div class="country-section">
+    <div class="country-title"><span class="country-flag">🇲🇽</span> México — Convención Antigua 440V <span style="font-size:10px;color:var(--warn);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);padding:2px 7px;border-radius:2px;margin-left:6px;letter-spacing:1px">LEGADO — MUY FRECUENTE EN PLANTA</span></div>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">Convención previa a la NOM vigente, derivada de la práctica industrial americana antigua. Predomina en instalaciones de los años 80–90 y en muchas plantas que nunca actualizaron. <strong style="color:var(--warn)">Al intervenir tableros viejos, identificar primero con instrumento — no asumir el código vigente.</strong></p>
+    <div class="cable-row-ref"><span class="swatch" style="background:#8B4513"></span><span class="cable-name">Fase L1 / A</span><span class="cable-note">Café (Brown)</span><span class="cable-norm">Antiguo MX</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#e65c00"></span><span class="cable-name">Fase L2 / B</span><span class="cable-note">Naranja</span><span class="cable-norm">Antiguo MX</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#cccc00"></span><span class="cable-name">Fase L3 / C</span><span class="cable-note">Amarillo</span><span class="cable-norm">Antiguo MX</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#eee"></span><span class="cable-name">Neutro</span><span class="cable-note">Blanco o Gris</span><span class="cable-norm">Antiguo MX</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#060;border-color:#0a0"></span><span class="cable-name">Tierra (PE)</span><span class="cable-note">Verde o desnudo</span><span class="cable-norm">Antiguo MX</span></div>
+    <hr>
+    <div style="font-family:var(--display);font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px">VARIANTES REGIONALES ENCONTRADAS EN CAMPO</div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#c00"></span><span class="cable-name">Fase A (variante)</span><span class="cable-note">Rojo — en algunas plantas del norte (influencia NEC)</span><span class="cable-norm">Campo</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#111;border-color:#555"></span><span class="cable-name">Fase B (variante)</span><span class="cable-note">Negro — combinación con código americano</span><span class="cable-norm">Campo</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:linear-gradient(90deg,#8B4513 33%,#e65c00 33%,#e65c00 66%,#cccc00 66%)"></span><span class="cable-name">Trifásico 440V típico</span><span class="cable-note">Café / Naranja / Amarillo — la triada más vista en planta vieja</span><span class="cable-norm">Legado</span></div>
+  </div>
+
+  <!-- USA / NEC -->
+  <div class="country-section">
+    <div class="country-title"><span class="country-flag">🇺🇸</span> Estados Unidos — NEC (NFPA 70)</div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#111;border-color:#555"></span><span class="cable-name">Fase A / L1</span><span class="cable-note">Negro</span><span class="cable-norm">NEC 310</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#c00"></span><span class="cable-name">Fase B / L2</span><span class="cable-note">Rojo</span><span class="cable-norm">NEC 310</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#0066cc"></span><span class="cable-name">Fase C / L3</span><span class="cable-note">Azul — 208/120V &nbsp;|&nbsp; Naranja — 480/277V</span><span class="cable-norm">NEC 310</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#eee"></span><span class="cable-name">Neutro</span><span class="cable-note">Blanco o Gris claro</span><span class="cable-norm">NEC 200.6</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#060;border-color:#0a0"></span><span class="cable-name">Tierra (EGC)</span><span class="cable-note">Verde o Verde/Amarillo o desnudo</span><span class="cable-norm">NEC 250</span></div>
+  </div>
+
+  <!-- EUROPA / IEC -->
+  <div class="country-section">
+    <div class="country-title"><span class="country-flag">🇪🇺</span> Europa — IEC 60446 / HD 308</div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#7B4B2A"></span><span class="cable-name">Fase L1</span><span class="cable-note">Café (Brown)</span><span class="cable-norm">IEC 60446</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#111;border-color:#555"></span><span class="cable-name">Fase L2</span><span class="cable-note">Negro</span><span class="cable-norm">IEC 60446</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#777"></span><span class="cable-name">Fase L3</span><span class="cable-note">Gris</span><span class="cable-norm">IEC 60446</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#008fd5"></span><span class="cable-name">Neutro (N)</span><span class="cable-note">Azul claro (Light Blue)</span><span class="cable-norm">IEC 60446</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:linear-gradient(90deg,#060 50%,#cc0 50%)"></span><span class="cable-name">Tierra (PE)</span><span class="cable-note">Verde / Amarillo — USO EXCLUSIVO tierra</span><span class="cable-norm">IEC 60446</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:linear-gradient(90deg,#060 33%,#cc0 33%,#cc0 66%,#008fd5 66%)"></span><span class="cable-name">PEN (tierra+neutro)</span><span class="cable-note">Verde/Amarillo con marcas azules en extremos</span><span class="cable-norm">IEC 60446</span></div>
+  </div>
+
+  <!-- ALEMANIA / DIN VDE -->
+  <div class="country-section">
+    <div class="country-title"><span class="country-flag">🇩🇪</span> Alemania — DIN VDE 0293</div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#111;border-color:#555"></span><span class="cable-name">Fase L1</span><span class="cable-note">Negro — antiguo: Marrón</span><span class="cable-norm">DIN VDE</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#7B4B2A"></span><span class="cable-name">Fase L2</span><span class="cable-note">Marrón — antiguo: Negro</span><span class="cable-norm">DIN VDE</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#777"></span><span class="cable-name">Fase L3</span><span class="cable-note">Gris</span><span class="cable-norm">DIN VDE</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#008fd5"></span><span class="cable-name">Neutro</span><span class="cable-note">Azul claro</span><span class="cable-norm">DIN VDE</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:linear-gradient(90deg,#060 50%,#cc0 50%)"></span><span class="cable-name">Tierra</span><span class="cable-note">Verde / Amarillo</span><span class="cable-norm">DIN VDE</span></div>
+  </div>
+
+  <!-- JAPÓN / JIS -->
+  <div class="country-section">
+    <div class="country-title"><span class="country-flag">🇯🇵</span> Japón — JIS C 3605</div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#111;border-color:#555"></span><span class="cable-name">Fase R</span><span class="cable-note">Negro</span><span class="cable-norm">JIS C 3605</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#c00"></span><span class="cable-name">Fase S</span><span class="cable-note">Rojo</span><span class="cable-norm">JIS C 3605</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#eee"></span><span class="cable-name">Fase T / Neutro</span><span class="cable-note">Blanco</span><span class="cable-norm">JIS C 3605</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#060;border-color:#0a0"></span><span class="cable-name">Tierra</span><span class="cable-note">Verde</span><span class="cable-norm">JIS C 3605</span></div>
+  </div>
+
+  <!-- CHINA / GB/T -->
+  <div class="country-section">
+    <div class="country-title"><span class="country-flag">🇨🇳</span> China — GB/T 6995 / GB 50303 <span style="font-size:10px;color:var(--steel);background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.2);padding:2px 7px;border-radius:2px;margin-left:6px;letter-spacing:1px">FRECUENTE EN EQUIPOS IMPORTADOS</span></div>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">Estándar chino aplicable a VFDs, motores, tableros y equipo industrial exportado desde China. Con el crecimiento de importaciones de equipo chino en México este código es de uso diario. <strong style="color:var(--steel)">Muchos variadores Inovance, Delta, Huawei, INVT y equipos de automatización siguen esta convención internamente.</strong></p>
+    <div class="cable-row-ref"><span class="swatch" style="background:#e6c800;border-color:#b89e00"></span><span class="cable-name">Fase A / L1</span><span class="cable-note">Amarillo (Huáng 黄)</span><span class="cable-norm">GB/T 6995</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#22aa22"></span><span class="cable-name">Fase B / L2</span><span class="cable-note">Verde (Lǜ 绿)</span><span class="cable-norm">GB/T 6995</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#dd1111"></span><span class="cable-name">Fase C / L3</span><span class="cable-note">Rojo (Hóng 红)</span><span class="cable-norm">GB/T 6995</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#008fd5"></span><span class="cable-name">Neutro (N)</span><span class="cable-note">Azul claro (Lán 蓝)</span><span class="cable-norm">GB/T 6995</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:linear-gradient(90deg,#060 50%,#cc0 50%)"></span><span class="cable-name">Tierra (PE)</span><span class="cable-note">Verde / Amarillo (bicolor)</span><span class="cable-norm">GB/T 6995</span></div>
+    <hr>
+    <div style="font-family:var(--display);font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px">CONTROL EN EQUIPO CHINO (convención interna frecuente)</div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#c00"></span><span class="cable-name">+24V DC</span><span class="cable-note">Rojo</span><span class="cable-norm">Convención</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#111;border-color:#555"></span><span class="cable-name">0V / COM</span><span class="cable-note">Negro</span><span class="cable-norm">Convención</span></div>
+    <div class="cable-row-ref"><span class="swatch" style="background:#cc0000"></span><span class="cable-name">⚠ TRAMPA FRECUENTE</span><span class="cable-note" style="color:var(--danger)">En equipos chinos el AMARILLO puede ser FASE, no tierra. Verificar siempre con multímetro antes de tocar.</span><span class="cable-norm" style="color:var(--danger)">¡PELIGRO!</span></div>
+  </div>
+
+  <!-- TABLA COMPARATIVA RÁPIDA -->
+  <div class="country-section">
+    <div class="country-title">⚡ Comparativa Rápida — Fase L1 por País</div>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr><th>País / Norma</th><th>Fase L1</th><th>Fase L2</th><th>Fase L3</th><th>Neutro</th><th>Tierra</th></tr></thead>
+      <tbody>
+        <tr><td>🇲🇽 MX Vigente (NOM)</td><td><span class="swatch" style="background:#111;border-color:#555"></span>Negro</td><td><span class="swatch" style="background:#c00"></span>Rojo</td><td><span class="swatch" style="background:#00c"></span>Azul</td><td>Blanco</td><td>Verde/Amarillo</td></tr>
+        <tr><td>🇲🇽 MX Antiguo 440V</td><td><span class="swatch" style="background:#8B4513"></span>Café</td><td><span class="swatch" style="background:#e65c00"></span>Naranja</td><td><span class="swatch" style="background:#cccc00"></span>Amarillo</td><td>Blanco</td><td>Verde</td></tr>
+        <tr><td>🇺🇸 USA (NEC)</td><td><span class="swatch" style="background:#111;border-color:#555"></span>Negro</td><td><span class="swatch" style="background:#c00"></span>Rojo</td><td><span class="swatch" style="background:#008fd5"></span>Azul/Naranja</td><td>Blanco</td><td>Verde</td></tr>
+        <tr><td>🇪🇺 Europa (IEC)</td><td><span class="swatch" style="background:#7B4B2A"></span>Café</td><td><span class="swatch" style="background:#111;border-color:#555"></span>Negro</td><td><span class="swatch" style="background:#777"></span>Gris</td><td>Azul claro</td><td>Verde/Amarillo</td></tr>
+        <tr><td>🇨🇳 China (GB/T)</td><td><span class="swatch" style="background:#e6c800;border-color:#b89e00"></span>Amarillo</td><td><span class="swatch" style="background:#22aa22"></span>Verde</td><td><span class="swatch" style="background:#dd1111"></span>Rojo</td><td>Azul claro</td><td>Verde/Amarillo</td></tr>
+        <tr><td>🇯🇵 Japón (JIS)</td><td><span class="swatch" style="background:#111;border-color:#555"></span>Negro</td><td><span class="swatch" style="background:#c00"></span>Rojo</td><td><span class="swatch" style="background:#eee"></span>Blanco</td><td>Blanco</td><td>Verde</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  </div><!-- /colores-grid -->
+  <!-- ADVERTENCIA -->
+  <div class="rbox" style="margin-top:4px">
+    <div class="sbar s-warn">⚠ Los colores varían significativamente entre normas. En equipo chino el amarillo es FASE — no tierra. En equipo europeo el verde/amarillo es EXCLUSIVO de tierra. <strong>Siempre verificar con instrumento antes de conectar, especialmente en instalaciones legado o equipo importado.</strong></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ HISTORIAL ══════════════ -->
+<div id="tab-historial" class="panel">
+<div class="card">
+  <div class="chd blue">Historial de Cálculos</div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <button class="btn btn-ghost" onclick="loadHistory()">↺ Actualizar</button>
+    <button class="btn" style="background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.2)" onclick="clearHistory()">🗑 Limpiar todo</button>
+  </div>
+  <div id="hist-list"></div>
+</div>
+</div>
+
+</div><!-- /.main -->
+
+<!-- ══════════ FAB RETROALIMENTACIÓN ══════════ -->
+<button class="fab-retro" onclick="openRetro()" title="Dar retroalimentación beta">
+  <span class="fab-icon">💬</span>
+  <span class="fab-txt">Opinión Beta</span>
+</button>
+
+<!-- ══════════ BETA OVERLAY ══════════ -->
+<div class="overlay" id="beta-overlay" style="display:none">
+  <div class="ov-box">
+    <div class="ov-icon">🔬</div>
+    <div class="ov-pips" id="ov-pips"></div>
+    <div class="ov-title">Opinión Beta</div>
+    <div class="ov-sub">Tu retroalimentación hace crecer <strong>VoltRef MX</strong>.<br>
+    ¿Qué módulo usas más? ¿Qué falta? ¿Encontraste algún error?<br>
+    <span style="font-size:11px;color:var(--muted)">Toma menos de 1 minuto.</span></div>
+    <div class="fb-box">
+      <label>Retroalimentación</label>
+      <textarea id="fb-txt" placeholder="Ej: El módulo de transformadores es muy útil. Faltaría considerar el factor de servicio en motores. El cálculo de caída de tensión coincide con mis cálculos manuales..."></textarea>
+    </div>
+    <div class="ov-actions">
+      <button class="btn-wa" onclick="sendWA()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Enviar por WhatsApp
+      </button>
+      <button class="btn-cp" onclick="copyFB()">📋 Copiar texto</button>
+      <button class="btn-ghost btn" style="margin-top:4px;width:100%;justify-content:center" onclick="closeRetro()">Cerrar</button>
+    </div>
+    <div class="ov-note">VoltRef MX — Plataforma de Referencia Técnica Industrial<br>Desarrollado para el gremio eléctrico industrial mexicano.</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// CONDUCTORES
+// ══════════════════════════════════════════
+const COND=[
+  {mm:.5,awg:'20',kcmil:null,cu:3,al:null},
+  {mm:.75,awg:'18',kcmil:null,cu:5,al:null},
+  {mm:1,awg:'17',kcmil:null,cu:7,al:null},
+  {mm:1.5,awg:'16',kcmil:null,cu:10,al:null},
+  {mm:2.5,awg:'14',kcmil:null,cu:15,al:15},
+  {mm:4,awg:'12',kcmil:null,cu:20,al:20},
+  {mm:6,awg:'10',kcmil:null,cu:30,al:25},
+  {mm:10,awg:'8',kcmil:null,cu:40,al:35},
+  {mm:16,awg:'6',kcmil:null,cu:55,al:45},
+  {mm:25,awg:'4',kcmil:null,cu:70,al:60},
+  {mm:35,awg:'2',kcmil:null,cu:90,al:75},
+  {mm:50,awg:'1',kcmil:null,cu:110,al:90},
+  {mm:70,awg:'2/0',kcmil:null,cu:140,al:115},
+  {mm:95,awg:'3/0',kcmil:null,cu:165,al:135},
+  {mm:120,awg:'4/0',kcmil:null,cu:195,al:160},
+  {mm:150,awg:null,kcmil:'250',cu:220,al:180},
+  {mm:185,awg:null,kcmil:'350',cu:255,al:210},
+  {mm:240,awg:null,kcmil:'500',cu:300,al:250},
+  {mm:300,awg:null,kcmil:'600',cu:340,al:285},
+  {mm:400,awg:null,kcmil:'750',cu:385,al:320},
+  {mm:500,awg:null,kcmil:'1000',cu:430,al:360},
+  {mm:630,awg:null,kcmil:'1250',cu:475,al:400},
+];
+function calFull(c){let p=[c.mm+' mm²'];if(c.awg)p.push(c.awg+' AWG');if(c.kcmil)p.push(c.kcmil+' kcmil');return p.join(' / ');}
+function buildSel(s,mm){s.innerHTML='';COND.forEach(c=>{const o=document.createElement('option');o.value=c.mm;o.textContent=calFull(c);if(c.mm==mm)o.selected=true;s.appendChild(o);});}
+buildSel(document.getElementById('cd-cal'),16);
+
+// Amp table with charola columns
+(function(){
+  const tb=document.querySelector('#amp-tbl tbody');
+  COND.forEach(c=>{
+    if(!c.cu)return;
+    const tr=document.createElement('tr');
+    tr.id='ar-'+c.mm;
+    tr.innerHTML=`<td>${c.mm}</td><td class="tc">${calFull(c)}</td>
+      <td>${c.cu}A</td><td>${Math.round(c.cu*.94)}A</td>
+      <td>${Math.round(c.cu*.82)}A</td><td>${Math.round(c.cu*.67)}A</td>
+      <td>${Math.round(c.cu*.95)}A</td><td>${Math.round(c.cu*.80)}A</td>
+      <td>${Math.round(c.cu*.65)}A</td>`;
+    tb.appendChild(tr);
+  });
+})();
+
+// ══════════════════════════════════════════
+// BETA LIMIT
+// ══════════════════════════════════════════
+const MAX_USOS=5;
+function getU(){return parseInt(localStorage.getItem('vrmx_usos')||'0');}
+function setU(n){localStorage.setItem('vrmx_usos',n);}
+
+function renderPips(){
+  const u=getU();
+  const pc=document.getElementById('usos-pips');
+  pc.innerHTML='';
+  const show=Math.min(u,MAX_USOS);
+  for(let i=0;i<MAX_USOS;i++){
+    const d=document.createElement('div');
+    d.className='pip'+(i<show?' on':'');
+    pc.appendChild(d);
+  }
+  document.getElementById('usos-txt').textContent=`${u} cálculos guardados`;
+  document.getElementById('usos-txt').style.color='var(--ok)';
+  document.getElementById('usos-hint').textContent='Beta abierta — sin límite';
+  document.getElementById('limit-banner').classList.add('hidden');
+}
+
+function openRetro(){
+  document.getElementById('beta-overlay').style.display='flex';
+  const pc=document.getElementById('ov-pips');
+  pc.innerHTML='';
+  for(let i=0;i<MAX_USOS;i++){const d=document.createElement('div');d.className='ov-pip';pc.appendChild(d);}
+}
+function closeRetro(){document.getElementById('beta-overlay').style.display='none';}
+function showOverlay(){openRetro();}
+
+function sendWA(){
+  const fb=document.getElementById('fb-txt').value.trim();
+  const msg=buildMsg(fb);
+  window.open(`https://wa.me/527227517860?text=${encodeURIComponent(msg)}`,'_blank');
+}
+function copyFB(){navigator.clipboard.writeText(buildMsg(document.getElementById('fb-txt').value.trim())).then(()=>showToast('✔ Copiado'));}
+function buildMsg(fb){
+  return `VOLTREF MX v3.0 — RETROALIMENTACIÓN BETA\n`+
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`+
+    `Fecha: ${new Date().toLocaleString('es-MX')}\n\n`+
+    `COMENTARIOS:\n${fb||'(sin comentarios)'}\n\n`+
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`+
+    `Módulos: Caída | Ampacidad+Charola | Motor | Conduit | Transformador | Colores\n\n`+
+    `Enviado a: Alexis Luna — VoltRef MX`;
+}
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+const TABS=['caida','ampacity','motor','conduit','xfmr','colores','historial'];
+function showTab(id){
+  document.querySelectorAll('.ntab').forEach((t,i)=>t.classList.toggle('active',TABS[i]===id));
+  TABS.forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===id));
+  if(id==='historial')loadHistory();
+}
+
+// ══════════════════════════════════════════
+// PRESETS
+// ══════════════════════════════════════════
+function cdPre(){const v=document.getElementById('cd-vpre').value;if(v&&v!=='custom'){document.getElementById('cd-vn').value=v;calcCaida();}}
+function motPre(){const v=document.getElementById('mot-vpre').value;if(v&&v!=='custom'){document.getElementById('mot-V').value=v;calcMotor();}}
+function xfVpPre(){const v=document.getElementById('xf-vp-pre').value;if(v&&v!=='custom'){document.getElementById('xf-vp').value=v;calcXfmr();}}
+function xfVsPre(){const v=document.getElementById('xf-vs-pre').value;if(v&&v!=='custom'){document.getElementById('xf-vs').value=v;calcXfmr();}}
+
+// ══════════════════════════════════════════
+// CAÍDA DE TENSIÓN
+// ══════════════════════════════════════════
+let lCaida={};
+function calcCaida(){
+  const tri=document.getElementById('cd-sis').value==='tri';
+  const Vn=parseFloat(document.getElementById('cd-vn').value)||220;
+  const I=parseFloat(document.getElementById('cd-I').value)||0;
+  const L=parseFloat(document.getElementById('cd-L').value)||0;
+  const S=parseFloat(document.getElementById('cd-cal').value)||1;
+  const sig=parseFloat(document.getElementById('cd-mat').value)||58;
+  const lim=parseFloat(document.getElementById('cd-lim').value)||3;
+  const k=tri?Math.sqrt(3):2;
+  const R=k*(1/sig)*L/S;
+  const dV=R*I; const pct=(dV/Vn)*100; const Vc=Vn-dV;
+  const co=COND.find(c=>c.mm==S)||{};
+  document.getElementById('cd-res').style.display='block';
+  document.getElementById('cd-fk').textContent=tri?'√3':'2';
+  document.getElementById('cd-dv').textContent=dV.toFixed(3);
+  document.getElementById('cd-r').textContent=R.toFixed(4);
+  document.getElementById('cd-vc').textContent=Vc.toFixed(2);
+  const pEl=document.getElementById('cd-pct');
+  pEl.textContent=pct.toFixed(2);
+  pEl.className='rv '+(pct<=lim?'co':pct<=lim*1.4?'cw':'cd');
+  const st=document.getElementById('cd-st');st.style.display='flex';
+  if(pct<=lim){st.className='sbar s-ok';st.textContent=`✔ CUMPLE — ${pct.toFixed(2)}% ≤ ${lim}% (NOM)`}
+  else if(pct<=lim*1.5){st.className='sbar s-warn';st.textContent=`⚠ MARGINAL — ${pct.toFixed(2)}% supera ${lim}%.`}
+  else{st.className='sbar s-bad';st.textContent=`✘ NO CUMPLE — ${pct.toFixed(2)}% excede ${lim}%.`}
+  lCaida={tipo:'caida',sistema:tri?'Trifásico':'Monofásico',Vn,I,L,S,material:sig===58?'Cu':'Al',
+    calLabel:calFull(co),dV:dV.toFixed(3),pct:pct.toFixed(2),Vc:Vc.toFixed(2),R:R.toFixed(4),cumple:pct<=lim,limite:lim};
+}
+calcCaida();
+
+// ══════════════════════════════════════════
+// AMPACIDAD — charola support
+// ══════════════════════════════════════════
+let lAmp={};
+const INST_FACTORS={
+  conduit_1:1.00,conduit_4:0.80,conduit_7:0.70,conduit_10:0.50,
+  charola_p:0.95,charola_c:0.80,charola_t:0.65
+};
+
+document.getElementById('amp-inst').addEventListener('change',function(){
+  const v=this.value;
+  const ci=document.getElementById('charola-info');
+  ci.style.display=v.startsWith('charola')?'block':'none';
+  if(v==='charola_p')setCharola('p');
+  else if(v==='charola_c')setCharola('c');
+  else if(v==='charola_t')setCharola('t');
+  calcAmp();
+});
+
+function setCharola(t){
+  ['p','c','t'].forEach(x=>document.getElementById('co-'+x).classList.toggle('active',x===t));
+  const map={p:'charola_p',c:'charola_c',t:'charola_t'};
+  document.getElementById('amp-inst').value=map[t];
+  calcAmp();
+}
+
+function calcAmp(){
+  const I=parseFloat(document.getElementById('amp-I').value)||1;
+  const mat=document.getElementById('amp-mat').value;
+  const Ft=parseFloat(document.getElementById('amp-temp').value)||1;
+  const inst=document.getElementById('amp-inst').value;
+  const Fc=INST_FACTORS[inst]||1.0;
+
+  const found=COND.find(c=>{
+    const base=mat==='cu'?c.cu:c.al;
+    if(!base)return false;
+    return(base*Ft*Fc)>=I;
+  });
+
+  document.getElementById('amp-res').style.display='block';
+  document.getElementById('amp-id').textContent=I.toFixed(1);
+  document.querySelectorAll('#amp-tbl tbody tr').forEach(tr=>tr.classList.remove('hl'));
+
+  if(found){
+    const base=mat==='cu'?found.cu:found.al;
+    const corr=(base*Ft*Fc).toFixed(1);
+    document.getElementById('amp-cal').textContent=calFull(found);
+    document.getElementById('amp-base').textContent=base+' A';
+    document.getElementById('amp-corr').textContent=corr+' A';
+    const row=document.getElementById('ar-'+found.mm);
+    if(row){row.classList.add('hl');row.scrollIntoView({block:'nearest'});}
+    lAmp={tipo:'ampacity',I,mat,Ft,inst,Fc,calLabel:calFull(found),base,corr};
+  } else {
+    document.getElementById('amp-cal').textContent='>630 mm²';
+    document.getElementById('amp-base').textContent='—';
+    document.getElementById('amp-corr').textContent='—';
+  }
+}
+calcAmp();
+
+// ══════════════════════════════════════════
+// MOTOR
+// ══════════════════════════════════════════
+let lMotor={};
+const MOT_N={
+  dol:'DOL: Ia ≈ 6–7× FLA. La red debe aguantar el golpe. Breaker tipo D recomendado.',
+  yd:'Estrella-Triángulo: Ia ≈ 2.2× FLA. Motor requiere 6 terminales. Temporizador Y→Δ: 5–10 s.',
+  vfd:'VFD: Ia ≈ 1.5× FLA. Arranque suave. Nunca instalar contactor entre VFD y motor.',
+  soft:'Arrancador suave: Ia ≈ 3× FLA. Verificar curva de par vs. carga mecánica.'
+};
+const MOT_IA={dol:6.5,yd:2.2,vfd:1.5,soft:3.0};
+
+function calcMotor(){
+  const P=parseFloat(document.getElementById('mot-P').value)||1;
+  const unit=document.getElementById('mot-unit').value;
+  const tri=document.getElementById('mot-sis').value==='tri';
+  const V=parseFloat(document.getElementById('mot-V').value)||220;
+  const fp=parseFloat(document.getElementById('mot-fp').value)||0.85;
+  const eff=parseFloat(document.getElementById('mot-eff').value)||0.90;
+  const st=document.getElementById('mot-start').value;
+  const kw=unit==='hp'?P*.7457:P;
+  const FLA=tri?(kw*1000)/(Math.sqrt(3)*V*fp*eff):(kw*1000)/(V*fp*eff);
+  const Ia=FLA*MOT_IA[st];
+  const brk=FLA*2.5;
+  const cable=COND.find(c=>c.cu&&(c.cu*.94)>=FLA*1.25)||COND.find(c=>c.cu>=FLA*1.25)||COND[COND.length-1];
+  document.getElementById('mot-res').style.display='block';
+  document.getElementById('mot-fla').textContent=FLA.toFixed(2);
+  document.getElementById('mot-ia').textContent=Ia.toFixed(1);
+  document.getElementById('mot-brk').textContent=brk.toFixed(0)+' A min (std: '+Math.ceil(brk/5)*5+' A)';
+  document.getElementById('mot-cab').textContent=calFull(cable);
+  document.getElementById('mot-gmp').textContent=FLA.toFixed(2);
+  document.getElementById('mot-kw').textContent=kw.toFixed(3);
+  document.getElementById('mot-nota').textContent=MOT_N[st];
+  lMotor={tipo:'motor',P,unit,sistema:tri?'Trifásico':'Monofásico',V,fp,eff,arranque:st,
+    kw:kw.toFixed(3),FLA:FLA.toFixed(2),Ia:Ia.toFixed(1),brk:brk.toFixed(0),cable:calFull(cable)};
+}
+calcMotor();
+
+// ══════════════════════════════════════════
+// CONDUIT
+// ══════════════════════════════════════════
+let lConduit={};
+const CAB_OD={.5:2.8,.75:3.2,1:3.5,1.5:3.8,2.5:4.5,4:5.4,6:6.5,10:8,16:10,25:12.5,
+  35:14,50:16.5,70:19,95:22,120:25,150:28,185:31.5,240:36,300:40,400:46,500:52,630:58};
+function cArea(mm){const od=CAB_OD[mm]||(Math.sqrt(mm/Math.PI)*2+4);return Math.PI*(od/2)*(od/2);}
+function buildConRow(mm=4,qty=3){
+  const d=document.createElement('div');d.className='con-row';
+  d.innerHTML=`<div class="field"><label>Calibre</label><select class="con-cal" onchange="calcConduit()"></select></div>
+    <div class="field"><label>Cantidad <span style="float:right;cursor:pointer;color:var(--muted)" onclick="this.closest('.con-row').remove();calcConduit()">✕</span></label>
+    <input class="mono con-qty" type="number" value="${qty}" min="1" max="50" oninput="calcConduit()"></div>`;
+  buildSel(d.querySelector('.con-cal'),mm);
+  document.getElementById('con-cables').appendChild(d);
+}
+buildConRow(4,3);
+function addConRow(){buildConRow(2.5,1);calcConduit();}
+function calcConduit(){
+  const D=parseFloat(document.getElementById('con-d').value)||19.05;
+  const At=Math.PI*(D/2)*(D/2);const Au=At*.4;
+  let occ=0;
+  document.querySelectorAll('.con-row').forEach(r=>{
+    const mm=parseFloat(r.querySelector('.con-cal').value)||4;
+    const q=parseInt(r.querySelector('.con-qty').value)||1;
+    occ+=cArea(mm)*q;
+  });
+  const pct=(occ/At)*100;
+  document.getElementById('con-res').style.display='block';
+  document.getElementById('con-at').textContent=At.toFixed(1);
+  document.getElementById('con-au').textContent=Au.toFixed(1);
+  document.getElementById('con-ao').textContent=occ.toFixed(1);
+  const pEl=document.getElementById('con-pct');
+  pEl.textContent=pct.toFixed(1);
+  pEl.className='rv '+(pct<=40?'co':pct<=55?'cw':'cd');
+  const st=document.getElementById('con-st');st.style.display='flex';
+  if(pct<=40){st.className='sbar s-ok';st.textContent=`✔ CUMPLE — ${pct.toFixed(1)}% ≤ 40%`}
+  else if(pct<=55){st.className='sbar s-warn';st.textContent=`⚠ EXCEDE 40% — Calentamiento y dificultad de instalación.`}
+  else{st.className='sbar s-bad';st.textContent=`✘ NO CUMPLE — ${pct.toFixed(1)}%. Usar conduit mayor.`}
+  lConduit={tipo:'conduit',D,At:At.toFixed(1),Au:Au.toFixed(1),occ:occ.toFixed(1),pct:pct.toFixed(1),cumple:pct<=40};
+}
+calcConduit();
+
+// ══════════════════════════════════════════
+// TRANSFORMADOR
+// ══════════════════════════════════════════
+let lXfmr={};
+function calcXfmr(){
+  const kva=parseFloat(document.getElementById('xf-kva').value)||45;
+  const tri=document.getElementById('xf-tipo').value==='tri';
+  const Zp=parseFloat(document.getElementById('xf-z').value)||4.5;
+  const Vp=parseFloat(document.getElementById('xf-vp').value)||440;
+  const Vs=parseFloat(document.getElementById('xf-vs').value)||220;
+  const fp=parseFloat(document.getElementById('xf-fp').value)||0.85;
+  const k=tri?Math.sqrt(3):1;
+
+  const Ip=(kva*1000)/(k*Vp);
+  const Is=(kva*1000)/(k*Vs);
+  // NEC 450 — protección primario ≤125% In_p (≤167% si no hay prot. secundaria)
+  const Bp=Ip*1.25;
+  const Bs=Is*1.25;
+  // Inrush estimado: 10× corriente nominal secundario
+  const Inr=Is*10;
+  // Regulación de voltaje aproximada: %VR ≈ %Z×FP + %X×senφ
+  // Asumiendo %R≈%Z*0.3, %X≈%Z*0.95 (transformador típico)
+  const senPhi=Math.sqrt(1-fp*fp);
+  const pctR=Zp*.3; const pctX=Zp*.95;
+  const VR=pctR*fp+pctX*senPhi;
+
+  // Visual
+  document.getElementById('xf-visual').style.display='flex';
+  document.getElementById('xf-vp-show').textContent=Vp>=1000?(Vp/1000).toFixed(1)+' kV':Vp+' V';
+  document.getElementById('xf-vs-show').textContent=Vs>=1000?(Vs/1000).toFixed(1)+' kV':Vs+' V';
+  document.getElementById('xf-ip-show').textContent=Ip.toFixed(1)+' A';
+  document.getElementById('xf-is-show').textContent=Is.toFixed(1)+' A';
+  document.getElementById('xf-z-show').textContent='%Z: '+Zp+'%';
+
+  document.getElementById('xf-res').style.display='block';
+  document.getElementById('xf-ip').textContent=Ip.toFixed(2);
+  document.getElementById('xf-is').textContent=Is.toFixed(2);
+  document.getElementById('xf-bp').textContent=Bp.toFixed(0)+' A (std: '+Math.ceil(Bp/5)*5+' A)';
+  document.getElementById('xf-bs').textContent=Bs.toFixed(0)+' A (std: '+Math.ceil(Bs/5)*5+' A)';
+  document.getElementById('xf-inr').textContent=Inr.toFixed(0);
+
+  const vrEl=document.getElementById('xf-vr');
+  vrEl.textContent=VR.toFixed(2);
+  vrEl.className='rv '+(VR<=3?'co':VR<=6?'cw':'cd');
+
+  const st=document.getElementById('xf-st');st.style.display='flex';
+  if(VR<=3){st.className='sbar s-ok';st.textContent=`✔ Regulación ${VR.toFixed(2)}% — Excelente. Cargas sensibles sin problema.`}
+  else if(VR<=6){st.className='sbar s-warn';st.textContent=`⚠ Regulación ${VR.toFixed(2)}% — Aceptable. Verificar con cargas sensibles como VFDs.`}
+  else{st.className='sbar s-bad';st.textContent=`✘ Regulación ${VR.toFixed(2)}% — Alta. Considerar transformador con menor %Z.`}
+
+  lXfmr={tipo:'xfmr',kva,sistema:tri?'Trifásico':'Monofásico',Zp,Vp,Vs,fp,
+    Ip:Ip.toFixed(2),Is:Is.toFixed(2),Bp:Bp.toFixed(0),Bs:Bs.toFixed(0),
+    Inr:Inr.toFixed(0),VR:VR.toFixed(2)};
+}
+calcXfmr();
+
+// ══════════════════════════════════════════
+// DEXIE
+// ══════════════════════════════════════════
+const db=new Dexie('VoltRefMX_v3');
+db.version(1).stores({calcs:'++id,tipo,proyecto,fecha'});
+
+async function updDB(){
+  const n=await db.calcs.count();
+  const t=`● ${n} reg.`;
+  document.getElementById('db-count').textContent=t;
+  document.getElementById('db-count2').textContent=t;
+}
+
+async function guardar(tipo){
+  const proy=document.getElementById('g-proy').value||'Sin nombre';
+  let datos={};
+  if(tipo==='caida')    datos=lCaida;
+  if(tipo==='ampacity') datos=lAmp;
+  if(tipo==='motor')    datos=lMotor;
+  if(tipo==='conduit')  datos=lConduit;
+  if(tipo==='xfmr')     datos=lXfmr;
+  if(!datos.tipo){showToast('Primero realiza el cálculo.');return;}
+  await db.calcs.add({tipo,proyecto:proy,fecha:new Date().toISOString(),datos});
+  updDB();
+  showToast('✔ Guardado correctamente');
+}
+
+async function loadHistory(){
+  const list=document.getElementById('hist-list');
+  const all=await db.calcs.reverse().toArray();
+  if(!all.length){list.innerHTML='<div class="hist-empty">SIN CÁLCULOS GUARDADOS</div>';return;}
+  const tc={caida:'ht-ct',ampacity:'ht-amp',motor:'ht-mot',conduit:'ht-con',xfmr:'ht-xfmr'};
+  const tl={caida:'Caída ΔV',ampacity:'Ampacidad',motor:'Motor',conduit:'Conduit',xfmr:'Transformador'};
+  list.innerHTML=all.map(r=>{
+    const d=r.datos||{};let res='';
+    if(r.tipo==='caida')    res=`${d.sistema} ${d.Vn}V | I=${d.I}A L=${d.L}m | ${d.calLabel} → ${d.dV}V (${d.pct}%)`;
+    if(r.tipo==='ampacity') res=`I=${d.I}A | ${d.mat==='cu'?'Cu':'Al'} | ${d.inst||'conduit'} → ${d.calLabel}`;
+    if(r.tipo==='motor')    res=`${d.P}${d.unit} ${d.sistema} ${d.V}V | FLA=${d.FLA}A | ${d.arranque}`;
+    if(r.tipo==='conduit')  res=`Ø${d.D}mm | ${d.occ}mm² | ${d.pct}% llenado`;
+    if(r.tipo==='xfmr')     res=`${d.kva}kVA ${d.sistema} | Vp=${d.Vp}V Vs=${d.Vs}V | Ip=${d.Ip}A Is=${d.Is}A`;
+    const f=new Date(r.fecha).toLocaleString('es-MX',{dateStyle:'short',timeStyle:'short'});
+    return `<div class="hist-item">
+      <span class="hist-tipo ${tc[r.tipo]||''}">${tl[r.tipo]||r.tipo}</span>
+      <div class="hist-body"><div class="hist-proy">${r.proyecto}</div><div class="hist-res">${res}</div></div>
+      <div class="hist-fecha">${f}</div>
+      <div class="hist-btns">
+        <button class="bm bm-p" onclick="pdfById(${r.id})">PDF</button>
+        <button class="bm bm-d" onclick="delR(${r.id})">✕</button>
+      </div></div>`;
+  }).join('');
+}
+async function delR(id){await db.calcs.delete(id);loadHistory();updDB();showToast('Eliminado.');}
+async function clearHistory(){if(!confirm('¿Eliminar todo el historial?'))return;await db.calcs.clear();loadHistory();updDB();showToast('Historial limpiado.');}
+
+// ══════════════════════════════════════════
+// jsPDF
+// ══════════════════════════════════════════
+function buildPDF(datos,proyecto){
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=doc.internal.pageSize.getWidth(),m=18;let y=m;
+  // Header
+  doc.setFillColor(8,9,14);doc.rect(0,0,W,32,'F');
+  doc.setFillColor(245,158,11);doc.rect(0,30,W,1.5,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.setTextColor(245,158,11);
+  doc.text('VoltRef',m,20);
+  doc.setTextColor(230,232,240);doc.text('MX',m+34,20);
+  doc.setFontSize(8);doc.setTextColor(100,110,140);
+  doc.text('REFERENCIA TÉCNICA INDUSTRIAL',m,26);
+  const tl={caida:'CAÍDA DE TENSIÓN',ampacity:'AMPACIDAD / CALIBRE',motor:'MOTOR',conduit:'CONDUIT',xfmr:'TRANSFORMADOR'};
+  doc.setTextColor(245,158,11);doc.setFontSize(10);doc.text(tl[datos.tipo]||datos.tipo,W-m,20,{align:'right'});
+  doc.setTextColor(100,110,140);doc.setFontSize(8);doc.text(new Date().toLocaleString('es-MX'),W-m,26,{align:'right'});
+  y=44;
+  doc.setFillColor(22,28,40);doc.roundedRect(m,y,W-m*2,10,2,2,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(100,110,140);doc.text('PROYECTO:',m+4,y+6.5);
+  doc.setTextColor(220,228,244);doc.text(proyecto||'Sin nombre',m+28,y+6.5);y+=16;
+
+  function sec(t){doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(245,158,11);doc.text(t,m,y);doc.setDrawColor(245,158,11);doc.setLineWidth(.3);doc.line(m,y+1.5,W-m,y+1.5);y+=7;}
+  function row(l,v,u='',hi=false){if(y>265){doc.addPage();y=20;}doc.setFillColor(hi?30:22,hi?38:28,hi?55:40);doc.rect(m,y-4,W-m*2,7,'F');doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(100,110,140);doc.text(l,m+3,y);doc.setFont('helvetica','bold');doc.setTextColor(hi?245:220,hi?158:228,hi?11:244);doc.text(String(v)+' '+u,W-m-3,y,{align:'right'});y+=7;}
+
+  if(datos.tipo==='caida'){
+    sec('DATOS');row('Sistema',datos.sistema);row('Tensión nominal',datos.Vn,'V');row('Corriente',datos.I,'A');row('Longitud',datos.L,'m');row('Conductor',datos.calLabel);row('Material',datos.material);row('Límite',datos.limite,'%');
+    y+=4;sec('RESULTADOS');row('Resistencia tramo',datos.R,'Ω');row('Caída ΔV',datos.dV,'V',true);row('% caída',datos.pct,'%',true);row('V en carga',datos.Vc,'V');
+    y+=4;sec('DICTAMEN');doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(datos.cumple?52:248,datos.cumple?211:113,datos.cumple?153:113);doc.text(datos.cumple?`✔ CUMPLE — ${datos.pct}% ≤ ${datos.limite}%`:`✘ NO CUMPLE — ${datos.pct}%`,m,y);
+  }
+  if(datos.tipo==='ampacity'){
+    sec('DATOS');row('Corriente diseño',datos.I,'A');row('Material',datos.mat==='cu'?'Cobre':'Al');row('Factor temperatura',datos.Ft);row('Instalación',datos.inst||'—');row('Factor instalación',datos.Fc);
+    y+=4;sec('RESULTADOS');row('Calibre mínimo',datos.calLabel,'',true);row('Ampacidad base',datos.base,'A');row('Ampacidad corregida',datos.corr,'A',true);
+  }
+  if(datos.tipo==='motor'){
+    sec('DATOS');row('Potencia',datos.P,datos.unit);row('kW',datos.kw,'kW');row('Sistema',datos.sistema);row('Tensión',datos.V,'V');row('FP',datos.fp);row('η',datos.eff);row('Arranque',datos.arranque);
+    y+=4;sec('RESULTADOS');row('FLA',datos.FLA,'A',true);row('I arranque',datos.Ia,'A',true);row('Breaker mín.',datos.brk,'A');row('Cable',datos.cable);row('Guardamotor Ir',datos.FLA,'A');
+  }
+  if(datos.tipo==='conduit'){
+    sec('DATOS');row('Diámetro',datos.D,'mm');row('Área total',datos.At,'mm²');row('Área útil 40%',datos.Au,'mm²');
+    y+=4;sec('RESULTADOS');row('Área ocupada',datos.occ,'mm²',true);row('% llenado',datos.pct,'%',true);
+    y+=4;sec('DICTAMEN');doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(datos.cumple?52:248,datos.cumple?211:113,datos.cumple?153:113);doc.text(datos.cumple?`✔ CUMPLE — ${datos.pct}% ≤ 40%`:`✘ EXCEDE — ${datos.pct}%`,m,y);
+  }
+  if(datos.tipo==='xfmr'){
+    sec('DATOS');row('Potencia',datos.kva,'kVA');row('Tipo',datos.sistema);row('Impedancia %Z',datos.Zp,'%');row('Tensión primario',datos.Vp,'V');row('Tensión secundario',datos.Vs,'V');row('FP carga',datos.fp);
+    y+=4;sec('RESULTADOS');row('Corriente primario',datos.Ip,'A',true);row('Corriente secundario',datos.Is,'A',true);row('Protección primario',datos.Bp,'A');row('Protección secundario',datos.Bs,'A');row('Corriente inrush (10×)',datos.Inr,'A');row('Regulación %VR',datos.VR,'%');
+    y+=4;sec('NOTA');doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(100,110,140);
+    doc.text(doc.splitTextToSize('Inrush: 8–12× In. Usar breaker tipo D en primario. %VR calculado con aproximación lineal.',W-m*2),m,y);
+  }
+
+  const ph=doc.internal.pageSize.getHeight();
+  doc.setFillColor(8,9,14);doc.rect(0,ph-12,W,12,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(60,70,100);
+  doc.text('VoltRef MX v3.0 — Referencia Técnica Industrial  |  NOM-001-SEDE / NEC 2023 / IEC',m,ph-4);
+  doc.text(new Date().toLocaleString('es-MX'),W-m,ph-4,{align:'right'});
+  return doc;
+}
+
+function exportPDF(tipo){
+  let d={};
+  if(tipo==='caida')    d=lCaida;
+  if(tipo==='ampacity') d=lAmp;
+  if(tipo==='motor')    d=lMotor;
+  if(tipo==='conduit')  d=lConduit;
+  if(tipo==='xfmr')     d=lXfmr;
+  if(!d.tipo){showToast('Primero realiza el cálculo.');return;}
+  buildPDF(d,document.getElementById('g-proy').value||'Sin nombre').save(`VoltRefMX-${d.tipo}-${Date.now()}.pdf`);
+  showToast('📄 PDF generado');
+}
+async function pdfById(id){const r=await db.calcs.get(id);if(!r)return;buildPDF(r.datos,r.proyecto).save(`VoltRefMX-${r.tipo}-${r.id}.pdf`);showToast('📄 PDF generado');}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+let tt;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2800);}
+
+// ══════════════════════════════════════════
+// THEME TOGGLE
+// ══════════════════════════════════════════
+function toggleTheme(){
+  const isLight=document.body.classList.toggle("light");
+  localStorage.setItem("vrmx_theme",isLight?"light":"dark");
+  document.getElementById("th-icon").textContent=isLight?"☀️":"🌙";
+  document.getElementById("th-txt").textContent=isLight?"OSCURO":"CLARO";
+}
+function initTheme(){
+  const saved=localStorage.getItem("vrmx_theme");
+  const preferLight=window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches;
+  const usLight=saved?"light"===saved:preferLight;
+  if(usLight){
+    document.body.classList.add("light");
+    document.getElementById("th-icon").textContent="☀️";
+    document.getElementById("th-txt").textContent="OSCURO";
+  }
+}
+
+//
+// INIT
+// ══════════════════════════════════════════
+initTheme();
+renderPips();
+updDB();
+</script>
+</body>
+</html>
