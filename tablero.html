@@ -209,6 +209,21 @@ input,select,button{font-family:inherit;}
 .subhead{font-size:10.5px; font-weight:800; margin:12px 0 6px; color:var(--text2);}
 
 .hidden{display:none !important;}
+
+/* ===== ADAPTACIÓN A PANTALLA ANCHA (laptop/escritorio) =====
+   En celular, statusbar/modhead/stage ocupan todo el ancho por diseño.
+   En pantallas anchas eso los estira demasiado y el texto se ve chico
+   en proporción. Aquí se limita el ancho y se centra, sin tocar fuentes
+   ni lógica — el sidebar sigue abriendo sobre toda la pantalla igual. */
+@media (min-width:701px){
+  #app{ align-items:center; }
+  #app > .statusbar,
+  #app > .modhead,
+  #app > .stage{
+    width:100%;
+    max-width:640px;
+  }
+}
 </style>
 </head>
 <body>
