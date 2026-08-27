@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>VoltRefMX</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#040a06">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VoltRefMX">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+
+<style>
+:root{
+  --bg:#040a06; --panel:#08120b; --panel2:#0d1a11; --panel3:#132818;
+  --line:rgba(57,255,140,.16); --line2:rgba(57,255,140,.28);
+  --text:#daffe9; --text2:#7fcf9c; --dim:#3d6b4d;
+  --accent:#39ff88; --accent-dim:rgba(57,255,136,.12); --accent-bdr:rgba(57,255,136,.35);
+  --hazard:#f6c02a; --hazard-dim:rgba(246,192,42,.14);
+  --safe-b: env(safe-area-inset-bottom, 0px); --safe-t: env(safe-area-inset-top, 0px);
+  --mono:'SF Mono','JetBrains Mono',ui-monospace,'Cascadia Code',Consolas,monospace;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none;}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--bg); color:var(--text); font-family:var(--mono);
+  overflow:hidden; position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(57,255,136,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57,255,136,.05) 1px, transparent 1px);
+  background-size:22px 22px;
+  display:flex; flex-direction:column;
+  padding-top:var(--safe-t); padding-bottom:var(--safe-b);
+}
+.hero{padding:14vh 24px 6px;}
+.brand{font-size:12px; letter-spacing:.22em; color:var(--dim); font-weight:800; text-transform:uppercase;}
+.brand b{color:var(--accent);}
+.title{font-size:26px; font-weight:900; margin-top:8px; line-height:1.15; color:var(--text);}
+.sub{color:var(--dim); font-size:12.5px; margin-top:8px; line-height:1.5;}
+
+.wrap{flex:1; display:flex; flex-direction:column; justify-content:center; gap:14px; padding:10px 20px calc(20px + var(--safe-b));}
+
+.card{
+  display:flex; align-items:center; gap:14px; padding:18px; border-radius:14px;
+  background:var(--panel2); border:1px solid var(--line); border-left:4px solid var(--tc);
+  text-decoration:none;
+}
+.card:active{background:var(--panel3);}
+.card .ic{width:48px; height:48px; border-radius:12px; background:var(--tc-bg); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;}
+.card .body{flex:1; min-width:0;}
+.card .name{font-size:15.5px; font-weight:800; color:var(--text);}
+.card .desc{font-size:11.5px; color:var(--dim); margin-top:3px; line-height:1.4;}
+.card .go{color:var(--dim); font-size:18px;}
+
+.foot{padding:0 24px calc(16px + var(--safe-b)); display:flex; align-items:center; gap:8px; font-size:9.5px; color:var(--dim); letter-spacing:.06em;}
+.led{width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 6px var(--accent); flex-shrink:0;}
+.led.off{background:var(--dim); box-shadow:none;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="brand"><b>VOLTREF</b>·MX</div>
+  <div class="title">Referencia técnica de campo</div>
+  <div class="sub">NOM-001-SEDE-2012 · Calculadoras y consulta rápida · Funciona sin conexión</div>
+</div>
+
+<div class="wrap">
+  <a class="card" href="tablero.html" style="--tc:#39ff88; --tc-bg:rgba(57,255,136,.12)">
+    <div class="ic">🖥️</div>
+    <div class="body">
+      <div class="name">Tablero</div>
+      <div class="desc">Vista completa — todas las calculadoras y tablas de referencia</div>
+    </div>
+    <div class="go">›</div>
+  </a>
+
+  <a class="card" href="unamano.html" style="--tc:#f6c02a; --tc-bg:rgba(246,192,42,.14)">
+    <div class="ic">✋</div>
+    <div class="body">
+      <div class="name">Una Mano</div>
+      <div class="desc">Modo rápido a una mano — para cuando estás trabajando</div>
+    </div>
+    <div class="go">›</div>
+  </a>
+</div>
+
+<div class="foot"><div class="led" id="statusled"></div><span id="statustxt">Verificando conexión…</span></div>
+
+<script>
+function setStatus(){
+  const led = document.getElementById('statusled');
+  const txt = document.getElementById('statustxt');
+  const online = navigator.onLine;
+  led.className = 'led' + (online ? '' : ' off');
+  txt.textContent = online ? 'En línea · datos también disponibles sin conexión' : 'Sin conexión · funcionando desde caché local';
+}
+setStatus();
+window.addEventListener('online', setStatus);
+window.addEventListener('offline', setStatus);
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{ /* no-op en file:// */ });
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>VoltRefMX · Una Mano</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0c0d0f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VoltRefMX">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+
+<style>
+:root{
+  --bg:#0c0d0f; --panel:#17191c; --panel2:#1f2226; --panel3:#26292e;
+  --line:#2c2f34; --line2:#35383e;
+  --text:#f3f1ea; --text2:#c7c4ba; --dim:#83868c;
+  --hazard:#f6c02a; --hazard-dim:rgba(246,192,42,.14);
+  --ok:#39d178; --ok-bg:rgba(57,209,120,.12);
+  --warn:#f6c02a; --warn-bg:rgba(246,192,42,.12);
+  --danger:#ff5252; --danger-bg:rgba(255,82,82,.12);
+  --radius:16px; --radius-sm:10px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --display: -apple-system, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'SF Mono', 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none;}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--display); overflow:hidden; position:fixed; inset:0;
+  background-image:
+    radial-gradient(circle at 15% 8%, rgba(246,192,42,.05), transparent 40%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.012) 0 2px, transparent 2px 26px);
+}
+input,button{font-family:inherit;}
+#app{position:absolute; inset:0; display:flex; flex-direction:column;}
+
+/* ===== TOP BAR (glance zone) ===== */
+.topbar{
+  padding: calc(10px + var(--safe-t)) 14px 8px;
+  display:flex; align-items:center; gap:10px; flex-shrink:0;
+}
+.tb-back{
+  width:40px; height:40px; border-radius:12px; border:1px solid var(--line);
+  background:var(--panel); color:var(--text); font-size:18px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.tb-back:active{background:var(--panel2);}
+.tb-title{flex:1; min-width:0;}
+.tb-title .t1{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); font-weight:700;}
+.tb-title .t2{font-size:16px; font-weight:800; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.tb-gauge{width:46px; height:46px; flex-shrink:0; position:relative;}
+.tb-gauge svg{width:100%; height:100%; transform:rotate(-90deg);}
+.tb-gauge .bgring{fill:none; stroke:var(--line); stroke-width:5;}
+.tb-gauge .fgring{fill:none; stroke:var(--hazard); stroke-width:5; stroke-linecap:round; transition:stroke-dashoffset .35s ease;}
+.tb-gauge .num{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text2);}
+
+/* ===== MAIN SCROLL AREA ===== */
+.stage{flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;}
+.stage::-webkit-scrollbar{display:none;}
+
+/* ===== BOTTOM ACTION BAR (thumb zone) ===== */
+.actionbar{
+  flex-shrink:0; padding:10px 14px calc(12px + var(--safe-b));
+  display:flex; gap:10px; background:linear-gradient(180deg, transparent, var(--bg) 30%);
+}
+.btn{
+  flex:1; height:56px; border-radius:14px; border:1px solid var(--line);
+  background:var(--panel); color:var(--text); font-size:16px; font-weight:800;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn:active{transform:scale(.97); background:var(--panel2);}
+.btn-primary{background:var(--hazard); color:#141414; border-color:var(--hazard);}
+.btn-primary:active{background:#e0af1f;}
+.btn-ghost{flex:0 0 56px; background:transparent;}
+.btn[disabled]{opacity:.35; pointer-events:none;}
+
+/* ===== BOTTOM TAB NAV (home/list screens only) ===== */
+.tabnav{
+  flex-shrink:0; display:flex; padding:6px 6px calc(6px + var(--safe-b));
+  background:var(--panel); border-top:1px solid var(--line);
+}
+.tab{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:8px 2px; border-radius:12px; color:var(--dim); font-size:10.5px; font-weight:700;
+  letter-spacing:.02em;
+}
+.tab .ic{font-size:20px; line-height:1;}
+.tab.active{color:var(--hazard);}
+.tab:active{background:var(--panel2);}
+
+/* ===== HOME ===== */
+.home-hero{padding:6px 20px 18px;}
+.home-brand{font-size:13px; letter-spacing:.22em; color:var(--dim); font-weight:800; text-transform:uppercase;}
+.home-title{font-size:30px; font-weight:900; margin-top:4px; line-height:1.05;}
+.home-title em{color:var(--hazard); font-style:normal;}
+.home-sub{color:var(--dim); font-size:13.5px; margin-top:6px;}
+.section-lbl{padding:0 20px; font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); font-weight:800; margin:18px 0 8px;}
+.tilewrap{padding:0 16px; display:flex; flex-direction:column; gap:10px;}
+.tile{
+  display:flex; align-items:center; gap:14px; padding:16px; border-radius:var(--radius);
+  background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--tc,var(--hazard));
+  position:relative; overflow:hidden;
+}
+.tile:active{background:var(--panel2);}
+.tile .ic{width:46px; height:46px; border-radius:12px; background:var(--tc-bg, var(--hazard-dim)); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;}
+.tile .body{flex:1; min-width:0;}
+.tile .name{font-size:16px; font-weight:800;}
+.tile .desc{font-size:12.5px; color:var(--dim); margin-top:2px;}
+.tile .go{color:var(--dim); font-size:20px;}
+.tile-row{display:flex; gap:10px;}
+.tile-row .tile{flex:1; flex-direction:column; align-items:flex-start; gap:8px; padding:14px;}
+.tile-row .tile .name{font-size:13.5px;}
+
+/* ===== WIZARD STEP ===== */
+.step{padding:6px 22px 30px; min-height:100%; display:flex; flex-direction:column;}
+.step-eyebrow{font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--hazard); font-weight:800; margin-bottom:8px;}
+.step-q{font-size:23px; font-weight:800; line-height:1.22; margin-bottom:6px;}
+.step-hint{font-size:13px; color:var(--dim); margin-bottom:22px; line-height:1.4;}
+.step-body{flex:1; display:flex; flex-direction:column; justify-content:center; gap:14px; padding:10px 0 20px;}
+
+/* number stepper */
+.numpad{display:flex; flex-direction:column; align-items:center; gap:18px;}
+.numrow{display:flex; align-items:center; gap:18px;}
+.numbtn{
+  width:54px; height:54px; border-radius:50%; border:1px solid var(--line2);
+  background:var(--panel2); color:var(--text); font-size:24px; font-weight:800;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.numbtn:active{background:var(--panel3); transform:scale(.94);}
+.numdisplay{display:flex; flex-direction:column; align-items:center; min-width:150px;}
+.numdisplay input{
+  width:100%; text-align:center; background:transparent; border:none; color:var(--text);
+  font-family:var(--mono); font-size:52px; font-weight:800; font-variant-numeric:tabular-nums;
+  outline:none; caret-color:var(--hazard);
+}
+.numunit{font-size:13px; color:var(--dim); letter-spacing:.08em; text-transform:uppercase; font-weight:700; margin-top:-6px;}
+.presetrow{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:6px;}
+.preset{
+  padding:8px 14px; border-radius:20px; border:1px solid var(--line2); background:var(--panel2);
+  color:var(--text2); font-size:13px; font-weight:700; font-family:var(--mono);
+}
+.preset.active{background:var(--hazard); color:#141414; border-color:var(--hazard);}
+.preset:active{transform:scale(.95);}
+
+/* choice cards */
+.choices{display:flex; flex-direction:column; gap:10px;}
+.choice{
+  display:flex; align-items:center; gap:14px; padding:16px 16px; border-radius:14px;
+  background:var(--panel); border:1.5px solid var(--line);
+}
+.choice .ic{font-size:24px; width:34px; text-align:center; flex-shrink:0;}
+.choice .txt{flex:1;}
+.choice .t1{font-size:15.5px; font-weight:800;}
+.choice .t2{font-size:12px; color:var(--dim); margin-top:1px;}
+.choice.sel{border-color:var(--hazard); background:var(--hazard-dim);}
+.choice:active{transform:scale(.98);}
+
+/* segmented toggle */
+.segwrap{display:flex; background:var(--panel2); border-radius:14px; padding:4px; border:1px solid var(--line);}
+.seg{flex:1; text-align:center; padding:12px 6px; border-radius:11px; font-size:14px; font-weight:800; color:var(--dim);}
+.seg.active{background:var(--hazard); color:#141414;}
+
+/* card list (calibre picker etc) */
+.picklist{display:flex; flex-direction:column; gap:8px; max-height:100%;}
+.pickitem{
+  display:flex; justify-content:space-between; align-items:center; padding:14px 16px;
+  border-radius:12px; background:var(--panel); border:1.5px solid var(--line);
+}
+.pickitem .l{font-family:var(--mono); font-size:15px; font-weight:800;}
+.pickitem .r{font-size:12px; color:var(--dim); font-family:var(--mono);}
+.pickitem.sel{border-color:var(--hazard); background:var(--hazard-dim);}
+.searchbar{
+  display:flex; align-items:center; gap:8px; background:var(--panel2); border:1px solid var(--line);
+  border-radius:12px; padding:10px 14px; margin-bottom:12px;
+}
+.searchbar input{flex:1; background:transparent; border:none; color:var(--text); font-size:15px; outline:none;}
+
+/* dots progress alt */
+.dots{display:flex; gap:6px; justify-content:center; margin-top:10px;}
+.dot{width:6px; height:6px; border-radius:50%; background:var(--line2);}
+.dot.on{background:var(--hazard); width:16px; border-radius:4px;}
+
+/* ===== RESULT SCREEN ===== */
+.res{padding:10px 20px 30px;}
+.res-badge{
+  display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:20px;
+  font-size:13px; font-weight:800; letter-spacing:.04em; margin-bottom:16px;
+}
+.res-badge.ok{background:var(--ok-bg); color:var(--ok);}
+.res-badge.warn{background:var(--warn-bg); color:var(--warn);}
+.res-badge.danger{background:var(--danger-bg); color:var(--danger);}
+.res-hero{text-align:center; padding:22px 10px 26px; background:var(--panel); border-radius:var(--radius); border:1px solid var(--line); margin-bottom:16px;}
+.res-hero .lbl{font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); font-weight:800;}
+.res-hero .val{font-family:var(--mono); font-size:48px; font-weight:900; margin-top:8px; font-variant-numeric:tabular-nums;}
+.res-hero .val .u{font-size:20px; color:var(--dim); margin-left:4px;}
+.res-hero .sub{font-size:13px; color:var(--text2); margin-top:6px;}
+.res-grid{display:flex; flex-direction:column; gap:8px; margin-bottom:16px;}
+.res-row{
+  display:flex; justify-content:space-between; align-items:center; padding:13px 15px;
+  background:var(--panel); border-radius:12px; border:1px solid var(--line);
+}
+.res-row .k{font-size:13px; color:var(--text2);}
+.res-row .v{font-family:var(--mono); font-size:14.5px; font-weight:800;}
+.res-row.hi .v{color:var(--hazard);}
+.res-note{
+  font-size:12.5px; color:var(--dim); line-height:1.55; padding:12px 14px; background:var(--panel2);
+  border-radius:12px; border-left:3px solid var(--line2);
+}
+.res-note b{color:var(--text2);}
+.res-note.warn{border-left-color:var(--warn); background:var(--warn-bg); color:var(--text2);}
+
+/* ===== REFERENCE (colores / vfd) ===== */
+.refcard{
+  margin:0 16px 12px; padding:16px; background:var(--panel); border-radius:14px; border:1px solid var(--line);
+}
+.refcard h3{margin:0 0 10px; font-size:15px; font-weight:800; display:flex; align-items:center; gap:8px;}
+.swatchrow{display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--line);}
+.swatchrow:first-of-type{border-top:none;}
+.swatch{width:26px; height:26px; border-radius:7px; border:1px solid rgba(255,255,255,.15); flex-shrink:0;}
+.swatchrow .l{flex:1; font-size:13.5px; font-weight:700;}
+.swatchrow .r{font-size:12px; color:var(--dim); font-family:var(--mono);}
+.chip{display:inline-block; padding:3px 9px; border-radius:8px; font-size:11px; font-weight:800; margin-left:6px;}
+.chip.danger{background:var(--danger-bg); color:var(--danger);}
+.chip.warn{background:var(--warn-bg); color:var(--warn);}
+.vfd-item{margin:0 16px 10px; border-radius:14px; background:var(--panel); border:1px solid var(--line); overflow:hidden;}
+.vfd-head{display:flex; align-items:center; gap:12px; padding:14px 16px;}
+.vfd-head .code{font-family:var(--mono); font-size:17px; font-weight:900; width:56px; flex-shrink:0;}
+.vfd-head .name{flex:1; font-size:14px; font-weight:700;}
+.vfd-body{padding:0 16px 16px; font-size:13px; color:var(--text2); line-height:1.6; display:none;}
+.vfd-item.open .vfd-body{display:block;}
+.vfd-body b{color:var(--text);}
+.vfd-body .sec{margin-top:10px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); font-weight:800;}
+
+/* ===== TABLAS DE REFERENCIA (Curvas / Seguridad / Herramientas) ===== */
+.rtable{width:100%; border-collapse:collapse; font-size:12.5px;}
+.rtable th{text-align:left; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); font-weight:800; padding:0 8px 8px 0;}
+.rtable td{padding:9px 8px 9px 0; border-top:1px solid var(--line); vertical-align:top;}
+.rtable td:first-child{font-weight:700;}
+.rtable .mono{font-family:var(--mono);}
+.star{color:var(--hazard);}
+.chip.ok{background:var(--ok-bg); color:var(--ok);}
+.subhead{font-size:13.5px; font-weight:800; margin:14px 0 8px; color:var(--text2); display:flex; align-items:center; gap:8px;}
+.subhead:first-child{margin-top:0;}
+.loto-step{display:flex; gap:12px; padding:12px 0; border-top:1px solid var(--line);}
+.loto-step:first-child{border-top:none;}
+.loto-num{width:28px; height:28px; border-radius:50%; background:var(--hazard); color:#141414; font-weight:900; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.loto-verb{font-size:14px; font-weight:800;}
+.loto-desc{font-size:12.5px; color:var(--dim); margin-top:3px; line-height:1.5;}
+
+.hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{ /* no-op en file:// */ });
+  });
+}
+</script>
+<script>
+/* ===================================================================
+   VoltRefMX · Una Mano — DATOS
+   Fuente: NOM-001-SEDE-2012 + KB del proyecto (KB-01 a KB-06)
+   =================================================================== */
+
+// Tabla maestra de conductores — NOM-001 Tabla 310-15(b)(16) @75°C + Tabla 9 (Z)
+const COND = [
+  {c:'14 AWG', mm2:2.08, cu:15, al:null,  r:10.200, xl:0.240},
+  {c:'12 AWG', mm2:3.31, cu:20, al:15,    r:6.600,  xl:0.223},
+  {c:'10 AWG', mm2:5.26, cu:30, al:25,    r:3.900,  xl:0.207},
+  {c:'8 AWG',  mm2:8.37, cu:50, al:40,    r:2.560,  xl:0.213},
+  {c:'6 AWG',  mm2:13.3, cu:65, al:50,    r:1.610,  xl:0.210},
+  {c:'4 AWG',  mm2:21.2, cu:85, al:65,    r:1.020,  xl:0.197},
+  {c:'3 AWG',  mm2:26.7, cu:100,al:75,    r:0.820,  xl:0.194},
+  {c:'2 AWG',  mm2:33.6, cu:115,al:90,    r:0.660,  xl:0.187},
+  {c:'1 AWG',  mm2:42.4, cu:130,al:100,   r:0.520,  xl:0.187},
+  {c:'1/0 AWG',mm2:53.5, cu:150,al:120,   r:0.390,  xl:0.180},
+  {c:'2/0 AWG',mm2:67.4, cu:175,al:135,   r:0.330,  xl:0.177},
+  {c:'3/0 AWG',mm2:85.0, cu:200,al:155,   r:0.259,  xl:0.171},
+  {c:'4/0 AWG',mm2:107.0,cu:230,al:180,   r:0.207,  xl:0.167},
+  {c:'250 kcmil',mm2:126.7,cu:255,al:205, r:0.177,  xl:0.171},
+  {c:'300 kcmil',mm2:152.0,cu:285,al:230, r:0.148,  xl:0.167},
+  {c:'350 kcmil',mm2:177.3,cu:310,al:250, r:0.128,  xl:0.164},
+  {c:'400 kcmil',mm2:202.7,cu:335,al:270, r:0.115,  xl:0.161},
+  {c:'500 kcmil',mm2:253.4,cu:380,al:310, r:0.095,  xl:0.157},
+  {c:'600 kcmil',mm2:304.0,cu:420,al:340, r:0.082,  xl:0.157},
+  {c:'750 kcmil',mm2:380.0,cu:475,al:385, r:0.069,  xl:0.157},
+];
+
+// Diámetro exterior conductor THHN/THWN (mm) — NOM-001 Cap.10 Tabla 5, indexado por mm2 real
+const COND_OD_THHN = {
+  2.08:2.667, 3.31:3.302, 5.26:4.166, 8.37:5.486, 13.3:6.426, 21.2:8.230,
+  26.7:9.0, 33.6:9.754, 42.4:11.33, 53.5:12.34, 67.4:13.46, 85.0:14.73,
+  107.0:16.31, 126.7:18.01, 152.0:19.5, 177.3:20.57, 202.7:22.0, 253.4:23.75
+};
+
+// Factor de corrección por temperatura ambiente — NOM-001 Tabla 310-15(b)(2)(a)
+const FTEMP = [
+  {t:30, f:1.00}, {t:35, f:0.94}, {t:40, f:0.88}, {t:45, f:0.82}, {t:50, f:0.75}, {t:55, f:0.67}
+];
+
+// Factor de agrupamiento (conduit) — NOM-001 Tabla 310-15(b)(3)(a)
+function factorAgrup(n){
+  if(n<=3) return 1.00;
+  if(n<=6) return 0.80;
+  if(n<=9) return 0.70;
+  if(n<=20) return 0.50;
+  if(n<=30) return 0.45;
+  if(n<=40) return 0.40;
+  return 0.35;
+}
+
+// Conduit EMT — diámetro interior (mm) — NOM-001 Cap.10 Tabla 4
+const CONDUIT_EMT = [
+  {n:'1/2"', d:15.8}, {n:'3/4"', d:20.9}, {n:'1"', d:26.6}, {n:'1-1/4"', d:35.1},
+  {n:'1-1/2"', d:40.9}, {n:'2"', d:52.5}, {n:'2-1/2"', d:69.4}, {n:'3"', d:85.2}, {n:'4"', d:110.1}
+];
+
+// Multiplicadores de corriente de arranque por método — KB-03
+const ARRANQUE = {
+  dol:  {label:'Directo (DOL)',        ia:6.5, ic:'⚡'},
+  yd:   {label:'Estrella-Triángulo',   ia:2.2, ic:'△'},
+  vfd:  {label:'VFD (variador)',       ia:1.5, ic:'📊'},
+  soft: {label:'Arrancador suave',     ia:3.0, ic:'🌊'}
+};
+
+// Calibres/breakers comerciales estándar (A) — para redondeo hacia arriba
+const STD_AMPS = [15,20,25,30,35,40,45,50,60,70,80,90,100,110,125,150,175,200,225,250,300,350,400,450,500,600,700,800,1000,1200];
+function roundStd(a){ for(const s of STD_AMPS){ if(s>=a) return s; } return Math.ceil(a/100)*100; }
+
+// %Z típico de transformador por tamaño — KB-04 (para default sugerido)
+function zDefault(kva){
+  if(kva<75) return 3.0;
+  if(kva<=500) return 4.5;
+  return 5.5;
+}
+
+// ---------------------------------------------------------------------
+// COLORES DE CABLE — KB-05
+// ---------------------------------------------------------------------
+const COLORES = [
+  {
+    norma:'México — NOM-001-SEDE (Vigente)', bandera:'🇲🇽',
+    filas:[
+      {l:'Fase L1', col:'#141414', bord:1, r:''},
+      {l:'Fase L2', col:'#c0392b', r:''},
+      {l:'Fase L3', col:'#2255cc', r:''},
+      {l:'Neutro', col:'#eeeeee', bord:1, r:'blanco o gris'},
+      {l:'Tierra (PE)', col:'#2fa84f', r:'verde o verde/amarillo'},
+    ]
+  },
+  {
+    norma:'México — Convención antigua 440V (legado)', bandera:'⚠️',
+    filas:[
+      {l:'Fase L1/A', col:'#7a4a2a', r:'café'},
+      {l:'Fase L2/B', col:'#e07b1a', r:'naranja'},
+      {l:'Fase L3/C', col:'#e6c528', r:'amarillo'},
+      {l:'Neutro', col:'#eeeeee', bord:1, r:'blanco o gris'},
+      {l:'Tierra (PE)', col:'#2fa84f', r:'verde o desnudo'},
+    ]
+  },
+  {
+    norma:'Estados Unidos — NEC (NFPA 70)', bandera:'🇺🇸',
+    filas:[
+      {l:'Fase A/L1', col:'#141414', bord:1, r:''},
+      {l:'Fase B/L2', col:'#c0392b', r:''},
+      {l:'Fase C/L3', col:'#2255cc', r:'208/120V · naranja en 480/277V'},
+      {l:'Neutro', col:'#eeeeee', bord:1, r:'blanco o gris claro'},
+      {l:'Tierra (EGC)', col:'#2fa84f', r:'verde / verde-amarillo / desnudo'},
+    ]
+  },
+  {
+    norma:'Europa — IEC 60446 / HD 308', bandera:'🇪🇺',
+    filas:[
+      {l:'Fase L1', col:'#7a4a2a', r:'café'},
+      {l:'Fase L2', col:'#141414', bord:1, r:''},
+      {l:'Fase L3', col:'#8a8f96', r:'gris'},
+      {l:'Neutro', col:'#6fb3e0', r:'azul claro'},
+      {l:'Tierra (PE)', col:'#2fa84f', r:'verde/amarillo — uso EXCLUSIVO'},
+    ]
+  },
+  {
+    norma:'China — GB/T 6995 / GB 50303', bandera:'🇨🇳',
+    filas:[
+      {l:'Fase A/L1', col:'#e6c528', r:'⚠ amarillo = FASE, no tierra'},
+      {l:'Fase B/L2', col:'#2fa84f', r:''},
+      {l:'Fase C/L3', col:'#c0392b', r:''},
+      {l:'Neutro', col:'#6fb3e0', r:'azul claro'},
+      {l:'Tierra (PE)', col:'#2fa84f', r:'verde/amarillo bicolor'},
+    ]
+  },
+  {
+    norma:'Alemania — DIN VDE 0293', bandera:'🇩🇪',
+    filas:[
+      {l:'Fase L1', col:'#141414', bord:1, r:'antiguo: marrón'},
+      {l:'Fase L2', col:'#7a4a2a', r:'marrón · antiguo: negro'},
+      {l:'Fase L3', col:'#8a8f96', r:'gris'},
+      {l:'Neutro', col:'#6fb3e0', r:'azul claro'},
+      {l:'Tierra', col:'#2fa84f', r:'verde/amarillo'},
+    ]
+  },
+  {
+    norma:'Japón — JIS C 3605', bandera:'🇯🇵',
+    filas:[
+      {l:'Fase R', col:'#141414', bord:1, r:''},
+      {l:'Fase S', col:'#c0392b', r:''},
+      {l:'Fase T/Neutro', col:'#eeeeee', bord:1, r:''},
+      {l:'Tierra', col:'#2fa84f', r:''},
+    ]
+  }
+];
+
+// ---------------------------------------------------------------------
+// VFD DELTA — Alarmas — KB-06
+// ---------------------------------------------------------------------
+const VFD_CODES = [
+  {code:'OC', name:'Sobrecorriente', sev:'danger',
+   causas:'Tiempo de aceleración (Pr.01) muy corto · cortocircuito en U/V/W o bobinado · motor bloqueado mecánicamente.',
+   medic:'Resistencia U-V/V-W/U-W (±5%) · aislamiento a tierra >1MΩ · corriente con pinza en arranque (no >1.5×In en régimen) · eje gira libre a mano.',
+   param:'Pr.01 tiempo acel. · Pr.06 corriente nominal motor · Pr.11 boost par · Pr.22 límite corriente',
+   sol:'Aumentar Pr.01 en pasos de 2s. Verificar Pr.06 = placa del motor. No repetir arranques consecutivos — esperar ≥3 min.'},
+  {code:'OCA', name:'Sobrecorriente en aceleración', sev:'danger',
+   causas:'Pr.01 muy corto para la inercia · boost de par (Pr.11) muy alto.',
+   medic:'Corriente de arranque con pinza amperimétrica.',
+   param:'Pr.01 · Pr.11 · Pr.06',
+   sol:'Aumentar Pr.01. Si persiste, reducir Pr.11 en pasos de 1%.'},
+  {code:'OCD', name:'Sobrecorriente en desaceleración', sev:'danger',
+   causas:'Pr.02 muy corto · carga de alta inercia · sin resistencia de frenado.',
+   medic:'Corriente durante la rampa de frenado.',
+   param:'Pr.02 · Pr.68 frenado dinámico',
+   sol:'Aumentar Pr.02. Si se requiere frenado rápido, instalar resistencia y habilitar Pr.68.'},
+  {code:'OCN', name:'Sobrecorriente en velocidad constante', sev:'danger',
+   causas:'Bloqueo parcial de carga · caída de tensión de línea.',
+   medic:'Corriente en régimen · temperatura de rodamientos · tensión de alimentación.',
+   param:'Pr.22 · Pr.06',
+   sol:'Verificar carga mecánica, rodamientos, y alimentador.'},
+  {code:'OV', name:'Sobretensión bus DC', sev:'danger',
+   causas:'Pr.02 muy corto · pico de tensión de línea · carga de alta inercia.',
+   medic:'Tensión R/S/T en paro (±10%) · bus DC en P(+)/N(-) ≈1.35×V_línea.',
+   param:'Pr.02 · Pr.07 · Pr.68',
+   sol:'Aumentar Pr.02. Instalar resistencia de frenado si hay alta inercia. Bus DC energizado varios min — esperar ≥5 min antes de abrir.'},
+  {code:'GFF', name:'Falla a tierra', sev:'danger',
+   causas:'Bobinado o cable de motor con falla a tierra · aislamiento degradado.',
+   medic:'Desconectar motor. Megóhmetro 500V U/V/W a tierra >1MΩ. Inspección física del cable.',
+   param:'Pr.48 ganancia detección',
+   sol:'Motor que falla megóhmetro → rebobinado o sustitución. PELIGRO: riesgo de electrocución, no operar hasta corregir.'},
+  {code:'PHL', name:'Pérdida de fase en entrada', sev:'danger',
+   causas:'Fusible de entrada abierto · contactor defectuoso · desequilibrio >10%.',
+   medic:'R-S, S-T, R-T en bornas · continuidad de fusibles/breaker · desequilibrio no >3%.',
+   param:'Pr.64 detección pérdida de fase',
+   sol:'Restablecer fase. Operar VFD trifásico en monofásico daña el bus DC — no forzar arranque.'},
+  {code:'CPU', name:'Error de CPU / watchdog', sev:'danger',
+   causas:'Ruido EMI severo · falla de tarjeta de control.',
+   medic:'Tierra física del chasis · separación cables motor vs. señal.',
+   param:'—',
+   sol:'Cortar alimentación 5 min. Si persiste, requiere servicio técnico.'},
+  {code:'ECEF', name:'Falla de condensador bus DC', sev:'danger',
+   causas:'Vida útil de capacitores agotada (~10 años) · picos repetitivos.',
+   medic:'Tensión DC en P(+)/N(-) sin carga ≈1.35×V_línea.',
+   param:'—',
+   sol:'Servicio técnico — no reparable en campo. Bus DC peligroso ≥10 min tras quitar alimentación.'},
+  {code:'LV', name:'Subtensión bus DC', sev:'warn',
+   causas:'Caída de tensión de alimentación · falla de fase · fusibles abiertos.',
+   medic:'R-S, S-T, R-T (±3%) · apriete de terminales.',
+   param:'Pr.63 nivel detección',
+   sol:'Verificar alimentación trifásica equilibrada, fusibles y contactores aguas arriba.'},
+  {code:'OH', name:'Sobretemperatura disipador', sev:'warn',
+   causas:'Ventilador bloqueado · ambiente >40°C · PWM muy alto · VFD subdimensionado.',
+   medic:'Giro del ventilador · temperatura ambiente en gabinete · rejillas libres.',
+   param:'Pr.17 frecuencia portadora',
+   sol:'Limpiar ventilador/disipador. Reducir Pr.17 de 10kHz a 6kHz si el ruido lo permite.'},
+  {code:'OL', name:'Sobrecarga del motor (relé electrónico)', sev:'warn',
+   causas:'Pr.06 mal ajustado · baja frecuencia sin ventilación forzada.',
+   medic:'Corriente real U/V/W vs. placa.',
+   param:'Pr.06 · Pr.07',
+   sol:'Corregir Pr.06 a placa. Considerar ventilación forzada en baja velocidad sostenida.'},
+  {code:'OL1', name:'Sobrecarga del VFD (interna)', sev:'warn',
+   causas:'VFD subdimensionado · ciclo de trabajo excesivo (>150% >1 min).',
+   medic:'Corriente real vs. nominal del VFD.',
+   param:'—',
+   sol:'Si supera la nominal del VFD, el equipo está subdimensionado — reemplazar.'},
+  {code:'OL2', name:'Sobrecarga del motor (electrónica)', sev:'warn',
+   causas:'Pr.06 mal ajustado o sobrecarga mecánica real.',
+   medic:'—',
+   param:'Pr.06',
+   sol:'Ajustar Pr.06 al valor exacto de placa.'},
+  {code:'CF1', name:'Falla EEPROM interna', sev:'warn',
+   causas:'Error de escritura · corte de energía durante grabación.',
+   medic:'—',
+   param:'Pr.78 reset fábrica (10)',
+   sol:'Reset de fábrica y reprogramar. ⚠ Documentar parámetros antes — el reset los borra todos.'},
+  {code:'BB', name:'Base Block (salida bloqueada)', sev:'warn',
+   causas:'No es falla — inhibición intencional activa por entrada digital o E-Stop.',
+   medic:'Estado de entradas digitales (24V=activa).',
+   param:'Pr.38–43 (valor 8 = BB)',
+   sol:'Identificar qué entrada tiene asignada BB y revisar el circuito que la activa.'},
+  {code:'EF', name:'Falla externa', sev:'warn',
+   causas:'Señal de falla externa activa (guardamotor, termistor, otro equipo).',
+   medic:'Identificar terminal con función EF (valor 7).',
+   param:'Pr.38–43',
+   sol:'Localizar el dispositivo externo, resolver la causa raíz, resetear el VFD.'},
+  {code:'SE', name:'Falla comunicación serial (Modbus)', sev:'warn',
+   causas:'Pérdida de comunicación RTU · cableado RS-485 defectuoso · config incorrecta.',
+   medic:'Diferencial A-B ≈+200mV en reposo · terminación 120Ω · continuidad de blindaje.',
+   param:'Pr.88 dirección · Pr.89 baudrate · Pr.92 timeout',
+   sol:'Verificar cableado RS-485 y que Pr.88/89 coincidan con el maestro. Aumentar Pr.92 si hay latencia.'},
+  {code:'PUE', name:'Error de parámetro (fuera de rango)', sev:'warn',
+   causas:'Valor fuera de rango · corrupción por corte de energía · Pr.77 bloqueado.',
+   medic:'—',
+   param:'Pr.77 protección (0=libre) · Pr.78 reset',
+   sol:'Verificar Pr.77=0. Si hay corrupción, reset de fábrica y reprogramar.'},
+  {code:'PGFE', name:'Falla de encoder / PG', sev:'warn',
+   causas:'Señal de encoder perdida · cable roto · encoder incompatible.',
+   medic:'Alimentación del encoder (5/12V) · señales A/B/Z con osciloscopio.',
+   param:'Pr.10 modo control (0=V/f si no hay encoder)',
+   sol:'Revisar cableado. Si no se requiere lazo cerrado, cambiar a modo V/f.'},
+  {code:'AUE', name:'Error de autoajuste', sev:'warn',
+   causas:'Motor no conectado durante autoajuste · Pr.06 incorrecto · falla de bobinado.',
+   medic:'Conexión U/V/W · resistencia de bobinados equilibrada.',
+   param:'Pr.06 · Pr.58 autoajuste',
+   sol:'Verificar motor conectado y Pr.06 correcto. Si falla, usar parámetros manuales de placa.'},
+];
+
+// ---------------------------------------------------------------------
+// CURVAS DE PROTECCIÓN — referencia (tablas; sin graficado SVG en v1)
+// ---------------------------------------------------------------------
+const CURVAS = [
+  {
+    title:'Breakers termomagnéticos', ic:'📈',
+    intro:'Curva térmica representativa — IEC 60898/60947-2. La banda de disparo magnético (instantáneo) es lo que cambia por tipo.',
+    headers:['Curva','Disparo magnético','Uso típico'],
+    rows:[
+      ['B','3–5× In','Resistivo, iluminación, sin inrush'],
+      ['C','5–10× In','Cargas mixtas, motores pequeños, transformadores'],
+      ['D','10–20× In','Motores grandes, transformadores, alto inrush'],
+      ['K','8–14× In','Motores (variante industrial, poco común en MX)'],
+    ],
+    note:'⚠ Curva representativa, no certificada. Para selectividad o coordinación, confirmar con la hoja de datos del fabricante.'
+  },
+  {
+    title:'Guardamotor — relé térmico bimetálico', ic:'🌡️',
+    intro:'Curva fija de fábrica — IEC 60947-4-1, clasificada por tiempo de disparo a 7.2× FLA. No ajustable.',
+    headers:['Clase','Tiempo a 7.2× FLA','Aplicación'],
+    rows:[
+      ['10','&lt; 10 s','Arranque directo, bombas, cargas normales'],
+      ['20','&lt; 20 s','Cargas con arranque más largo'],
+      ['30','&lt; 30 s','Arranques pesados, alta inercia (bandas, ventiladores grandes)'],
+    ],
+    note:''
+  },
+  {
+    title:'Relevadores térmicos electrónicos', ic:'🔢',
+    intro:'Clase de disparo ajustable (5/10/15/20/30) además de protecciones que el bimetálico no ofrece — IEC 60947-4-1.',
+    headers:['Protección','Bimetálico','Electrónico'],
+    rows:[
+      ['Sobrecarga ajustable','—','✓'],
+      ['Desbalance de fases','—','✓'],
+      ['Pérdida de fase','parcial','✓'],
+      ['Memoria térmica en reinicio','—','✓'],
+      ['Rearranque automático configurable','—','✓'],
+    ],
+    note:'Parámetros exactos varían por fabricante — confirmar en manual del dispositivo.'
+  },
+  {
+    title:'Fusibles', ic:'🧯',
+    intro:'Retardo (dual-element) tolera inrush de motor sin disparar; rápido (fast-acting) despeja falla más rápido pero no tolera inrush.',
+    headers:['Clase','Característica','Uso'],
+    rows:[
+      ['RK5','Time-delay, dual-element','Circuitos de motor (permite inrush)'],
+      ['J','Rápido, alta capacidad interruptiva','Protección general, tableros'],
+      ['CC','Miniatura, control/motores pequeños','Circuitos de control, transf. de control'],
+      ['T','Rápido, compacto','Espacios reducidos'],
+    ],
+    note:'⚠ Curvas ilustrativas — confirmar tiempo de despeje real contra hoja de datos del fabricante.'
+  },
+];
+
+// ---------------------------------------------------------------------
+// SEGURIDAD — Arc-Flash, distancias, LOTO
+// ---------------------------------------------------------------------
+const SEGURIDAD = {
+  intro:'NFPA 70E — norma americana de facto para seguridad eléctrica en México (no hay NOM obligatoria equivalente). Los límites reales requieren estudio calculado IEEE 1584-2018; esto es referencia de campo.',
+  arcflash:{
+    headers:['Cat.','cal/cm² máx','Equipo mínimo requerido'],
+    rows:[
+      ['0','hasta 1.2','Ropa FR manga larga, gafas de seguridad'],
+      ['1','hasta 4','Cat 0 + careta 4 cal, guantes de cuero'],
+      ['2','hasta 8','Cat 0 + careta 8 cal, guantes clase 00 (500V), balaclava FR'],
+      ['3','hasta 25','Traje FR doble capa, careta 25 cal, guantes clase 0 (1000V)'],
+      ['4','hasta 40','Traje FR alta energía, careta 40 cal, guantes clase 0 (1000V)'],
+    ],
+    note:'Regla de campo: sin estudio de arc-flash, usa Cat 2 como mínimo para tableros de 480V antes de intervenir.'
+  },
+  guantes:{
+    headers:['Clase','Voltaje máx. uso (CA)','V. de prueba','Color'],
+    rows:[
+      ['00','500 V','2 500 V','Beige'],['0','1 000 V','5 000 V','Rojo'],
+      ['1','7 500 V','10 000 V','Blanco'],['2','17 000 V','20 000 V','Amarillo'],
+      ['3','26 500 V','30 000 V','Verde'],['4','36 000 V','40 000 V','Naranja'],
+    ],
+    note:'Siempre con guante de cuero protector encima. Revisar antes de cada uso (inflar y verificar fugas/grietas). Prueba dieléctrica cada 6 meses.'
+  },
+  catmm:{
+    headers:['CAT','Voltaje típico','Aplicación'],
+    rows:[
+      ['CAT I','hasta 600V','Circuitos electrónicos protegidos — baja energía'],
+      ['CAT II','hasta 600V','Tomacorrientes, cargas de circuito ramal — portátil'],
+      ['CAT III','hasta 600–1000V','Tableros de distribución, alimentadores, motores fijos'],
+      ['CAT IV','hasta 600–1000V','Acometida, medidor CFE, origen de la instalación'],
+    ],
+    note:'Usa siempre la categoría más alta disponible. Nunca midas en un punto de mayor energía disponible con instrumento CAT II.'
+  },
+  distancias:{
+    headers:['Tensión (V)','Cond. 1','Cond. 2','Cond. 3'],
+    rows:[
+      ['0 – 150','0.90 m','0.90 m','0.90 m'],
+      ['151 – 600','0.90 m','1.05 m','1.20 m'],
+      ['601 – 2 500','0.90 m','1.20 m','1.50 m'],
+      ['2 501 – 9 000','1.20 m','1.50 m','1.80 m'],
+    ],
+    note:'Cond.1 = pared/equipo sin tensión detrás · Cond.2 = tierra/equipo energizado detrás · Cond.3 = energizado en ambos lados. Altura mínima de trabajo: 1.98 m — Art. 110-26.'
+  },
+  loto:[
+    {v:'Identificar', d:'Todas las fuentes de energía del equipo: eléctrica, neumática, hidráulica, gravitacional, térmica. Revisar el unifilar — no asumir que solo hay una fuente.'},
+    {v:'Notificar', d:'A producción y al personal afectado que el equipo será intervenido y el tiempo estimado.'},
+    {v:'Apagar', d:'El equipo por su medio de control normal (pulsador de paro, selector, HMI). No como sustituto del bloqueo.'},
+    {v:'Aislar', d:'La fuente de energía en el punto de desconexión (interruptor principal, válvula, desconectivo del motor).'},
+    {v:'Bloquear y etiquetar', d:'Candado personal + tarjeta con nombre, fecha y motivo. Si intervienen varios técnicos: un candado por persona.'},
+    {v:'Verificar ausencia de energía', d:'Intentar arranque por control normal · medir tensión con multímetro · ciclar válvulas para presión residual · verificar bloqueo mecánico si aplica.'},
+  ]
+};
+
+// ---------------------------------------------------------------------
+// HERRAMIENTAS — dotación por bloque de trabajo
+// ---------------------------------------------------------------------
+const HERRAMIENTAS = [
+  {title:'Mano y llaves aisladas 1000V (VDE/IEC 60900)', ic:'🔧',
+    headers:['Herramienta','Medida / Nota'],
+    rows:[
+      ['⭐ Pinza de electricista (lineman)','8" / 9"'],['⭐ Pinza de punta larga','6" / 8"'],
+      ['⭐ Pinza de corte diagonal','6" / 7"'],['Pinza de punta larga curva 45°/90°','6"'],
+      ['Pinza de presión (perico chico)','8" / 10"'],['⭐ Juego desarmadores planos/cruz aislados','1/8" a 5/16" — línea Expert VDE'],
+      ['Desarmador de golpe / dieléctrico largo','8"–12"'],['⭐ Juego de llaves Allen','1.5–10 mm'],
+      ['⭐ Llave española combinada','8–19 mm'],['Llave ajustable (perico)','8" y 10"'],
+      ['Llave de matraca 1/2" + dados','8–24 mm'],['⭐ Cinta de aislar + navaja de electricista','—'],
+    ]},
+  {title:'Corte, desforre y ponchado', ic:'✂️',
+    headers:['Herramienta','Uso'],
+    rows:[
+      ['⭐ Pela-cables ajustable','10–22 AWG control'],['⭐ Pinza pela-cable automática','Control y residencial'],
+      ['Cuchilla de media caña','Cable grueso 1/0+'],['⭐ Cortacable de trinquete','Hasta 500 kcmil'],
+      ['⭐ Ponchadora de terminales aisladas','22–10 AWG'],['Ponchadora hidráulica de zapatas','16–240 mm² — Klauke/Burndy'],
+      ['Ponchadora de punteras (ferrules)','Knipex/Wago/Phoenix'],['Ponchadora RJ45 / coax','Redes industriales'],
+    ], note:'La ponchadora de punteras barata es la que más duele: puntera mal ponchada = punto caliente en bornera de VFD.'},
+  {title:'Medición e instrumentos', ic:'📟', danger:true,
+    headers:['Instrumento','Nivel','Marca recomendada'],
+    rows:[
+      ['⭐ Multímetro TRMS CAT III/IV','Diario','Fluke 87V/179'],
+      ['⭐ Pinza amperimétrica TRMS','Diario','Fluke 325/376'],
+      ['⭐ Detector de tensión sin contacto','Diario','Fluke 1AC-II'],
+      ['Probador de secuencia de fases','Motores','Fluke 9040, Extech'],
+      ['⭐ Megóhmetro 500/1000V','Aislamiento motor','Fluke 1507, Megger MIT'],
+      ['Telurómetro','Sistemas de tierra','Fluke 1625, AEMC'],
+      ['⭐ Calibrador de lazo 4-20mA / HART','Instrumentación','Fluke 725/789'],
+      ['Cámara termográfica','Predictivo','Fluke Ti / FLIR E'],
+    ], note:'Categoría mínima CAT III 600V para tablero; CAT IV 600V / CAT III 1000V si tocas acometida o CCM. Aquí no se ahorra.'},
+  {title:'Perforación, ranurado y anclaje', ic:'🪛',
+    headers:['Herramienta','Uso'],
+    rows:[
+      ['⭐ Rotomartillo SDS-Plus','Taquetes en concreto'],['⭐ Taladro inalámbrico 18–20V','Tablero, lámina'],
+      ['⭐ Juego de brocas SDS 1/4"–3/4"','Concreto'],['Brocas HSS y escalonadas (unibit)','Lámina de gabinete'],
+      ['⭐ Sacabocados hidráulico (knockout)','1/2" a 2" en gabinete'],['Sierra copa bimetálica','Registros, gabinetes'],
+    ]},
+  {title:'Canalización — conduit y charola', ic:'🧵',
+    headers:['Herramienta','Uso'],
+    rows:[
+      ['⭐ Dobladora manual EMT','1/2", 3/4", 1"'],['Dobladora hidráulica hasta 2"','Rígido/IMC'],
+      ['⭐ Cortatubos de rodillo','EMT limpio'],['⭐ Escariador / rimador','Quitar rebaba — obligatorio Art. 358'],
+      ['Tarraja de tubo conduit','Rígido roscado'],['⭐ Nivel de burbuja + torpedo magnético','Alineación de charola'],
+      ['⭐ Flexómetro 5m/8m, escuadra, plomada','Trazo'],['⭐ Cortadora/pinza de charola','Modificación en sitio'],
+    ], note:'Rebaba en corte de EMT = aislamiento raspado al jalar. Es la falla que aparece meses después como falla a tierra intermitente.'},
+  {title:'Jalado de cable', ic:'🧲',
+    headers:['Herramienta','Uso'],
+    rows:[
+      ['⭐ Guía pasacables (fish tape)','15–30 m, conduit'],['Varillas flexibles (fiberglass)','Plafón, muro'],
+      ['Calcetín de jalado (pulling grip)','Cable grueso'],['Malacate o cabrestante','Alimentadores — Greenlee'],
+      ['⭐ Lubricante para jalado','Obligatorio en jalado largo'],['⭐ Cinta de jalar (nylon)','—'],
+    ]},
+  {title:'Tablero y control fino', ic:'🎛️',
+    headers:['Herramienta','Uso','Marca'],
+    rows:[
+      ['⭐ Desarmadores de precisión aislados','Borneras VFD, PLC','Wera, Wiha'],
+      ['⭐ Desarmador de torque 0.4–2.5 N·m','Apriete de borne — Art. 110-12','Wera, Wiha, Klein'],
+      ['⭐ Pinza de punta fina y corte fino','Cableado de control','Knipex'],
+      ['⭐ Marcadora de cables / etiquetadora','Identificación IEC 61346','Brother PT-E, Dymo Rhino'],
+      ['⭐ Juego de dados aislados 1000V','Barras energizadas','Cementex, Knipex'],
+    ], note:'Todo es chico, apretado y con torque especificado — es donde una punta barata rompe una bornera de VFD.'},
+  {title:'Seguridad, LOTO y EPP', ic:'🦺', danger:true,
+    headers:['Elemento','Especificación'],
+    rows:[
+      ['⭐ Guantes dieléctricos clase 0 + cuero protector','ASTM D120 — prueba cada 6 meses'],
+      ['⭐ Careta de arco eléctrico + ropa FR','Categoría según estudio Arc-Flash NFPA 70E'],
+      ['⭐ Casco dieléctrico clase E','ANSI Z89.1'],
+      ['⭐ Kit LOTO: candados, tarjetas, pinza multicandado','NOM-004-STPS'],
+      ['⭐ Detector de tensión + verificación','Regla de 3 pasos: prueba, verifica, prueba'],
+      ['Pértiga dieléctrica','Media tensión — verificar certificación'],
+    ], note:'El EPP dieléctrico no es cuestión de marca — es cuestión de que la prueba dieléctrica esté vigente. Verifica siempre.'},
+  {title:'Escalera, transporte y organización', ic:'🪜',
+    headers:['Elemento','Nota'],
+    rows:[
+      ['⭐ Escalera de fibra de vidrio tipo tijera','Nunca de aluminio para eléctrico'],
+      ['⭐ Cinturón portaherramienta con funda','—'],
+      ['⭐ Lámpara de trabajo recargable + frontal','Gabinete y plafón'],
+      ['Extensión eléctrica con GFCI portátil','Obligatorio en obra'],
+    ]},
+  {title:'Consumibles que siempre traes', ic:'📦',
+    headers:['—','—'], hideHead:true,
+    rows:[['Cinta de aislar 33+ · cinta autofundente · cintillos de nylon · espagueti termocontráctil · marcadores de cable numéricos · punteras/ferrules surtidas · terminales de ojillo y horquilla · conectores Wago · tuercas conduit · taquetes · limpiador de contactos · aire comprimido en lata.','']]},
+];
+
+</script>
+<script>
+/* ===================================================================
+   VoltRefMX · Una Mano — MOTOR DE LA APP
+   =================================================================== */
+
+const $app = document.getElementById('app');
+
+const ST = { screen:'home', modId:null, stepIdx:0, answers:{}, vfdOpen:{}, vfdFilter:'', colorIdx:0 };
+
+function fmt(n, d){ if(n===null||n===undefined||isNaN(n)) return '—'; d=d===undefined?2:d; return Number(n).toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:d}); }
+function esc(s){ return (s+'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function pickCond(nearestMm2){ // helper unused placeholder
+}
+
+/* ---------------------------------------------------------------
+   DEFINICIÓN DE MÓDULOS DE CÁLCULO
+--------------------------------------------------------------- */
+const MODULES_C = {
+
+  caida: {
+    id:'caida', label:'Caída de tensión', ic:'⚡', tc:'#f6c02a', tcbg:'rgba(246,192,42,.14)',
+    desc:'ΔV en un circuito — NOM-001 Tabla 9',
+    steps:[
+      {key:'sistema', type:'choice', q:'¿Sistema de alimentación?', hint:'Define la constante k de la fórmula: √3 trifásico, 2 monofásico.',
+        options:[{v:'tri',ic:'🔺',t1:'Trifásico',t2:'k = √3'},{v:'mono',ic:'⚡',t1:'Monofásico',t2:'k = 2'}], default:'tri'},
+      {key:'vn', type:'number', q:'¿Tensión nominal del circuito?', unit:'V', min:12, max:13800, step:1, default:220, presets:[127,220,440,480]},
+      {key:'i', type:'number', q:'¿Corriente de diseño?', unit:'A', min:1, max:2000, step:1, default:40, presets:[20,40,60,100]},
+      {key:'l', type:'number', q:'¿Longitud del circuito (una vía)?', hint:'La misma que capturarías en campo con la cinta métrica.', unit:'m', min:1, max:3000, step:1, default:30, presets:[15,30,50,100]},
+      {key:'cal', type:'picklist', q:'¿Qué calibre quieres verificar?', hint:'Elige el conductor que ya tienes pensado usar.', list:COND.map(c=>({v:c.c, l:c.c, r:c.mm2+' mm²'}))},
+      {key:'limite', type:'segment', q:'¿Qué límite normativo aplica?', options:[{v:3,label:'3%'},{v:5,label:'5%'}], sub:['Circuito derivado','Alim. + derivado acum.'], default:3},
+    ],
+    compute(a){
+      const c = COND.find(x=>x.c===a.cal) || COND[9];
+      const k = a.sistema==='tri' ? Math.sqrt(3) : 2;
+      const Lkm = a.l/1000;
+      const Z = Math.sqrt(c.r*c.r + c.xl*c.xl);
+      const pct = (k*a.i*Lkm*Z)/a.vn*100;
+      const dV = pct/100*a.vn;
+      const Vc = a.vn - dV;
+      const cumple = pct <= a.limite;
+      return {c,k,Z,pct,dV,Vc,cumple,a};
+    },
+    renderResult(r){
+      return `
+      <div class="res-badge ${r.cumple?'ok':'danger'}">${r.cumple?'✔ CUMPLE':'✘ NO CUMPLE'} — límite ${r.a.limite}%</div>
+      <div class="res-hero">
+        <div class="lbl">Caída de tensión</div>
+        <div class="val">${fmt(r.pct,2)}<span class="u">%</span></div>
+        <div class="sub">ΔV = ${fmt(r.dV,2)} V · V en carga = ${fmt(r.Vc,1)} V</div>
+      </div>
+      <div class="res-grid">
+        <div class="res-row"><div class="k">Conductor</div><div class="v">${r.c.c}</div></div>
+        <div class="res-row"><div class="k">Sistema</div><div class="v">${r.a.sistema==='tri'?'Trifásico':'Monofásico'} · ${r.a.vn} V</div></div>
+        <div class="res-row"><div class="k">Z (Tabla 9)</div><div class="v">${fmt(r.Z,3)} Ω/km</div></div>
+        <div class="res-row"><div class="k">R / XL</div><div class="v">${fmt(r.c.r,3)} / ${fmt(r.c.xl,3)} Ω/km</div></div>
+        <div class="res-row hi"><div class="k">Corriente · Longitud</div><div class="v">${r.a.i} A · ${r.a.l} m</div></div>
+      </div>
+      <div class="res-note">Método de impedancia — <b>NOM-001-SEDE-2012 Tabla 9</b>, conduit acero, Cu sin recubrimiento, 75°C, 60Hz. Verifica con el proyectista el límite aplicable a tu circuito específico.</div>`;
+    }
+  },
+
+  ampacidad: {
+    id:'ampacidad', label:'Ampacidad / calibre', ic:'🔌', tc:'#3b82f6', tcbg:'rgba(59,130,246,.14)',
+    desc:'Calibre mínimo por corriente — NOM-001 310-15',
+    steps:[
+      {key:'i', type:'number', q:'¿Corriente de diseño?', unit:'A', min:1, max:2000, step:1, default:40, presets:[20,40,60,100]},
+      {key:'mat', type:'segment', q:'¿Material del conductor?', options:[{v:'cu',label:'Cobre'},{v:'al',label:'Aluminio'}], default:'cu'},
+      {key:'inst', type:'choice', q:'¿Tipo de instalación?', options:[
+        {v:'conduit', ic:'○', t1:'Conduit', t2:'Factor por agrupamiento'},
+        {v:'esc', ic:'▤', t1:'Charola escalera', t2:'Factor fijo 0.75'},
+        {v:'liso', ic:'▬', t1:'Charola lisa', t2:'Factor fijo 0.65'}], default:'conduit'},
+      {key:'n', type:'number', q:'¿Cuántos conductores portadores de corriente van juntos?', hint:'No cuentes tierra física ni neutro de circuito balanceado.', unit:'cond.', min:1, max:60, step:1, default:3,
+        show:a=>a.inst==='conduit'},
+      {key:'temp', type:'segment', q:'¿Temperatura ambiente?', options:FTEMP.map(t=>({v:t.t,label:t.t+'°C'})), default:30},
+    ],
+    compute(a){
+      const Ftemp = (FTEMP.find(t=>t.t===a.temp)||FTEMP[0]).f;
+      const Finst = a.inst==='conduit' ? factorAgrup(a.n||3) : (a.inst==='esc'?0.75:0.65);
+      let pick=null;
+      for(const c of COND){
+        const base = a.mat==='cu'?c.cu:c.al;
+        if(!base) continue;
+        const corr = base*Ftemp*Finst;
+        if(corr >= a.i){ pick={c,base,corr}; break; }
+      }
+      return {pick, Ftemp, Finst, a};
+    },
+    renderResult(r){
+      if(!r.pick) return `<div class="res-badge danger">✘ Fuera de tabla</div><div class="res-note">Ningún calibre de la tabla (hasta 750 kcmil) cubre esta corriente corregida. Considera conductores en paralelo — Art. 310-4.</div>`;
+      const p=r.pick;
+      return `
+      <div class="res-badge ok">✔ Calibre mínimo encontrado</div>
+      <div class="res-hero">
+        <div class="lbl">Calibre</div>
+        <div class="val" style="font-size:38px">${p.c.c}</div>
+        <div class="sub">Ampacidad corregida ${fmt(p.corr,1)} A ≥ diseño ${r.a.i} A</div>
+      </div>
+      <div class="res-grid">
+        <div class="res-row"><div class="k">Ampacidad base (75°C)</div><div class="v">${p.base} A</div></div>
+        <div class="res-row"><div class="k">Factor temperatura</div><div class="v">×${r.Ftemp}</div></div>
+        <div class="res-row"><div class="k">Factor instalación</div><div class="v">×${r.Finst}</div></div>
+        <div class="res-row hi"><div class="k">Material</div><div class="v">${r.a.mat==='cu'?'Cobre':'Aluminio'}</div></div>
+      </div>
+      <div class="res-note">Criterio: <b>ampacidad base × F.temp × F.instalación ≥ I diseño</b> — no comparar la corriente ya corregida contra la ampacidad base sola. NOM-001 310-15(b).</div>`;
+    }
+  },
+
+  motor: {
+    id:'motor', label:'Motor eléctrico', ic:'⚙️', tc:'#ef4444', tcbg:'rgba(239,68,68,.14)',
+    desc:'FLC, arranque, breaker y cable — NOM-001 Art. 430',
+    steps:[
+      {key:'punit', type:'segment', q:'¿En qué unidad tienes la potencia?', options:[{v:'hp',label:'HP'},{v:'kw',label:'kW'}], default:'hp'},
+      {key:'p', type:'number', q:'¿Potencia del motor?', unit:a=>a.punit==='hp'?'HP':'kW', min:0.25, max:1000, step:0.5, default:10, presets:[5,10,20,50]},
+      {key:'sistema', type:'segment', q:'¿Sistema?', options:[{v:'tri',label:'Trifásico'},{v:'mono',label:'Monofásico'}], default:'tri'},
+      {key:'v', type:'number', q:'¿Tensión nominal?', unit:'V', min:110, max:600, step:1, default:440, presets:[220,440,480]},
+      {key:'arranque', type:'choice', q:'¿Método de arranque?', options:[
+        {v:'dol', ic:'⚡', t1:'Directo (DOL)', t2:'Ia ≈ 6.5× FLC'},
+        {v:'yd', ic:'△', t1:'Estrella-Triángulo', t2:'Ia ≈ 2.2× FLC'},
+        {v:'vfd', ic:'📊', t1:'VFD', t2:'Ia ≈ 1.5× FLC'},
+        {v:'soft', ic:'🌊', t1:'Arrancador suave', t2:'Ia ≈ 3.0× FLC'}], default:'dol'},
+      {key:'tieneplaca', type:'segment', q:'¿Tienes el FLA real de la placa del motor?', hint:'El guardamotor se ajusta al FLA de placa, no al calculado ni al breaker.', options:[{v:'no',label:'No — usar calculado'},{v:'si',label:'Sí — capturar'}], default:'no'},
+      {key:'fla', type:'number', q:'¿Cuál es el FLA de placa?', unit:'A', min:0.1, max:2000, step:0.1, default:20, show:a=>a.tieneplaca==='si'},
+    ],
+    compute(a){
+      const kw = a.punit==='hp' ? a.p*0.7457 : a.p;
+      const FP=0.85, eff=0.90;
+      const I = a.sistema==='tri' ? (kw*1000)/(Math.sqrt(3)*a.v*FP*eff) : (kw*1000)/(a.v*FP*eff);
+      const FLA = a.tieneplaca==='si' ? a.fla : I;
+      const mult = ARRANQUE[a.arranque];
+      const Ia = I*mult.ia;
+      const brk = roundStd(I*2.50);
+      const cableI = I*1.25;
+      let cable=null;
+      for(const c of COND){ if(c.cu>=cableI){ cable=c; break; } }
+      return {kw,I,FLA,mult,Ia,brk,cableI,cable,a};
+    },
+    renderResult(r){
+      return `
+      <div class="res-badge warn">📐 Cálculo por fórmula — Art. 430</div>
+      <div class="res-hero">
+        <div class="lbl">Corriente de diseño (FLC)</div>
+        <div class="val">${fmt(r.I,1)}<span class="u">A</span></div>
+        <div class="sub">${fmt(r.kw,2)} kW · ${r.a.sistema==='tri'?'Trifásico':'Monofásico'} ${r.a.v}V · FP 0.85 / η 0.90 asumidos</div>
+      </div>
+      <div class="res-grid">
+        <div class="res-row hi"><div class="k">Arranque (${r.mult.label})</div><div class="v">Ia ≈ ${fmt(r.Ia,1)} A</div></div>
+        <div class="res-row"><div class="k">Breaker mínimo (250% FLC)</div><div class="v">${r.brk} A</div></div>
+        <div class="res-row"><div class="k">Cable (125% FLC → calibre)</div><div class="v">${r.cable?r.cable.c:'—'}</div></div>
+        <div class="res-row"><div class="k">Guardamotor Ir</div><div class="v">${fmt(r.FLA,1)} A</div></div>
+      </div>
+      <div class="res-note ${r.a.tieneplaca==='no'?'warn':''}">${r.a.tieneplaca==='no'
+        ? '⚠ Estás ajustando el guardamotor a la <b>corriente calculada</b>, no a placa. En cuanto tengas el motor físico, usa el <b>FLA real de placa</b> — es la regla de campo del Art. 430-32.'
+        : 'Guardamotor ajustado al <b>FLA de placa</b> capturado — correcto según Art. 430-32.'}
+        Cable dimensionado sin factores de agrupamiento/temperatura — verifica con el módulo <b>Ampacidad</b> si van varios circuitos en el mismo conduit.</div>`;
+    }
+  },
+
+  conduit: {
+    id:'conduit', label:'Llenado de conduit', ic:'○', tc:'#10b981', tcbg:'rgba(16,185,129,.14)',
+    desc:'% de área ocupada — NOM-001 Cap.10 (EMT)',
+    steps:[
+      {key:'cal', type:'picklist', q:'¿Qué calibre de conductor?', hint:'Aislamiento THHN/THWN — el más común en tablero.', list:COND.filter(c=>COND_OD_THHN[c.mm2]).map(c=>({v:c.c, l:c.c, r:c.mm2+' mm²'}))},
+      {key:'n', type:'number', q:'¿Cuántos conductores de esa medida?', unit:'cond.', min:1, max:60, step:1, default:3, presets:[3,4,6,9]},
+      {key:'tam', type:'picklist', q:'¿Qué tamaño de conduit EMT?', hint:'Si usas IMC o RGS avísame y agrego esas tablas.', list:CONDUIT_EMT.map(c=>({v:c.n, l:c.n, r:fmt(c.d,1)+' mm Ø int.'}))},
+    ],
+    compute(a){
+      const c = COND.find(x=>x.c===a.cal);
+      const OD = COND_OD_THHN[c.mm2] || (Math.sqrt(c.mm2/Math.PI)*2+4);
+      const cw = CONDUIT_EMT.find(x=>x.n===a.tam);
+      const Atotal = Math.PI*Math.pow(cw.d/2,2);
+      const areaCond = Math.PI*Math.pow(OD/2,2)*a.n;
+      const limite = a.n===1?53:a.n===2?31:40;
+      const pct = areaCond/Atotal*100;
+      const cumple = pct<=limite;
+      return {c,OD,cw,Atotal,areaCond,limite,pct,cumple,a};
+    },
+    renderResult(r){
+      return `
+      <div class="res-badge ${r.cumple?'ok':'danger'}">${r.cumple?'✔ CUMPLE':'✘ EXCEDE'} — límite ${r.limite}%</div>
+      <div class="res-hero">
+        <div class="lbl">% de llenado</div>
+        <div class="val">${fmt(r.pct,1)}<span class="u">%</span></div>
+        <div class="sub">${r.a.n} × ${r.c.c} en conduit EMT ${r.a.tam}</div>
+      </div>
+      <div class="res-grid">
+        <div class="res-row"><div class="k">Área interior conduit</div><div class="v">${fmt(r.Atotal,1)} mm²</div></div>
+        <div class="res-row"><div class="k">Área ocupada</div><div class="v">${fmt(r.areaCond,1)} mm²</div></div>
+        <div class="res-row"><div class="k">Ø exterior conductor</div><div class="v">${fmt(r.OD,2)} mm</div></div>
+        <div class="res-row hi"><div class="k">Límite (n=${r.a.n})</div><div class="v">${r.limite}%</div></div>
+      </div>
+      <div class="res-note">NOM-001 Cap.10 Tabla 1: 1 conductor 53% · 2 conductores 31% · 3+ conductores 40%. Diámetros de Tabla 4 (EMT) y Tabla 5 (THHN/THWN).</div>`;
+    }
+  },
+
+  xfmr: {
+    id:'xfmr', label:'Transformador', ic:'🔄', tc:'#8b5cf6', tcbg:'rgba(139,92,246,.14)',
+    desc:'Corrientes y protección — NOM-001 Art. 450',
+    steps:[
+      {key:'kva', type:'number', q:'¿Potencia del transformador?', unit:'kVA', min:1, max:2500, step:1, default:75, presets:[15,30,75,150,300]},
+      {key:'sistema', type:'segment', q:'¿Tipo?', options:[{v:'tri',label:'Trifásico'},{v:'mono',label:'Monofásico'}], default:'tri'},
+      {key:'vp', type:'number', q:'¿Tensión de primario?', unit:'V', min:110, max:15000, step:1, default:480, presets:[220,440,480,13800]},
+      {key:'vs', type:'number', q:'¿Tensión de secundario?', unit:'V', min:12, max:600, step:1, default:220, presets:[127,220,440,480]},
+      {key:'proteccion', type:'choice', q:'¿Esquema de protección?', options:[
+        {v:'solo', ic:'1️⃣', t1:'Solo primaria', t2:'≤125% de Ip'},
+        {v:'ambas', ic:'2️⃣', t1:'Primaria + secundaria', t2:'≤250% Ip / ≤125% Is'}], default:'solo'},
+    ],
+    compute(a){
+      const Ip = a.sistema==='tri' ? (a.kva*1000)/(Math.sqrt(3)*a.vp) : (a.kva*1000)/a.vp;
+      const Is = a.sistema==='tri' ? (a.kva*1000)/(Math.sqrt(3)*a.vs) : (a.kva*1000)/a.vs;
+      let Bp,Bs;
+      if(a.proteccion==='solo'){ Bp=roundStd(Ip*1.25); Bs=null; }
+      else { Bp=roundStd(Ip*2.50); Bs=roundStd(Is*1.25); }
+      const inrush = Is*10;
+      const z = zDefault(a.kva);
+      const R=z*0.30, X=z*0.95, FP=0.85, sinphi=Math.sqrt(1-FP*FP);
+      const vr = R*FP + X*sinphi;
+      return {Ip,Is,Bp,Bs,inrush,z,vr,a};
+    },
+    renderResult(r){
+      return `
+      <div class="res-badge ok">✔ Corrientes calculadas</div>
+      <div class="res-hero">
+        <div class="lbl">Corriente secundario</div>
+        <div class="val">${fmt(r.Is,1)}<span class="u">A</span></div>
+        <div class="sub">Primario ${fmt(r.Ip,1)} A · ${r.a.kva} kVA ${r.a.sistema==='tri'?'trifásico':'monofásico'}</div>
+      </div>
+      <div class="res-grid">
+        <div class="res-row hi"><div class="k">Protección primario</div><div class="v">${r.Bp} A</div></div>
+        ${r.Bs?`<div class="res-row hi"><div class="k">Protección secundario</div><div class="v">${r.Bs} A</div></div>`:''}
+        <div class="res-row"><div class="k">Inrush estimado (10×Is)</div><div class="v">${fmt(r.inrush,0)} A</div></div>
+        <div class="res-row"><div class="k">%VR estimado (%Z≈${r.z}% típico)</div><div class="v">${fmt(r.vr,2)}%</div></div>
+      </div>
+      <div class="res-note">Breaker tipo D en primario recomendado para tolerar el inrush. %VR calculado con aproximación lineal y FP=0.85 — usa el %Z real de placa cuando lo tengas.</div>`;
+    }
+  }
+};
+
+const REF_MODULES = [
+  {id:'colores', label:'Colores de cable', ic:'🎨', tc:'#06b6d4', tcbg:'rgba(6,182,212,.14)', desc:'Comparativo por norma — KB-05'},
+  {id:'vfd', label:'VFD Delta — Alarmas', ic:'📟', tc:'#f97316', tcbg:'rgba(249,115,22,.14)', desc:'20 códigos, causas y solución'},
+  {id:'curvas', label:'Curvas de protección', ic:'📈', tc:'#eab308', tcbg:'rgba(234,179,8,.14)', desc:'Breakers, guardamotor, fusibles'},
+  {id:'seg', label:'Seguridad', ic:'🦺', tc:'#ff5252', tcbg:'rgba(255,82,82,.14)', desc:'Arc-Flash, distancias, LOTO'},
+  {id:'herr', label:'Herramientas', ic:'🧰', tc:'#39d178', tcbg:'rgba(57,209,120,.14)', desc:'Dotación por bloque de trabajo'},
+];
+
+/* ---------------------------------------------------------------
+   MOTOR DE NAVEGACIÓN
+--------------------------------------------------------------- */
+const App = {
+
+  goHome(){ ST.screen='home'; render(); },
+  goRefList(){ ST.screen='refhome'; render(); },
+  goMore(){ ST.screen='more'; render(); },
+
+  openModule(id){
+    ST.modId=id; ST.stepIdx=0; ST.answers={};
+    const mod = MODULES_C[id];
+    mod.steps.forEach(s=>{ if(typeof s.default!=='undefined') ST.answers[s.key]=s.default; });
+    ST.screen='wizard'; render();
+  },
+
+  activeSteps(mod){ return mod.steps.filter(s=>!s.show || s.show(ST.answers)); },
+
+  setAnswer(key, val, autoAdvance){
+    ST.answers[key]=val;
+    if(autoAdvance){ App.nextStep(); } else { render(); }
+  },
+
+  nudge(key, delta, min, max){
+    let v = (ST.answers[key]||0) + delta;
+    if(min!==undefined) v=Math.max(min,v);
+    if(max!==undefined) v=Math.min(max,v);
+    v = Math.round(v*100)/100;
+    ST.answers[key]=v; render();
+  },
+
+  typeNum(key, val){ ST.answers[key] = val===''? '' : parseFloat(val); },
+
+  nextStep(){
+    const mod = MODULES_C[ST.modId];
+    const steps = App.activeSteps(mod);
+    if(ST.stepIdx < steps.length-1){ ST.stepIdx++; render(); }
+    else { App.finish(); }
+  },
+  prevStep(){
+    if(ST.stepIdx>0){ ST.stepIdx--; render(); }
+    else { ST.screen='home'; render(); }
+  },
+
+  finish(){ ST.screen='result'; render(); },
+  newCalc(){ App.openModule(ST.modId); },
+
+  openRef(id){ ST.screen='ref-'+id; render(); },
+
+  toggleVfd(code){ ST.vfdOpen[code]=!ST.vfdOpen[code]; render(); },
+  setVfdFilter(v){ ST.vfdFilter=v; render(); },
+};
+window.App = App;
+
+/* ---------------------------------------------------------------
+   RENDER — pantallas
+--------------------------------------------------------------- */
+function render(){
+  let html='';
+  if(ST.screen==='home') html = renderHome();
+  else if(ST.screen==='wizard') html = renderWizard();
+  else if(ST.screen==='result') html = renderResultScreen();
+  else if(ST.screen==='refhome') html = renderRefHome();
+  else if(ST.screen==='ref-colores') html = renderColores();
+  else if(ST.screen==='ref-vfd') html = renderVfd();
+  else if(ST.screen==='ref-curvas') html = renderCurvas();
+  else if(ST.screen==='ref-seg') html = renderSeguridad();
+  else if(ST.screen==='ref-herr') html = renderHerramientas();
+  else if(ST.screen==='more') html = renderMore();
+  $app.innerHTML = html;
+  const focusEl = $app.querySelector('[data-autofocus]');
+  if(focusEl){ /* no auto keyboard pop to avoid jank */ }
+}
+
+function tabnav(active){
+  const tabs=[
+    {id:'home', ic:'🏠', l:'Inicio', go:'App.goHome()'},
+    {id:'calc', ic:'🧮', l:'Calcular', go:'App.goHome()'},
+    {id:'ref', ic:'📖', l:'Referencia', go:'App.goRefList()'},
+    {id:'more', ic:'⋯', l:'Más', go:'App.goMore()'},
+  ];
+  return `<div class="tabnav">${tabs.map(t=>`
+    <div class="tab ${active===t.id?'active':''}" onclick="${t.go}"><div class="ic">${t.ic}</div><div>${t.l}</div></div>
+  `).join('')}</div>`;
+}
+
+function renderHome(){
+  const calcTiles = Object.values(MODULES_C).map(m=>`
+    <div class="tile" style="--tc:${m.tc};--tc-bg:${m.tcbg}" onclick="App.openModule('${m.id}')">
+      <div class="ic" style="background:${m.tcbg}">${m.ic}</div>
+      <div class="body"><div class="name">${m.label}</div><div class="desc">${m.desc}</div></div>
+      <div class="go">›</div>
+    </div>`).join('');
+  const refTiles = REF_MODULES.map(m=>`
+    <div class="tile" style="--tc:${m.tc};--tc-bg:${m.tcbg}" onclick="App.openRef('${m.id}')">
+      <div class="ic" style="background:${m.tcbg}">${m.ic}</div>
+      <div class="body"><div class="name">${m.label}</div><div class="desc">${m.desc}</div></div>
+      <div class="go">›</div>
+    </div>`).join('');
+  return `
+  <div class="stage">
+    <div class="home-hero">
+      <div class="home-brand">VOLTREF · MX</div>
+      <div class="home-title">Una mano,<br><em>un cálculo.</em></div>
+      <div class="home-sub">Referencia técnica de campo — NOM-001-SEDE-2012</div>
+      <div style="margin-top:12px">
+        <a href="tablero.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);color:var(--text2);font-size:11.5px;font-weight:700;text-decoration:none">🖥️ Ver Tablero completo</a>
+      </div>
+    </div>
+    <div class="section-lbl">Calculadoras</div>
+    <div class="tilewrap">${calcTiles}</div>
+    <div class="section-lbl">Referencia rápida</div>
+    <div class="tilewrap">${refTiles}</div>
+    <div style="height:6px"></div>
+  </div>
+  ${tabnav('home')}`;
+}
+
+function renderRefHome(){
+  const refTiles = REF_MODULES.map(m=>`
+    <div class="tile" style="--tc:${m.tc};--tc-bg:${m.tcbg}" onclick="App.openRef('${m.id}')">
+      <div class="ic" style="background:${m.tcbg}">${m.ic}</div>
+      <div class="body"><div class="name">${m.label}</div><div class="desc">${m.desc}</div></div>
+      <div class="go">›</div>
+    </div>`).join('');
+  return `
+  <div class="stage">
+    <div class="home-hero" style="padding-top:10px">
+      <div class="home-brand">REFERENCIA</div>
+      <div class="home-title">Consulta rápida<br><em>sin calcular.</em></div>
+    </div>
+    <div class="tilewrap">${refTiles}</div>
+  </div>
+  ${tabnav('ref')}`;
+}
+
+function renderMore(){
+  return `
+  <div class="topbar">
+    <div class="tb-title"><div class="t1">VoltRefMX</div><div class="t2">Acerca de esta versión</div></div>
+  </div>
+  <div class="stage">
+    <div class="refcard">
+      <h3>🖐️ Versión "Una Mano"</h3>
+      <div style="font-size:13.5px;color:var(--text2);line-height:1.6">
+      Prototipo de UI enfocado en uso con una sola mano en campo — un input por pantalla, botones grandes, sin scroll de formularios largos.
+      </div>
+    </div>
+    <div class="refcard">
+      <h3>✅ Incluido en esta versión</h3>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7">
+      <b>Calculadoras:</b> Caída de tensión · Ampacidad/calibre · Motor · Conduit (EMT) · Transformador.<br><br>
+      <b>Referencia:</b> Colores de cable · VFD Delta alarmas · Curvas de protección · Seguridad (Arc-Flash/LOTO) · Herramientas.
+      </div>
+    </div>
+    <div class="refcard">
+      <h3>⏳ Pendiente / fuera de alcance</h3>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7">
+      <b>Icc y Aislamiento</b> — excluidos a propósito, no tengo la fuente/fórmula verificada de esos dos módulos en este build.<br><br>
+      <b>Historial persistente y exportación PDF</b> — no implementados todavía, se pueden agregar en una siguiente pasada.<br><br>
+      Curvas se muestran como tablas de referencia, no como gráfica SVG interactiva (la v5.7 sí dibuja las curvas).
+      </div>
+    </div>
+  </div>
+  ${tabnav('more')}`;
+}
+
+/* ---- WIZARD ---- */
+function gaugeSvg(idx, total){
+  const r=18, c=2*Math.PI*r;
+  const pct = total<=1?1:(idx)/(total-1);
+  const off = c*(1-pct);
+  return `<div class="tb-gauge"><svg viewBox="0 0 46 46">
+    <circle class="bgring" cx="23" cy="23" r="${r}"/>
+    <circle class="fgring" cx="23" cy="23" r="${r}" stroke-dasharray="${c}" stroke-dashoffset="${off}"/>
+  </svg><div class="num">${idx+1}/${total}</div></div>`;
+}
+
+function renderWizard(){
+  const mod = MODULES_C[ST.modId];
+  const steps = App.activeSteps(mod);
+  const step = steps[ST.stepIdx];
+  const total = steps.length;
+
+  let body='';
+  if(step.type==='choice'){
+    body = `<div class="choices">${step.options.map(o=>`
+      <div class="choice ${ST.answers[step.key]===o.v?'sel':''}" onclick="App.setAnswer('${step.key}', ${typeof o.v==='number'?o.v:`'${o.v}'`}, true)">
+        <div class="ic">${o.ic||''}</div>
+        <div class="txt"><div class="t1">${o.t1}</div><div class="t2">${o.t2||''}</div></div>
+      </div>`).join('')}</div>`;
+  } else if(step.type==='segment'){
+    body = `<div class="segwrap">${step.options.map(o=>`
+      <div class="seg ${ST.answers[step.key]===o.v?'active':''}" onclick="App.setAnswer('${step.key}', ${typeof o.v==='number'?o.v:`'${o.v}'`})">${o.label}</div>`).join('')}</div>`;
+  } else if(step.type==='number'){
+    const unit = typeof step.unit==='function'? step.unit(ST.answers) : step.unit;
+    const val = ST.answers[step.key];
+    body = `
+    <div class="numpad">
+      <div class="numrow">
+        <div class="numbtn" onclick="App.nudge('${step.key}', -${step.step}, ${step.min}, ${step.max})">−</div>
+        <div class="numdisplay">
+          <input type="number" inputmode="decimal" value="${val}" data-autofocus
+            oninput="App.typeNum('${step.key}', this.value)">
+          <div class="numunit">${unit}</div>
+        </div>
+        <div class="numbtn" onclick="App.nudge('${step.key}', ${step.step}, ${step.min}, ${step.max})">+</div>
+      </div>
+      ${step.presets?`<div class="presetrow">${step.presets.map(p=>`
+        <div class="preset ${val===p?'active':''}" onclick="App.setAnswer('${step.key}', ${p})">${p}</div>`).join('')}</div>`:''}
+    </div>`;
+  } else if(step.type==='picklist'){
+    body = `<div class="picklist">${step.list.map(o=>`
+      <div class="pickitem ${ST.answers[step.key]===o.v?'sel':''}" onclick="App.setAnswer('${step.key}', '${o.v}', true)">
+        <div class="l">${o.l}</div><div class="r">${o.r||''}</div>
+      </div>`).join('')}</div>`;
+  }
+
+  return `
+  <div class="topbar">
+    <div class="tb-back" onclick="App.prevStep()">←</div>
+    <div class="tb-title"><div class="t1" style="color:${mod.tc}">${mod.label}</div><div class="t2">${step.q}</div></div>
+    ${gaugeSvg(ST.stepIdx, total)}
+  </div>
+  <div class="stage">
+    <div class="step">
+      <div class="step-eyebrow">Paso ${ST.stepIdx+1} de ${total}</div>
+      <div class="step-q">${step.q}</div>
+      ${step.hint?`<div class="step-hint">${step.hint}</div>`:''}
+      <div class="step-body">${body}</div>
+      <div class="dots">${steps.map((s,i)=>`<div class="dot ${i===ST.stepIdx?'on':''}"></div>`).join('')}</div>
+    </div>
+  </div>
+  <div class="actionbar">
+    <div class="btn btn-ghost" onclick="App.prevStep()">←</div>
+    <div class="btn btn-primary" onclick="App.nextStep()">${ST.stepIdx===total-1?'Ver resultado':'Siguiente'} →</div>
+  </div>`;
+}
+
+function renderResultScreen(){
+  const mod = MODULES_C[ST.modId];
+  const res = mod.compute(ST.answers);
+  return `
+  <div class="topbar">
+    <div class="tb-back" onclick="App.goHome()">✕</div>
+    <div class="tb-title"><div class="t1" style="color:${mod.tc}">${mod.label}</div><div class="t2">Resultado</div></div>
+  </div>
+  <div class="stage"><div class="res">${mod.renderResult(res)}</div></div>
+  <div class="actionbar">
+    <div class="btn" onclick="App.newCalc()">↻ Nuevo cálculo</div>
+    <div class="btn btn-primary" onclick="App.goHome()">Inicio</div>
+  </div>`;
+}
+
+/* ---- REFERENCIA: COLORES ---- */
+function renderColores(){
+  const cards = COLORES.map(g=>`
+    <div class="refcard">
+      <h3>${g.bandera} ${g.norma}</h3>
+      ${g.filas.map(f=>`
+        <div class="swatchrow">
+          <div class="swatch" style="background:${f.col};${f.bord?'border-color:rgba(255,255,255,.35)':''}"></div>
+          <div class="l">${f.l}</div>
+          <div class="r">${f.r||''}</div>
+        </div>`).join('')}
+    </div>`).join('');
+  return `
+  <div class="topbar">
+    <div class="tb-back" onclick="App.goRefList()">←</div>
+    <div class="tb-title"><div class="t1" style="color:#06b6d4">Referencia</div><div class="t2">Colores de cable</div></div>
+  </div>
+  <div class="stage">
+    <div class="refcard" style="border-left:3px solid var(--danger)">
+      <div style="font-size:12.5px;color:var(--text2);line-height:1.5">⚠ <b>Siempre verifica con instrumento</b> antes de conectar, especialmente en equipo importado o instalaciones legado. En equipo chino el amarillo puede ser <b>fase</b>, no tierra.</div>
+    </div>
+    ${cards}
+    <div style="height:6px"></div>
+  </div>
+  ${tabnav('ref')}`;
+}
+
+/* ---- REFERENCIA: VFD DELTA ---- */
+function renderVfd(){
+  const f = ST.vfdFilter.trim().toUpperCase();
+  const list = VFD_CODES.filter(v=> !f || v.code.includes(f) || v.name.toUpperCase().includes(f));
+  const items = list.map(v=>`
+    <div class="vfd-item ${ST.vfdOpen[v.code]?'open':''}">
+      <div class="vfd-head" onclick="App.toggleVfd('${v.code}')">
+        <div class="code" style="color:${v.sev==='danger'?'var(--danger)':'var(--warn)'}">${v.code}</div>
+        <div class="name">${v.name}</div>
+        <div style="color:var(--dim)">${ST.vfdOpen[v.code]?'▲':'▼'}</div>
+      </div>
+      <div class="vfd-body">
+        <div class="sec">Causas</div>${v.causas}
+        <div class="sec">Mediciones</div>${v.medic}
+        ${v.param&&v.param!=='—'?`<div class="sec">Parámetros</div>${v.param}`:''}
+        <div class="sec">Solución</div><b>${v.sol}</b>
+      </div>
+    </div>`).join('');
+  return `
+  <div class="topbar">
+    <div class="tb-back" onclick="App.goRefList()">←</div>
+    <div class="tb-title"><div class="t1" style="color:#f97316">Referencia</div><div class="t2">VFD Delta VFD-EL</div></div>
+  </div>
+  <div class="stage">
+    <div style="padding:0 16px 4px">
+      <div class="searchbar"><span>🔎</span><input placeholder="Buscar código o nombre…" value="${esc(ST.vfdFilter)}" oninput="App.setVfdFilter(this.value)"></div>
+    </div>
+    ${items || '<div class="refcard">Sin resultados.</div>'}
+    <div style="height:6px"></div>
+  </div>
+  ${tabnav('ref')}`;
+}
+
+/* ---- helper: tabla genérica de referencia ---- */
+function rtable(headers, rows, hideHead){
+  return `<table class="rtable">
+    ${hideHead?'':`<thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>`}
+    <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+  </table>`;
+}
+
+/* ---- REFERENCIA: CURVAS DE PROTECCIÓN ---- */
+function renderCurvas(){
+  const cards = CURVAS.map(g=>`
+    <div class="refcard">
+      <h3>${g.ic} ${g.title}</h3>
+      <div style="font-size:12.5px;color:var(--text2);line-height:1.5;margin-bottom:10px">${g.intro}</div>
+      ${rtable(g.headers, g.rows)}
+      ${g.note?`<div class="res-note" style="margin-top:10px">${g.note}</div>`:''}
+    </div>`).join('');
+  return `
+  <div class="topbar">
+    <div class="tb-back" onclick="App.goRefList()">←</div>
+    <div class="tb-title"><div class="t1" style="color:#eab308">Referencia</div><div class="t2">Curvas de protección</div></div>
+  </div>
+  <div class="stage">
+    <div class="refcard" style="border-left:3px solid var(--warn)">
+      <div style="font-size:12.5px;color:var(--text2);line-height:1.5">📈 Tablas de referencia rápida. La v5.7 de escritorio dibuja las curvas reales tiempo-corriente si necesitas verlas graficadas.</div>
+    </div>
+    ${cards}
+    <div style="height:6px"></div>
+  </div>
+  ${tabnav('ref')}`;
+}
+
+/* ---- REFERENCIA: SEGURIDAD ---- */
+function renderSeguridad(){
+  const s = SEGURIDAD;
+  return `
+  <div class="topbar">
+    <div class="tb-back" onclick="App.goRefList()">←</div>
+    <div class="tb-title"><div class="t1" style="color:#ff5252">Referencia</div><div class="t2">Seguridad eléctrica</div></div>
+  </div>
+  <div class="stage">
+    <div class="refcard" style="border-left:3px solid var(--danger)">
+      <div style="font-size:12.5px;color:var(--text2);line-height:1.5">${s.intro}</div>
+    </div>
+    <div class="refcard">
+      <h3>🦺 Arc-Flash — categorías PPE</h3>
+      ${rtable(s.arcflash.headers, s.arcflash.rows)}
+      <div class="res-note" style="margin-top:10px">${s.arcflash.note}</div>
+      <div class="subhead">Guantes dieléctricos — ASTM D120</div>
+      ${rtable(s.guantes.headers, s.guantes.rows)}
+      <div class="res-note" style="margin-top:10px">${s.guantes.note}</div>
+      <div class="subhead">Categoría multímetro — IEC 61010</div>
+      ${rtable(s.catmm.headers, s.catmm.rows)}
+      <div class="res-note" style="margin-top:10px">${s.catmm.note}</div>
+    </div>
+    <div class="refcard">
+      <h3>📏 Distancias de trabajo — Art. 110-26</h3>
+      ${rtable(s.distancias.headers, s.distancias.rows)}
+      <div class="res-note" style="margin-top:10px">${s.distancias.note}</div>
+    </div>
+    <div class="refcard">
+      <h3>🔒 LOTO — Bloqueo y etiquetado</h3>
+      ${s.loto.map((step,i)=>`
+        <div class="loto-step">
+          <div class="loto-num">${i+1}</div>
+          <div><div class="loto-verb">${step.v}</div><div class="loto-desc">${step.d}</div></div>
+        </div>`).join('')}
+      <div class="res-note" style="margin-top:10px">El paso 6 (verificar ausencia de energía) es el que más se salta bajo presión — y el que más accidentes provoca. Se verifica con instrumento, nunca se asume.</div>
+    </div>
+    <div style="height:6px"></div>
+  </div>
+  ${tabnav('ref')}`;
+}
+
+/* ---- REFERENCIA: HERRAMIENTAS ---- */
+function renderHerramientas(){
+  const cards = HERRAMIENTAS.map(g=>`
+    <div class="refcard" ${g.danger?'style="border-left:3px solid var(--danger)"':''}>
+      <h3>${g.ic} ${g.title}</h3>
+      ${rtable(g.headers, g.rows, g.hideHead)}
+      ${g.note?`<div class="res-note" style="margin-top:10px">${g.note}</div>`:''}
+    </div>`).join('');
+  return `
+  <div class="topbar">
+    <div class="tb-back" onclick="App.goRefList()">←</div>
+    <div class="tb-title"><div class="t1" style="color:#39d178">Referencia</div><div class="t2">Caja de herramientas</div></div>
+  </div>
+  <div class="stage">
+    <div class="refcard">
+      <div style="font-size:12.5px;color:var(--text2);line-height:1.5">⭐ = imprescindible en la caja diaria. En <b>medición</b> y <b>EPP dieléctrico</b> nunca se ahorra.</div>
+    </div>
+    ${cards}
+    <div style="height:6px"></div>
+  </div>
+  ${tabnav('ref')}`;
+}
+
+render();
+
+</script>
+</body>
+</html>
