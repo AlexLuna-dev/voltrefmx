@@ -3,7 +3,7 @@
    Solo se activa si el sitio se sirve por http(s) — en file:// el navegador
    ignora el registro y la app sigue funcionando igual, sin caché de SW. */
 
-const CACHE_NAME = 'voltrefmx-v1';
+const CACHE_NAME = 'voltrefmx-v2';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -12,7 +12,7 @@ const PRECACHE_URLS = [
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './icons/icon-512-maskable.png'
+  './icons/icon-maskable-512.png'
 ];
 
 self.addEventListener('install', (event) => {
