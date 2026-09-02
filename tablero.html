@@ -176,14 +176,17 @@ input,select,button{font-family:inherit;}
 .rrow.hi .v{color:var(--accent);}
 .rnote{margin:0 12px 4px 12px; padding:10px 11px; font-size:10.5px; color:var(--text2); line-height:1.55; background:var(--panel); border-left:2px solid var(--line2); border-radius:0 6px 6px 0;}
 .rnote.warn{border-left-color:var(--led-warn); background:var(--led-warn-bg);}
+.actbtn{margin:0 12px 12px 12px; padding:12px; text-align:center; font-weight:700; font-size:13px; color:var(--accent); background:var(--accent-dim); border:1px solid var(--accent-bdr); border-radius:8px;}
+.actbtn:active{opacity:.75;}
 
 /* ===== REF TABLES ===== */
 .refcard{margin:10px 12px; background:var(--panel2); border:1px solid var(--line); border-radius:9px; overflow:hidden;}
 .refcard h3{margin:0; padding:10px 12px; font-size:12px; font-weight:800; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px;}
 .refcard .inner{padding:10px 12px;}
-.rtable{width:100%; border-collapse:collapse; font-size:11.5px;}
-.rtable th{text-align:left; font-size:9.5px; letter-spacing:.06em; color:var(--dim); font-weight:800; padding:0 6px 7px 0;}
-.rtable td{padding:8px 6px 8px 0; border-top:1px solid var(--line); color:var(--text2);}
+.rtable-wrap{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -12px; padding:0 12px;}
+.rtable{width:100%; min-width:max-content; border-collapse:collapse; font-size:11.5px;}
+.rtable th{text-align:left; font-size:9.5px; letter-spacing:.06em; color:var(--dim); font-weight:800; padding:0 12px 7px 0; white-space:nowrap;}
+.rtable td{padding:8px 12px 8px 0; border-top:1px solid var(--line); color:var(--text2); white-space:nowrap;}
 .rtable td:first-child{color:var(--text); font-weight:700;}
 .swatchrow{display:flex; align-items:center; gap:9px; padding:7px 0; border-top:1px solid var(--line);}
 .swatchrow:first-child{border-top:none;}
@@ -244,9 +247,9 @@ if('serviceWorker' in navigator){
 // Tabla maestra de conductores — NOM-001 Tabla 310-15(b)(16) @75°C + Tabla 9 (Z)
 const COND = [
   {c:'14 AWG', mm2:2.08, cu:15, al:null,  r:10.200, xl:0.240},
-  {c:'12 AWG', mm2:3.31, cu:20, al:15,    r:6.600,  xl:0.223},
-  {c:'10 AWG', mm2:5.26, cu:30, al:25,    r:3.900,  xl:0.207},
-  {c:'8 AWG',  mm2:8.37, cu:50, al:40,    r:2.560,  xl:0.213},
+  {c:'12 AWG', mm2:3.31, cu:20, al:null,  r:6.600,  xl:0.223},
+  {c:'10 AWG', mm2:5.26, cu:30, al:null,  r:3.900,  xl:0.207},
+  {c:'8 AWG',  mm2:8.37, cu:50, al:null,  r:2.560,  xl:0.213},
   {c:'6 AWG',  mm2:13.3, cu:65, al:50,    r:1.610,  xl:0.210},
   {c:'4 AWG',  mm2:21.2, cu:85, al:65,    r:1.020,  xl:0.197},
   {c:'3 AWG',  mm2:26.7, cu:100,al:75,    r:0.820,  xl:0.194},
@@ -262,7 +265,7 @@ const COND = [
   {c:'400 kcmil',mm2:202.7,cu:335,al:270, r:0.115,  xl:0.161},
   {c:'500 kcmil',mm2:253.4,cu:380,al:310, r:0.095,  xl:0.157},
   {c:'600 kcmil',mm2:304.0,cu:420,al:340, r:0.082,  xl:0.157},
-  {c:'750 kcmil',mm2:380.0,cu:475,al:385, r:0.069,  xl:0.157},
+  {c:'750 kcmil',mm2:380.0,cu:475,al:320, r:0.069,  xl:0.157},
 ];
 
 // Diámetro exterior conductor THHN/THWN (mm) — NOM-001 Cap.10 Tabla 5, indexado por mm2 real
@@ -294,6 +297,34 @@ const CONDUIT_EMT = [
   {n:'1-1/2"', d:40.9}, {n:'2"', d:52.5}, {n:'2-1/2"', d:69.4}, {n:'3"', d:85.2}, {n:'4"', d:110.1}
 ];
 
+// Conduit — diámetros interiores (mm) por tipo — NOM-001 Cap.10 Tabla 4
+// PVC Céd.40/Céd.80 verificados contra texto oficial DOF (NOM-001-SEDE-2012, Tabla 4, pág. 746/780)
+const CONDUIT_TABLES = {
+  EMT: CONDUIT_EMT,
+  IMC: [
+    {n:'1/2"', d:16.8}, {n:'3/4"', d:21.9}, {n:'1"', d:28.1}, {n:'1-1/4"', d:36.8},
+    {n:'1-1/2"', d:42.9}, {n:'2"', d:54.4}, {n:'2-1/2"', d:64.9}, {n:'3"', d:80.7}, {n:'4"', d:105.3}
+  ],
+  RGS: [
+    {n:'1/2"', d:16.1}, {n:'3/4"', d:21.2}, {n:'1"', d:27.0}, {n:'1-1/4"', d:35.4},
+    {n:'1-1/2"', d:41.2}, {n:'2"', d:52.9}, {n:'2-1/2"', d:63.2}, {n:'3"', d:78.5}, {n:'4"', d:103.1}
+  ],
+  PVC40: [
+    {n:'1/2"', d:15.3}, {n:'3/4"', d:20.4}, {n:'1"', d:26.1}, {n:'1-1/4"', d:34.5},
+    {n:'1-1/2"', d:40.4}, {n:'2"', d:52.0}, {n:'2-1/2"', d:62.1}, {n:'3"', d:77.3},
+    {n:'3-1/2"', d:89.4}, {n:'4"', d:101.5}, {n:'5"', d:127.4}, {n:'6"', d:153.2}
+  ],
+  PVC80: [
+    {n:'1/2"', d:13.40}, {n:'3/4"', d:18.30}, {n:'1"', d:23.80}, {n:'1-1/4"', d:31.90},
+    {n:'1-1/2"', d:37.50}, {n:'2"', d:48.60}, {n:'2-1/2"', d:58.20}, {n:'3"', d:72.70},
+    {n:'3-1/2"', d:84.50}, {n:'4"', d:96.20}, {n:'5"', d:121.10}, {n:'6"', d:145.00}
+  ]
+};
+const CONDUIT_LABELS = {
+  EMT:'EMT (metálico delgado)', IMC:'IMC (metálico intermedio)', RGS:'RGS (rígido galvanizado)',
+  PVC40:'PVC rígido Céd.40 (general/enterrado)', PVC80:'PVC rígido Céd.80 (mayor protección)'
+};
+
 // Multiplicadores de corriente de arranque por método — KB-03
 const ARRANQUE = {
   dol:  {label:'Directo (DOL)',        ia:6.5, ic:'⚡'},
@@ -305,6 +336,46 @@ const ARRANQUE = {
 // Calibres/breakers comerciales estándar (A) — para redondeo hacia arriba
 const STD_AMPS = [15,20,25,30,35,40,45,50,60,70,80,90,100,110,125,150,175,200,225,250,300,350,400,450,500,600,700,800,1000,1200];
 function roundStd(a){ for(const s of STD_AMPS){ if(s>=a) return s; } return Math.ceil(a/100)*100; }
+
+// Tabla 430-150 — FLC motores trifásicos CA por HP y tensión — NOM-001-SEDE-2012
+const MOTOR_FLC_DATA = [
+  {hp:0.5, v460:1.1, v230:2.2, v208:2.4},   {hp:1, v460:1.6, v230:3.2, v208:3.5},
+  {hp:1.5, v460:2.1, v230:4.2, v208:4.6},   {hp:2, v460:2.7, v230:5.4, v208:6.0},
+  {hp:3, v460:3.9, v230:7.6, v208:8.4},     {hp:5, v460:6.1, v230:12.2, v208:13.4},
+  {hp:7.5, v460:9.0, v230:17.0, v208:19.0}, {hp:10, v460:11.0, v230:22.0, v208:24.0},
+  {hp:15, v460:14.0, v230:27.0, v208:30.0}, {hp:20, v460:21.0, v230:40.0, v208:44.0},
+  {hp:25, v460:27.0, v230:52.0, v208:57.0}, {hp:30, v460:34.0, v230:65.0, v208:72.0},
+  {hp:40, v460:52.0, v230:96.0, v208:104.0},{hp:50, v460:65.0, v230:125.0, v208:138.0},
+  {hp:60, v460:77.0, v230:150.0, v208:165.0},{hp:75, v460:96.0, v230:185.0, v208:204.0},
+  {hp:100, v460:124.0, v230:240.0, v208:265.0},
+];
+
+// Tabla 430-248 — FLC motores monofásicos CA por HP y tensión — NOM-001-SEDE-2012
+const MOTOR_FLC_MONO_DATA = [
+  {hp:'1/8', v115:4.4, v127:4,    v208:2.4, v230:2.2},
+  {hp:'1/4', v115:5.8, v127:5.3,  v208:3.2, v230:2.9},
+  {hp:'1/3', v115:7.2, v127:6.5,  v208:4,   v230:3.6},
+  {hp:'1/2', v115:9.8, v127:8.9,  v208:5.4, v230:4.9},
+  {hp:'3/4', v115:13.8,v127:11.5, v208:7.6, v230:6.9},
+  {hp:'1',   v115:16,  v127:14,   v208:8.8, v230:8},
+  {hp:'1 1/2',v115:20, v127:18,   v208:11,  v230:10},
+  {hp:'2',   v115:24,  v127:22,   v208:13.2,v230:12},
+  {hp:'3',   v115:34,  v127:31,   v208:18.7,v230:17},
+  {hp:'5',   v115:56,  v127:51,   v208:30.8,v230:28},
+  {hp:'7 1/2',v115:80, v127:72,   v208:44,  v230:40},
+  {hp:'10',  v115:100, v127:91,   v208:55,  v230:50},
+];
+
+// Tabla 250-122 — Calibre mínimo CPTE (tierra de equipo) por amperaje de protección — NOM-001-SEDE-2012
+const CPTE_DATA = [
+  {a:'15', c:'14'}, {a:'20', c:'12'}, {a:'30–60', c:'10'}, {a:'100', c:'8'},
+  {a:'200', c:'6'}, {a:'300', c:'4'}, {a:'400', c:'3'}, {a:'500–600', c:'2'},
+  {a:'800', c:'1/0'}, {a:'1 000', c:'2/0'}, {a:'1 200', c:'3/0'}, {a:'1 600–2 000', c:'4/0'},
+];
+const STD_KVAR = [2.5,5,7.5,10,15,20,25,30,40,50,60,75,100,125,150,200,250,300,400,500];
+function roundStdKvar(v){ for(const s of STD_KVAR){ if(s>=v) return s; } return Math.ceil(v/50)*50; }
+const STD_KVA_UPS = [0.5,0.75,1,1.5,2,3,5,6,8,10,15,20,30,40,60,80,100];
+function roundStdKva(v){ for(const s of STD_KVA_UPS){ if(s>=v) return s; } return Math.ceil(v/20)*20; }
 
 // %Z típico de transformador por tamaño — KB-04 (para default sugerido)
 function zDefault(kva){
@@ -608,6 +679,231 @@ const SEGURIDAD = {
   ]
 };
 
+const PLC_DATA = [
+  {title:'Instrucciones básicas — comparativa por marca', ic:'🔡',
+    headers:['Instrucción','Función','Siemens','Allen-Bradley','Delta'],
+    rows:[
+      ['Contacto NA','Cierra si bit=1','—| |—','—| |—','—| |—'],
+      ['Contacto NC','Cierra si bit=0','—|/|—','—|/|—','—|/|—'],
+      ['Bobina normal','Activa mientras es verdadera','—( )—','—( )—','—( )—'],
+      ['Bobina Set/Reset (latch)','Mantiene aunque se abra','—(S)—/—(R)—','—(S)—/—(R)—','—(S)—/—(R)—'],
+      ['TON (retardo conexión)','Activa Q cuando ET≥PT','TON','TON','TMR'],
+      ['TOF (retardo desconexión)','Desactiva Q tras bajar IN','TOF','TOF','TMROF'],
+      ['CTU / CTD (contador)','Incrementa/decrementa','CTU/CTD','CTU/CTD','—'],
+    ], note:'Ciclo de scan típico: 1-50ms. Señales más cortas que el scan pueden no verse — usar HSC/interrupciones para pulsos rápidos.'},
+  {title:'Comparativa rápida de plataformas', ic:'⚖️',
+    headers:['Criterio','Siemens S7-1200/1500','Allen-Bradley CompactLogix','Delta DVP/AS'],
+    rows:[
+      ['Software','TIA Portal (pago)','Studio 5000 (pago)','ISPSoft (gratis)'],
+      ['Direccionamiento','Memoria (I/Q/M/DB)','Tags con nombre','Memoria (X/Y/M/D)'],
+      ['Comunicación nativa','Profinet, Modbus TCP','EtherNet/IP, Modbus TCP','Modbus RTU'],
+      ['Presencia en México','Muy alta','Alta','Media (OEM)'],
+      ['Mejor para','Proceso/automotriz/alimentos','Automotriz/OEM','Máquinas económicas'],
+    ], note:'⚠ Delta DVP usa numeración OCTAL en X/Y (X10 = 8 decimal, no 10) — error común al instalar expansiones.'},
+  {title:'Modbus RTU — parámetros que deben coincidir', ic:'🔗',
+    headers:['Parámetro','Valores típicos'],
+    rows:[
+      ['Baud rate','9600 / 19200 / 38400 / 57600 / 115200'],
+      ['Bits de datos','8'],
+      ['Paridad','None (más común) / Even / Odd'],
+      ['Bits de paro','1 o 2'],
+      ['Dirección esclavo','1-247, única por dispositivo'],
+      ['Terminación RS-485','120Ω en cada EXTREMO del bus, nunca en medio'],
+      ['Máx. dispositivos','32 por segmento sin repetidor'],
+    ], note:'En reposo: A debe estar +200mV respecto a B. Blindaje a tierra en UN solo punto (lado maestro).'},
+  {title:'Diagnóstico rápido — CPU en STOP/FAULT', ic:'🩺', danger:true,
+    headers:['Causa común','Qué revisar'],
+    rows:[
+      ['Error de programa','Buffer de diagnóstico TIA/RSLogix'],
+      ['Módulo E/S desconectado','Hardware config vs módulos físicos'],
+      ['Batería agotada (S7-300/400)','LED BAT FAULT'],
+      ['Corrupción de programa','Recargar desde respaldo'],
+      ['Falla de red distribuida','Revisar Profinet/DeviceNet'],
+    ], note:'Regla de campo: nunca modificar en modo RUN en producción sin respaldo y sin avisar a producción. Todo cambio se documenta: fecha, razón, quién.'},
+];
+
+const INSTR_DATA = [
+  {title:'Señales analógicas estándar', ic:'📶',
+    headers:['Señal','Rango','Ventaja / nota'],
+    rows:[
+      ['4-20 mA','4=0% / 20=100%','La más usada — detecta cable roto (<4mA=falla)'],
+      ['0-10 V','0=0% / 10=100%','Corto tramo, dentro de tablero — sensible a caída de tensión'],
+      ['HART','Sobre el lazo 4-20mA','Diagnóstico digital sin interrumpir el lazo'],
+    ], note:'Cálculo de valor: ((mA−4)/16) × Rango + Rango_mín. Ej: sensor 0-200°C a 12mA → 100°C.'},
+  {title:'Identificar NPN vs PNP en campo', ic:'🔌',
+    headers:['Tipo','Cable señal (negro) al activar','Uso típico'],
+    rows:[
+      ['PNP (sourcing)','Da +24V','El más común en México con Siemens/AB'],
+      ['NPN (sinking)','Da 0V','PLC de entrada sourcing'],
+    ], note:'Marrón=+24V, Azul=0V en ambos — el que cambia es el negro (señal).'},
+  {title:'Tags P&ID — ISA 5.1', ic:'🏷️',
+    headers:['Tag','Lectura'],
+    rows:[
+      ['FT-101','Transmisor de flujo, lazo 101'],
+      ['TIC-205','Controlador indicador de temperatura, lazo 205'],
+      ['PSH-310','Switch de presión, alto, lazo 310'],
+      ['LCV-412','Válvula de control de nivel, lazo 412'],
+      ['PIT-501','Transmisor indicador de presión, lazo 501'],
+    ], note:'1ª letra=variable (F/T/P/L/A/S/W), 2ª=función (T=transmisor, I=indicador, C=controlador, S=switch, V=válvula).'},
+  {title:'Diagnóstico rápido — lazo 4-20mA', ic:'🩺', danger:true,
+    headers:['Síntoma','Causa probable'],
+    rows:[
+      ['No llega a 20mA','Resistencia de carga del lazo sobrecargada'],
+      ['0mA o <3.6mA','Cable roto o corto — lazo abierto'],
+      ['Lectura fija sin respuesta','Sensor dañado o válvula de bloqueo cerrada'],
+      ['Referencia VFD inestable','Blindaje mal conectado — tierra en UN solo extremo (lado tablero)'],
+    ]},
+];
+
+const CONTROL_DATA = [
+  {title:'Componentes mínimos — arranque directo (DOL)', ic:'🔲',
+    headers:['Componente','Función','Designación IEC'],
+    rows:[
+      ['Interruptor termomagnético','Protección cortocircuito','Q'],
+      ['Guardamotor / relé térmico','Protección sobrecarga','QM / FR'],
+      ['Contactor principal','Conecta/desconecta potencia','KM'],
+      ['Pulsador marcha (NA)','Ordena arranque','SA (verde)'],
+      ['Pulsador paro (NC)','Ordena paro','SB (rojo)'],
+    ], note:'Regla de campo: paro SIEMPRE en serie (NC), marcha SIEMPRE en paralelo con el auxiliar de memoria (13-14, no el principal A1-A2).'},
+  {title:'Estrella-Triángulo (Y-Δ)', ic:'🔺',
+    headers:['Dato','Valor'],
+    rows:[
+      ['Corriente de arranque','≈33% de la DOL (1/3)'],
+      ['Par de arranque','También se reduce a 1/3'],
+      ['Tiempo de transición Y→Δ','5-10s típico'],
+      ['Tiempo muerto Y-Δ obligatorio','50-100ms — si no, cortocircuito entre fases'],
+    ], note:'No usar Y-Δ con: alto par de arranque (compresores de pistón) o si ya hay VFD disponible (mejor rampa).'},
+  {title:'Categorías de paro de emergencia — IEC 60204-1', ic:'🛑', danger:true,
+    headers:['Categoría','Cómo para','Cuándo'],
+    rows:[
+      ['Cat. 0','Corte inmediato, para por inercia','Paro instantáneo no daña proceso'],
+      ['Cat. 1','Desaceleración controlada, luego corte','Cargas de inercia alta'],
+      ['Cat. 2','Desaceleración, potencia se mantiene','Debe quedar en posición controlada'],
+    ], note:'E-Stop NUNCA pasa por el PLC — debe cortar potencia hardwired. El PLC solo puede monitorear, no controlar la función de seguridad.'},
+  {title:'VFD — parámetros mínimos antes de arrancar', ic:'🌀',
+    headers:['Parámetro','Siemens G120','Allen-Bradley PowerFlex'],
+    rows:[
+      ['Corriente nominal motor','P0305','P033'],
+      ['Tensión nominal','P0304','P032'],
+      ['Frecuencia nominal','P0310 (60Hz en MX)','P034'],
+      ['Tiempo aceleración','P1120','P036'],
+      ['Tiempo desaceleración','P1121','P037'],
+    ], note:'Nunca instalar contactor entre salida VFD y motor mientras corre — daña IGBTs. Parar VFD primero, esperar 0V, luego abrir.'},
+  {title:'Enclavamientos — patrones más usados', ic:'🔐',
+    headers:['Enclavamiento','Propósito'],
+    rows:[
+      ['Mecánico Y/Δ o F/R','Impide cierre simultáneo de dos contactores'],
+      ['Eléctrico cruzado','Respaldo del mecánico (NC auxiliar cruzado)'],
+      ['Permisivo de proceso','Motor B no arranca si Motor A no corre'],
+      ['Anti-restart','Impide rearranque automático tras falla — reset manual obligatorio'],
+    ], note:'Si la máquina puede rearrancar sola tras un corte de luz, es no conformidad y riesgo de seguridad.'},
+];
+
+const IEC_DATA = [
+  {title:'Designación de componentes — IEC 61346', ic:'🔤',
+    headers:['Letra','Componente','Ejemplo'],
+    rows:[
+      ['K','Contactor, relevador','KM2001'],
+      ['M','Motor eléctrico','M-TO-010-1'],
+      ['Q','Breaker, seccionador','Q2001, QM2001 (guardamotor)'],
+      ['S','Pulsador, selector','SA2001'],
+      ['T','Transformador','T1001'],
+      ['E','Lámpara, piloto','EA2001'],
+      ['H','Switch principal (handle)','HS1001'],
+      ['X','Bornera, conector','X1'],
+    ], note:'2ª letra auxiliar: M=principal, A=auxiliar, T=temporizado. KM=contactor principal, KA=relé auxiliar, KT=temporizador.'},
+  {title:'Numeración de conductores', ic:'🔢',
+    headers:['Elemento','Regla'],
+    rows:[
+      ['Prefijo por hoja','Cada circuito/hoja tiene su rango (10xx, 20xx, 30xx...)'],
+      ['Mismo número = mismo nodo','Dos cables con la misma etiqueta deben tener continuidad'],
+      ['Conductores especiales','L1/L2/L3 fases · GNYE tierra · +24VDC/0VDC lógica'],
+    ], note:'⚠ Error clásico de copy-paste: conductores de la hoja 50 etiquetados como 4xxx (de la hoja 40) en vez de 5xxx — genera confusión en mantenimiento.'},
+  {title:'Referencias cruzadas entre hojas', ic:'↔️',
+    headers:['Formato','Lectura'],
+    rows:[
+      ['/10.8','Hoja 10, columna 8'],
+      ['→ /20.2','Sale hacia hoja 20, columna 2'],
+      ['/10.8 →','Llega desde hoja 10, columna 8'],
+    ], note:'Regla de reciprocidad: si hoja 10 dice → /20.2, la hoja 20 columna 2 debe decir ← /10.8. Si no cierra, el plano tiene error de trazabilidad.'},
+  {title:'Checklist rápido antes de firmar un plano', ic:'✅',
+    headers:['Verificar'],
+    rows:[
+      ['Cartucho completo en cada hoja (cliente, proyecto, revisión, fecha, diseñó, aprobó)'],
+      ['Rev. 0 = para aprobación — NUNCA cablear con Rev.0, solo Rev.1+'],
+      ['Cada componente tiene referencia IEC, sin nombres informales'],
+      ['Folio de la referencia = hoja donde está el componente'],
+      ['Sin referencias duplicadas en el mismo proyecto'],
+      ['Referencias cruzadas recíprocas entre hojas'],
+    ], hideHead:true, danger:true},
+];
+
+const ACAD_DATA = [
+  {title:'Dibujo básico — atajos de 2 letras', ic:'✏️',
+    headers:['Comando','Atajo','Función'],
+    rows:[
+      ['Línea','L','Línea recta'],
+      ['Polilínea','PL','Segmentos conectados como un solo objeto'],
+      ['Círculo','C','Círculo por centro-radio u otras opciones'],
+      ['Rectángulo','REC','Rectángulo'],
+      ['Offset (paralela)','O','Copia paralela a distancia fija'],
+      ['Array','AR','Copia en patrón rectangular/polar'],
+      ['Fillet / Chamfer','F / CHA','Redondeo / bisel de esquina'],
+      ['Texto','T o MT','Texto multilínea'],
+      ['Cota / distancia','DI','Medir distancia entre 2 puntos'],
+    ]},
+  {title:'Modificar / editar — atajos', ic:'🛠️',
+    headers:['Comando','Atajo','Función'],
+    rows:[
+      ['Mover','M','Mover objeto'],
+      ['Copiar','CO','Copiar objeto'],
+      ['Rotar','RO','Rotar objeto'],
+      ['Escalar','SC','Escalar objeto'],
+      ['Espejo','MI','Reflejar objeto'],
+      ['Recortar / Extender','TR / EX','Cortar hasta un límite / extender hasta un límite'],
+      ['Explotar','X','Descompone bloque/polilínea en objetos simples'],
+      ['Igualar propiedades','MA','Copia capa/estilo de un objeto a otro'],
+      ['Purgar','PU','Elimina bloques/capas/estilos no usados'],
+    ], note:'Ctrl+1 abre Propiedades — el atajo que más ahorra tiempo para revisar capa/color de un objeto sin explorarlo por el panel.'},
+  {title:'Precisión — referencia a objetos (OSNAP)', ic:'🎯',
+    headers:['Modo','Código','Engancha a'],
+    rows:[
+      ['Extremo','END','Punta de línea/arco'],
+      ['Medio','MID','Punto medio del segmento'],
+      ['Centro','CEN','Centro de círculo/arco'],
+      ['Intersección','INT','Cruce de dos objetos'],
+      ['Perpendicular','PER','Punto perpendicular al objeto'],
+      ['Tangente','TAN','Punto tangente a círculo/arco'],
+    ], note:'F3 activa/desactiva OSNAP global. Sin esto activo, cualquier plano eléctrico queda con nodos "casi" conectados — la fuente #1 de errores en diagramas de fuerza y control.'},
+  {title:'AutoCAD Electrical — herramientas de esquemático', ic:'⚡',
+    headers:['Herramienta','Qué hace'],
+    rows:[
+      ['Insert Component','Inserta símbolo con numeración de tag automática (KM, Q, S...)'],
+      ['Insert Wire / Ladder','Dibuja conductor o escalera de control con numeración automática'],
+      ['Wire Numbering','Reasigna numeración de conductores por hoja/circuito — ajustable en Project Properties'],
+      ['Cross-Reference (X-REF)','Genera automático las referencias /hoja.columna entre contactos y bobinas remotas'],
+      ['PLC I/O tools','Genera tabla de entradas/salidas del PLC directo desde los símbolos del esquema'],
+      ['Reports (BOM, Wire List, Terminal List)','Genera automático lo que en QElectroTech armas a mano — lista de materiales, cables y terminales'],
+    ], note:'La diferencia real contra dibujar en AutoCAD normal: estas herramientas mantienen la numeración y referencias cruzadas sincronizadas solas cuando mueves o agregas componentes.'},
+  {title:'Capas típicas para planos eléctricos', ic:'🗂️',
+    headers:['Capa (convención típica)','Contenido'],
+    rows:[
+      ['WIRES / CONDUCTORES','Líneas de conductores de fuerza y control'],
+      ['SYMBOLS / SIMBOLOS','Símbolos de componentes (KM, Q, S...)'],
+      ['TEXT / TAGS','Etiquetas, referencias, numeración de cable'],
+      ['TITLEBLOCK / CARTUCHO','Cartucho de identificación, marco de hoja'],
+      ['DIM','Cotas y dimensiones'],
+      ['HIDDEN / REF','Referencias, notas de construcción, capas no imprimibles'],
+    ], note:'⚠ Nombres de convención general — AutoCAD Electrical trae su propia nomenclatura según la plantilla (wd1.dwg). Verifica contra tu plantilla real.'},
+  {title:'Símbolos — biblioteca IEC vs NEMA/JIC', ic:'🔣',
+    headers:['Dato','Detalle'],
+    rows:[
+      ['Dónde se cambia','Project Properties → Drawing Format (IEC / NEMA / JIC)'],
+      ['Diferencia visual','IEC: rectangulares normalizados IEC 60617. NEMA/JIC: bobinas circulares, contactos en línea'],
+      ['Impacto práctico','Cambiar de biblioteca a medio proyecto mezcla símbolos — decide la norma antes de insertar componentes'],
+    ], note:'Para proyectos bajo NOM-001/IEC 61346, la biblioteca IEC es consistente con tu estándar de designación KM/Q/S.'},
+];
+
 // ---------------------------------------------------------------------
 // HERRAMIENTAS — dotación por bloque de trabajo
 // ---------------------------------------------------------------------
@@ -705,6 +1001,20 @@ const $app = document.getElementById('app');
 const ST = { sidebarOpen:false, screen:'home', modId:null, answers:{}, vfdOpen:{}, vfdFilter:'', theme:'light' };
 
 function fmt(n,d){ if(n===null||n===undefined||isNaN(n)) return '—'; d=d===undefined?2:d; return Number(n).toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:d}); }
+// Escapa comillas en valores embebidos en atributos onclick/value (ej. tamaños de conduit tipo 1/2")
+function escJs(v){ return String(v).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+// Escapa texto libre (ej. nota del historial) antes de insertarlo como contenido HTML
+function escHtml(v){ return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Historial de cálculos — localStorage. Comparte origen con unamano.html si están en el mismo sitio.
+const Historial = {
+  KEY: 'voltrefmx_historial',
+  listar(){ try{ return JSON.parse(localStorage.getItem(this.KEY)||'[]'); }catch(e){ return []; } },
+  guardar(entry){ const arr=this.listar(); arr.unshift(entry); localStorage.setItem(this.KEY, JSON.stringify(arr)); },
+  eliminar(id){ const arr=this.listar().filter(e=>e.id!==id); localStorage.setItem(this.KEY, JSON.stringify(arr)); },
+  exportar(){ return JSON.stringify(this.listar(), null, 2); },
+  importar(json){ try{ const arr=JSON.parse(json); if(Array.isArray(arr)){ localStorage.setItem(this.KEY, JSON.stringify(arr)); return true; } }catch(e){} return false; }
+};
 function esc(s){ return (s+'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 /* ---------------------------------------------------------------
@@ -826,16 +1136,18 @@ const MODULES_A = {
 
   conduit: {
     id:'conduit', label:'Llenado de conduit', ic:'○', tc:'#39d178', tcbg:'rgba(57,209,120,.12)',
-    desc:'% área — NOM-001 Cap.10 (EMT)',
+    desc:'% área — NOM-001 Cap.10',
     fields:[
       {key:'cal', type:'select', label:'Calibre', default:'12 AWG', opts:COND.filter(c=>COND_OD_THHN[c.mm2]).map(c=>({v:c.c,l:c.c}))},
       {key:'n', type:'number', label:'N° conductores', unit:'cond.', min:1, max:60, step:1, default:3},
-      {key:'tam', type:'select', label:'Conduit EMT', default:'3/4"', opts:CONDUIT_EMT.map(c=>({v:c.n,l:c.n}))},
+      {key:'tipo', type:'select', label:'Tipo de conduit', default:'EMT', opts:Object.keys(CONDUIT_TABLES).map(k=>({v:k,l:CONDUIT_LABELS[k]}))},
+      {key:'tam', type:'select', label:'Tamaño', default:'3/4"', opts:(a)=>CONDUIT_TABLES[a.tipo||'EMT'].map(c=>({v:c.n,l:c.n}))},
     ],
     compute(a){
       const c = COND.find(x=>x.c===a.cal);
       const OD = COND_OD_THHN[c.mm2] || (Math.sqrt(c.mm2/Math.PI)*2+4);
-      const cw = CONDUIT_EMT.find(x=>x.n===a.tam);
+      const tabla = CONDUIT_TABLES[a.tipo||'EMT'];
+      const cw = tabla.find(x=>x.n===a.tam) || tabla[0];
       const Atotal = Math.PI*Math.pow(cw.d/2,2);
       const areaCond = Math.PI*Math.pow(OD/2,2)*a.n;
       const limite = a.n===1?53:a.n===2?31:40;
@@ -845,7 +1157,7 @@ const MODULES_A = {
     renderResult(r){
       return {
         sev:r.cumple?'ok':'danger', badge:r.cumple?'CUMPLE':'EXCEDE',
-        big:{lbl:'% de llenado', val:fmt(r.pct,1), u:'%', sub:`${r.a.n}× ${r.c.c} en EMT ${r.a.tam}`},
+        big:{lbl:'% de llenado', val:fmt(r.pct,1), u:'%', sub:`${r.a.n}× ${r.c.c} en ${CONDUIT_LABELS[r.a.tipo]||r.a.tipo} ${r.a.tam}`},
         rows:[
           ['Área interior conduit', fmt(r.Atotal,1)+' mm²'],
           ['Área ocupada', fmt(r.areaCond,1)+' mm²'],
@@ -888,15 +1200,108 @@ const MODULES_A = {
         rows, note:'Breaker tipo D en primario para tolerar inrush. %VR con FP=0.85 asumido.'
       };
     }
+  },
+
+  caps: {
+    id:'caps', label:'Banco de Capacitores', ic:'⚡', tc:'#eab308', tcbg:'rgba(234,179,8,.12)',
+    desc:'Corrección de FP', historial:true,
+    fields:[
+      {key:'kw', type:'number', label:'Potencia activa', unit:'kW', min:1, max:5000, step:1, default:100},
+      {key:'fp1', type:'number', label:'FP actual', unit:'', min:0.5, max:0.99, step:0.01, default:0.80},
+      {key:'fp2', type:'segment', label:'FP deseado', options:[{v:0.90,l:'0.90'},{v:0.95,l:'0.95'},{v:1.00,l:'1.00'}], default:0.95},
+      {key:'v', type:'number', label:'Tensión sistema', unit:'V', min:110, max:15000, step:1, default:440},
+      {key:'vfd', type:'segment', label:'¿VFDs en la red?', options:[{v:'no',l:'No'},{v:'si',l:'Sí'}], default:'no'},
+    ],
+    compute(a){
+      const phi1 = Math.acos(a.fp1), phi2 = Math.acos(a.fp2);
+      const kvarNecesarios = a.kw*(Math.tan(phi1)-Math.tan(phi2));
+      const kvarComercial = roundStdKvar(kvarNecesarios);
+      const kvaAntes = a.kw/a.fp1, kvaDespues = a.kw/a.fp2;
+      const iAntes = kvaAntes*1000/(Math.sqrt(3)*a.v);
+      const iDespues = kvaDespues*1000/(Math.sqrt(3)*a.v);
+      const reduccion = (1-iDespues/iAntes)*100;
+      const kvarResidual = a.kw*Math.tan(phi1) - kvarComercial;
+      const kvaReal = Math.sqrt(a.kw*a.kw + kvarResidual*kvarResidual);
+      const fpReal = a.kw/kvaReal;
+      return {kvarNecesarios,kvarComercial,kvaAntes,kvaDespues,iAntes,iDespues,reduccion,fpReal,a};
+    },
+    renderResult(r){
+      const rows=[
+        ['FP real alcanzado', fmt(r.fpReal,2)],
+        ['Corriente antes → después', fmt(r.iAntes,1)+' → '+fmt(r.iDespues,1)+' A'],
+        ['Reducción de corriente', fmt(r.reduccion,1)+'%'],
+      ];
+      let note = {warn:false, txt:'kVAR real escala con (V_real/V_nominal)² — verifica tensión real vs placa del banco.'};
+      if(r.a.vfd==='si') note = {warn:true, txt:'⚠ Hay VFDs: usar reactor de bloqueo (detuned 5.67% o 7%) — sin él, riesgo de resonancia con armónicos y falla del banco. kVAR real escala con (V_real/V_nominal)² — verifica tensión real vs placa.'};
+      return {
+        sev: r.a.vfd==='si' ? 'warn' : 'ok', badge: r.a.vfd==='si' ? 'VER ADVERTENCIA' : 'CALCULADO',
+        big:{lbl:'Banco comercial recomendado', val:fmt(r.kvarComercial,1), u:'kVAR', sub:`${r.a.kw}kW · FP ${r.a.fp1}→${r.a.fp2} · ${r.a.v}V`},
+        rows, note
+      };
+    },
+    summary(r){ return `${fmt(r.kvarComercial,1)} kVAR · FP ${r.a.fp1}→${r.a.fp2} · ${r.a.v}V${r.a.vfd==='si'?' · ⚠ VFD':''}`; }
+  },
+
+  ups: {
+    id:'ups', label:'UPS — Autonomía/Batería', ic:'🔋', tc:'#0ea5e9', tcbg:'rgba(14,165,233,.12)',
+    desc:'Dimensionamiento UPS y banco', historial:true,
+    fields:[
+      {key:'modo', type:'segment', label:'Calcular', options:[{v:'auto',l:'Autonomía'},{v:'ah',l:'Ah necesarios'}], default:'auto'},
+      {key:'w', type:'number', label:'Carga total', unit:'W', min:10, max:20000, step:10, default:500},
+      {key:'fpc', type:'number', label:'FP de la carga', unit:'', min:0.5, max:1.0, step:0.01, default:0.70},
+      {key:'margen', type:'segment', label:'Margen crecim.', options:[{v:0,l:'0%'},{v:0.20,l:'20%'},{v:0.30,l:'30%'}], default:0.20},
+      {key:'ah', type:'number', label:'Ah del banco', unit:'Ah', min:1, max:2000, step:1, default:100, show:a=>a.modo==='auto'},
+      {key:'tmin', type:'number', label:'Autonomía deseada', unit:'min', min:1, max:480, step:1, default:10, show:a=>a.modo==='ah'},
+      {key:'vdc', type:'number', label:'Tensión banco DC', unit:'V', min:6, max:400, step:1, default:24},
+      {key:'bat', type:'segment', label:'Tipo batería', options:[{v:0.5,l:'Plomo-ácido'},{v:0.8,l:'Litio'}], default:0.5},
+      {key:'eta', type:'number', label:'Eficiencia inversor', unit:'', min:0.7, max:0.99, step:0.01, default:0.90},
+    ],
+    compute(a){
+      const vaCarga = a.w/a.fpc;
+      const kvaRecomendado = roundStdKva((vaCarga*(1+a.margen))/1000);
+      let autoninMin=null, ahNecesarios=null;
+      if(a.modo==='auto'){ autoninMin = ((a.ah*a.vdc*a.bat*a.eta)/a.w)*60; }
+      else { ahNecesarios = (a.w*(a.tmin/60))/(a.vdc*a.bat*a.eta); }
+      const iDescarga = (a.w/a.eta)/a.vdc;
+      return {vaCarga,kvaRecomendado,autoninMin,ahNecesarios,iDescarga,a};
+    },
+    renderResult(r){
+      const principal = r.a.modo==='auto'
+        ? {lbl:'Autonomía estimada', val:fmt(r.autoninMin,1), u:'min'}
+        : {lbl:'Ah necesarios', val:fmt(r.ahNecesarios,1), u:'Ah'};
+      return {
+        sev:'ok', badge:'UPS '+r.kvaRecomendado+' kVA',
+        big:{lbl:principal.lbl, val:principal.val, u:principal.u, sub:`${r.a.w}W · FP ${r.a.fpc} · ${r.a.vdc}V DC`},
+        rows:[
+          ['Capacidad UPS recomendada', r.kvaRecomendado+' kVA'],
+          ['VA de carga (con margen)', fmt(r.vaCarga*(1+r.a.margen),0)+' VA'],
+          ['Corriente de descarga', fmt(r.iDescarga,2)+' A'],
+        ],
+        note:'Vida de batería plomo-ácido cae a la mitad cada 8-10°C sobre 25°C. Online (doble conversión) recomendado cerca de VFDs.'
+      };
+    },
+    summary(r){
+      const principal = r.a.modo==='auto' ? `${fmt(r.autoninMin,1)} min` : `${fmt(r.ahNecesarios,1)} Ah`;
+      return `${principal} · ${r.a.w}W · ${r.a.vdc}V DC · UPS ${r.kvaRecomendado}kVA`;
+    }
   }
 };
 
 const REF_MODULES = [
+  {id:'conductores', label:'Conductores', ic:'⚡', tc:'#3b82f6', tcbg:'rgba(59,130,246,.12)', desc:'Ampacidades e impedancias'},
+  {id:'flc', label:'FLC — Motores', ic:'⚙️', tc:'#f97316', tcbg:'rgba(249,115,22,.12)', desc:'Tri y monofásicos — 430-150/248'},
+  {id:'cpte', label:'CPTE — Tierra equipo', ic:'🟢', tc:'#39d178', tcbg:'rgba(57,209,120,.12)', desc:'Tabla 250-122'},
+  {id:'calibres', label:'Calibres comerciales', ic:'🔢', tc:'#a78bfa', tcbg:'rgba(167,139,250,.12)', desc:'Tabla 240-6'},
   {id:'colores', label:'Colores de cable', ic:'🎨', tc:'#06b6d4', tcbg:'rgba(6,182,212,.12)', desc:'Comparativo por norma'},
   {id:'vfd', label:'VFD Delta — Alarmas', ic:'📟', tc:'#f97316', tcbg:'rgba(249,115,22,.12)', desc:'20 códigos'},
   {id:'curvas', label:'Curvas de protección', ic:'📈', tc:'#eab308', tcbg:'rgba(234,179,8,.12)', desc:'Breakers, fusibles'},
   {id:'seg', label:'Seguridad', ic:'🦺', tc:'#ff3b3b', tcbg:'rgba(255,59,59,.12)', desc:'Arc-Flash, LOTO'},
   {id:'herr', label:'Herramientas', ic:'🧰', tc:'#39d178', tcbg:'rgba(57,209,120,.12)', desc:'Dotación de campo'},
+  {id:'plc', label:'PLC — Programación', ic:'🖥️', tc:'#818cf8', tcbg:'rgba(129,140,248,.12)', desc:'Ladder, marcas, Modbus'},
+  {id:'instr', label:'Instrumentación', ic:'📡', tc:'#22d3ee', tcbg:'rgba(34,211,238,.12)', desc:'Señales, P&ID, ISA 5.1'},
+  {id:'control', label:'Control eléctrico', ic:'🔌', tc:'#fb923c', tcbg:'rgba(251,146,60,.12)', desc:'DOL, Y-Δ, E-Stop, VFD'},
+  {id:'iec', label:'Diagramas IEC 61346', ic:'📐', tc:'#a78bfa', tcbg:'rgba(167,139,250,.12)', desc:'Designación, checklist'},
+  {id:'acad', label:'AutoCAD / Electrical', ic:'📏', tc:'#38bdf8', tcbg:'rgba(56,189,248,.12)', desc:'Comandos, capas, símbolos'},
 ];
 
 /* ---------------------------------------------------------------
@@ -926,6 +1331,60 @@ const App = {
 
   toggleVfd(code){ ST.vfdOpen[code]=!ST.vfdOpen[code]; render(); },
   setVfdFilter(v){ ST.vfdFilter=v; renderVfdListOnly(); },
+
+  goHistorial(){ ST.screen='historial'; ST.sidebarOpen=false; render(); },
+
+  saveToHistorial(){
+    const mod = MODULES_A[ST.modId];
+    if(!mod || !mod.historial) return;
+    const res = mod.compute(ST.answers);
+    const nota = prompt('¿Proyecto o área? (opcional)', '') || '';
+    const entry = {
+      id: Date.now()+'_'+Math.random().toString(36).slice(2,7),
+      fecha: new Date().toISOString(),
+      modulo: mod.id, moduloLabel: mod.label,
+      nota, respuestas: {...ST.answers},
+      resumen: mod.summary ? mod.summary(res) : ''
+    };
+    Historial.guardar(entry);
+    alert('✔ Guardado en historial');
+  },
+
+  loadHistorialEntry(id){
+    const entry = Historial.listar().find(e=>e.id===id);
+    if(!entry) return;
+    ST.modId = entry.modulo;
+    ST.answers = {...entry.respuestas};
+    ST.screen = 'mod';
+    render();
+  },
+
+  deleteHistorialEntry(id){
+    if(!confirm('¿Eliminar este cálculo del historial?')) return;
+    Historial.eliminar(id);
+    render();
+  },
+
+  exportHistorial(){
+    const data = Historial.exportar();
+    const blob = new Blob([data], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download='voltrefmx_historial_'+Date.now()+'.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  importHistorial(file){
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const ok = Historial.importar(e.target.result);
+      alert(ok? '✔ Historial importado' : '✘ Archivo inválido — debe ser un .json exportado desde aquí mismo');
+      render();
+    };
+    reader.readAsText(file);
+  },
 };
 window.App = App;
 
@@ -953,6 +1412,10 @@ function sidebarHtml(){
       <div class="sb-group">Calculadoras</div>${calcItems}
       <div class="sb-group">Referencia</div>${refItems}
       <div class="sb-group">App</div>
+      <div class="sb-item ${ST.screen==='historial'?'active':''}" onclick="App.goHistorial()">
+        <div class="led ${ST.screen==='historial'?'live':'idle'}"></div>
+        <div class="ic">📜</div><div class="lbl">Historial${Historial.listar().length?` (${Historial.listar().length})`:''}</div>
+      </div>
       <a class="sb-item" href="unamano.html" style="text-decoration:none"><div class="ic">✋</div><div class="lbl">Una Mano (modo rápido)</div></a>
       <a class="sb-item" href="index.html" style="text-decoration:none"><div class="ic">🏠</div><div class="lbl">Inicio VoltRefMX</div></a>
     </div>
@@ -977,11 +1440,21 @@ function render(){
   let html='';
   if(ST.screen==='home') html = statusbar('DASHBOARD PRINCIPAL') + renderHome();
   else if(ST.screen==='mod') html = renderModuleScreen();
+  else if(ST.screen==='ref-conductores') html = statusbar('REFERENCIA · CONDUCTORES') + renderConductoresRef();
+  else if(ST.screen==='ref-flc') html = statusbar('REFERENCIA · FLC MOTORES') + renderFlcRef();
+  else if(ST.screen==='ref-cpte') html = statusbar('REFERENCIA · CPTE') + renderCpteRef();
+  else if(ST.screen==='ref-calibres') html = statusbar('REFERENCIA · CALIBRES') + renderCalibresRef();
   else if(ST.screen==='ref-colores') html = statusbar('REFERENCIA · COLORES') + renderColores();
   else if(ST.screen==='ref-vfd') html = statusbar('REFERENCIA · VFD DELTA') + renderVfd();
   else if(ST.screen==='ref-curvas') html = statusbar('REFERENCIA · CURVAS') + renderCurvas();
   else if(ST.screen==='ref-seg') html = statusbar('REFERENCIA · SEGURIDAD') + renderSeguridad();
   else if(ST.screen==='ref-herr') html = statusbar('REFERENCIA · HERRAMIENTAS') + renderHerramientas();
+  else if(ST.screen==='historial') html = statusbar('HISTORIAL DE CÁLCULOS') + renderHistorial();
+  else if(ST.screen==='ref-plc') html = statusbar('REFERENCIA · PLC') + renderPlc();
+  else if(ST.screen==='ref-instr') html = statusbar('REFERENCIA · INSTRUMENTACIÓN') + renderInstr();
+  else if(ST.screen==='ref-control') html = statusbar('REFERENCIA · CONTROL ELÉCTRICO') + renderControlRef();
+  else if(ST.screen==='ref-iec') html = statusbar('REFERENCIA · IEC 61346') + renderIec();
+  else if(ST.screen==='ref-acad') html = statusbar('REFERENCIA · AUTOCAD') + renderAcad();
   $app.innerHTML = html + sidebarHtml();
 }
 
@@ -1031,20 +1504,21 @@ function fieldRow(f){
   if(f.type==='segment'){
     return `<div class="frow">
       <div class="flabel">${f.label}</div>
-      <div class="fseg">${f.options.map(o=>`<div class="o ${val===o.v?'active':''}" onclick="App.setAns('${f.key}', ${typeof o.v==='number'?o.v:`'${o.v}'`})">${o.l}</div>`).join('')}</div>
+      <div class="fseg">${f.options.map(o=>`<div class="o ${val===o.v?'active':''}" onclick="App.setAns('${f.key}', ${typeof o.v==='number'?o.v:`'${escJs(o.v)}'`})">${o.l}</div>`).join('')}</div>
     </div>`;
   }
   if(f.type==='choice'){
     return `<div class="frow">
       <div class="flabel">${f.label}</div>
-      <div class="fchoice-row">${f.options.map(o=>`<div class="fchoice ${val===o.v?'active':''}" onclick="App.setAns('${f.key}', '${o.v}')">${o.l}</div>`).join('')}</div>
+      <div class="fchoice-row">${f.options.map(o=>`<div class="fchoice ${val===o.v?'active':''}" onclick="App.setAns('${f.key}', '${escJs(o.v)}')">${o.l}</div>`).join('')}</div>
     </div>`;
   }
   if(f.type==='select'){
+    const opts = typeof f.opts==='function' ? f.opts(ST.answers) : f.opts;
     return `<div class="frow">
       <div class="flabel">${f.label}</div>
       <select class="fselect" onchange="App.setAns('${f.key}', this.value)">
-        ${f.opts.map(o=>`<option value="${o.v}" ${String(val)===String(o.v)?'selected':''}>${o.l}</option>`).join('')}
+        ${opts.map(o=>`<option value="${escJs(o.v)}" ${String(val)===String(o.v)?'selected':''}>${o.l}</option>`).join('')}
       </select>
     </div>`;
   }
@@ -1061,6 +1535,7 @@ function resultPanelHtml(mod){
     <div class="rbig"><div class="lbl">${rr.big.lbl}</div><div class="val">${rr.big.val}<span class="u">${rr.big.u}</span></div><div class="sub">${rr.big.sub}</div></div>
     <div class="rrows">${rr.rows.map((row,i)=>`<div class="rrow ${i===0?'hi':''}"><div class="k">${row[0]}</div><div class="v">${row[1]}</div></div>`).join('')}</div>
     ${noteObj.txt?`<div class="rnote ${noteObj.warn?'warn':''}">${noteObj.txt}</div>`:''}
+    ${mod.historial?`<div class="actbtn" onclick="App.saveToHistorial()">💾 Guardar en historial</div>`:''}
   </div>`;
 }
 
@@ -1086,6 +1561,49 @@ function renderModuleScreen(){
       ${fields.map(fieldRow).join('')}
     </div>
     ${resultPanelHtml(mod)}
+  </div>`;
+}
+
+/* ---- REFERENCIA: CONDUCTORES (Ampacidades e Impedancias) ---- */
+function renderConductoresRef(){
+  const rows = COND.map(c=>[c.c, fmt(c.mm2,2), c.cu+' A', c.al?c.al+' A':'—', fmt(c.r,3), fmt(c.xl,3)]);
+  return `<div class="stage">
+    <div class="refcard"><div class="inner" style="font-size:11px;color:var(--text2);line-height:1.5">⚡ NOM-001-SEDE-2012 Tabla 310-15(b)(16) @75°C, conduit, 30°C ambiente, cobre sin recubrimiento (ampacidad) + Tabla 9 (impedancias, conduit acero, Cu, 75°C, 60Hz). Los mm² son secciones reales AWG — no intercambiar con los valores IEC redondeados.</div></div>
+    <div class="refcard"><h3>⚡ Conductores — Ampacidades e Impedancias</h3><div class="inner">${rtable(['Calibre','mm² real','Amp Cu','Amp Al','R (Ω/km)','XL (Ω/km)'], rows)}</div></div>
+  </div>`;
+}
+
+/* ---- REFERENCIA: FLC MOTORES (Tabla 430-150) ---- */
+function renderFlcRef(){
+  const rowsTri = MOTOR_FLC_DATA.map(m=>[m.hp+' HP', fmt(m.v460,1)+' A', fmt(m.v230,1)+' A', fmt(m.v208,1)+' A']);
+  const rowsMono = MOTOR_FLC_MONO_DATA.map(m=>[m.hp+' HP', fmt(m.v115,1)+' A', fmt(m.v127,1)+' A', fmt(m.v208,1)+' A', fmt(m.v230,1)+' A']);
+  return `<div class="stage">
+    <div class="refcard"><h3>⚙️ FLC — Motores trifásicos CA</h3><div class="inner">${rtable(['HP','460V','230V','208V'], rowsTri)}
+      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 430-150. En México (440/480V) usa la columna 460V — es la que corresponde a motores NEMA para 480V. Para dimensionar conductor (Art.430-22, ×1.25) y protección contra cortocircuito (Art.430-52) usa ESTE valor de tabla, NO el calculado ni el FLA de placa. El FLA de placa se usa solo para ajustar el guardamotor/relé térmico (Art.430-32).</div>
+    </div></div>
+    <div class="refcard"><h3>⚙️ FLC — Motores monofásicos CA</h3><div class="inner">${rtable(['HP','115V','127V','208V','230V'], rowsMono)}
+      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 430-248. Las columnas 115V y 230V son las nominales de norma (rango 110-120V y 220-240V respectivamente); 127V y 208V se incluyen por ser tensiones comunes en instalaciones mexicanas. Mismo criterio que trifásicos: usa este valor de tabla para conductor y protección, no el calculado.</div>
+    </div></div>
+  </div>`;
+}
+
+/* ---- REFERENCIA: CPTE — TIERRA DE EQUIPO (Tabla 250-122) ---- */
+function renderCpteRef(){
+  const rows = CPTE_DATA.map(x=>[x.a+' A', x.c+' AWG Cu']);
+  return `<div class="stage">
+    <div class="refcard"><h3>🟢 CPTE — Tierra de equipo</h3><div class="inner">${rtable(['Protección del circuito','Calibre mínimo CPTE'], rows)}
+      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 250-122. No confundir con la Tabla 250-66 (conductor de tierra del sistema/neutro) — son conductores con función distinta. El CPTE conecta carcasas metálicas a tierra; el conductor de tierra del sistema referencia el neutro.</div>
+    </div></div>
+  </div>`;
+}
+
+/* ---- REFERENCIA: CALIBRES COMERCIALES (Tabla 240-6) ---- */
+function renderCalibresRef(){
+  const chunks=[]; for(let i=0;i<STD_AMPS.length;i+=6){ chunks.push(STD_AMPS.slice(i,i+6).map(a=>a+' A')); }
+  return `<div class="stage">
+    <div class="refcard"><h3>🔢 Calibres comerciales — Breaker / Fusible</h3><div class="inner">${rtable([], chunks, true)}
+      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 240-6. Si el cálculo (breaker, fusible) no cae en un valor de esta lista, se redondea al siguiente disponible arriba.</div>
+    </div></div>
   </div>`;
 }
 
@@ -1130,8 +1648,8 @@ function renderVfdListOnly(){ const el=document.getElementById('vfdlist'); if(el
 
 /* ---- REFERENCIA: CURVAS ---- */
 function rtable(headers, rows, hideHead){
-  return `<table class="rtable">${hideHead?'':`<thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>`}
-  <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  return `<div class="rtable-wrap"><table class="rtable">${hideHead?'':`<thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>`}
+  <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
 function renderCurvas(){
   const cards = CURVAS.map(g=>`
@@ -1161,6 +1679,23 @@ function renderSeguridad(){
   </div>`;
 }
 
+/* ---- REFERENCIA GENÉRICA (reutilizada por PLC/Instrumentación/Control/IEC) ---- */
+function renderRefGeneric(data, introHtml){
+  const cards = data.map(g=>`
+    <div class="refcard" ${g.danger?'style="border-left:2px solid var(--led-danger)"':''}>
+      <h3>${g.ic} ${g.title}</h3><div class="inner">${rtable(g.headers,g.rows,g.hideHead)}${g.note?`<div class="rnote" style="margin-top:8px">${g.note}</div>`:''}</div>
+    </div>`).join('');
+  return `<div class="stage">
+    ${introHtml?`<div class="refcard"><div class="inner" style="font-size:11px;color:var(--text2);line-height:1.6">${introHtml}</div></div>`:''}
+    ${cards}
+  </div>`;
+}
+function renderPlc(){ return renderRefGeneric(PLC_DATA, '🖥️ Ladder, comparativa de marcas y diagnóstico de campo.'); }
+function renderInstr(){ return renderRefGeneric(INSTR_DATA, '📡 Señales, sensores por variable, tags P&ID (ISA 5.1) y diagnóstico rápido de lazo.'); }
+function renderControlRef(){ return renderRefGeneric(CONTROL_DATA, '🔌 Lógica de mando: arranques, enclavamientos, paros de emergencia y circuitos con VFD.'); }
+function renderIec(){ return renderRefGeneric(IEC_DATA, '📐 Designación de componentes, numeración de conductores y checklist de revisión de planos.'); }
+function renderAcad(){ return renderRefGeneric(ACAD_DATA, '📏 Comandos generales, AutoCAD Electrical (esquemático), capas y biblioteca de símbolos IEC/NEMA. ⚠ Conocimiento general de la herramienta, no un KB tuyo verificado — confirma nombres de capa contra tu plantilla real.'); }
+
 /* ---- REFERENCIA: HERRAMIENTAS ---- */
 function renderHerramientas(){
   const cards = HERRAMIENTAS.map(g=>`
@@ -1168,6 +1703,40 @@ function renderHerramientas(){
       <h3>${g.ic} ${g.title}</h3><div class="inner">${rtable(g.headers,g.rows,g.hideHead)}${g.note?`<div class="rnote" style="margin-top:8px">${g.note}</div>`:''}</div>
     </div>`).join('');
   return `<div class="stage">${cards}</div>`;
+}
+
+/* ---- HISTORIAL (piloto: solo módulos con historial:true — capacitores y UPS) ---- */
+function renderHistorial(){
+  const arr = Historial.listar();
+  const items = arr.map(e=>{
+    const mod = MODULES_A[e.modulo];
+    const color = mod ? mod.tc : '#888';
+    const fecha = new Date(e.fecha).toLocaleString('es-MX',{dateStyle:'short',timeStyle:'short'});
+    return `
+    <div class="refcard" style="border-left:2px solid ${color}">
+      <div class="inner">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div style="flex:1">
+            <div style="font-size:11px;color:var(--text2)">${fecha} · ${e.moduloLabel}</div>
+            ${e.nota?`<div style="font-weight:700;margin:2px 0">${escHtml(e.nota)}</div>`:''}
+            <div style="font-size:12.5px;margin-top:4px">${escHtml(e.resumen)}</div>
+          </div>
+          <div onclick="App.deleteHistorialEntry('${e.id}')" style="padding:4px 8px;color:var(--led-danger);font-size:16px;cursor:pointer">🗑</div>
+        </div>
+        <div class="actbtn" style="margin:10px 0 0 0" onclick="App.loadHistorialEntry('${e.id}')">Ver / recargar →</div>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="stage">
+    ${arr.length===0?`<div class="refcard"><div class="inner" style="text-align:center;color:var(--text2);padding:20px 10px">Aún no guardas ningún cálculo.<br><br>Ve a Banco de Capacitores o UPS, calcula, y toca "💾 Guardar en historial".</div></div>`:items}
+    ${arr.length>0?`<div class="refcard"><div class="inner"><div class="actbtn" onclick="App.exportHistorial()">⬇ Exportar historial (.json)</div></div></div>`:''}
+    <div class="refcard"><div class="inner">
+      <label class="actbtn" style="display:block">⬆ Importar historial
+        <input type="file" accept=".json,application/json" style="display:none" onchange="App.importHistorial(this.files[0])">
+      </label>
+      <div style="font-size:10.5px;color:var(--text2);margin-top:8px;line-height:1.5">El historial vive en este navegador — comparte con unamano.html si están en el mismo sitio, pero no sincroniza con otro dispositivo. Usa exportar/importar para respaldar o mover.</div>
+    </div></div>
+  </div>`;
 }
 
 render();
