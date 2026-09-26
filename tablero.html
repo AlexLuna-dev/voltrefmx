@@ -176,6 +176,17 @@ input,select,button{font-family:inherit;}
 .rrow.hi .v{color:var(--accent);}
 .rnote{margin:0 12px 4px 12px; padding:10px 11px; font-size:10.5px; color:var(--text2); line-height:1.55; background:var(--panel); border-left:2px solid var(--line2); border-radius:0 6px 6px 0;}
 .rnote.warn{border-left-color:var(--led-warn); background:var(--led-warn-bg);}
+
+/* ===== FÓRMULA VISIBLE ===== */
+.fmlbox{margin:8px 12px 4px; border:1px solid var(--line); border-radius:7px; overflow:hidden; background:var(--panel);}
+.fml-toggle{display:flex; align-items:center; justify-content:space-between; padding:9px 11px; font-size:10.5px; font-weight:800; letter-spacing:.03em; color:var(--accent); cursor:pointer;}
+.fml-toggle:active{background:var(--panel3);}
+.fml-body{padding:0 11px 11px; border-top:1px solid var(--line);}
+.fml-row{padding:8px 0 2px;}
+.fml-k{font-size:9px; letter-spacing:.1em; color:var(--dim); font-weight:800; text-transform:uppercase;}
+.fml-v{font-size:11.5px; color:var(--text); margin-top:3px; line-height:1.5; word-break:break-word;}
+.fml-norma{margin-top:8px; font-size:10px; color:var(--text2); font-style:italic;}
+.fml-pend{margin-top:8px; padding:8px 9px; font-size:10px; line-height:1.5; color:var(--text2); background:var(--led-warn-bg); border-left:2px solid var(--led-warn); border-radius:0 5px 5px 0;}
 .actbtn{margin:0 12px 12px 12px; padding:12px; text-align:center; font-weight:700; font-size:13px; color:var(--accent); background:var(--accent-dim); border:1px solid var(--accent-bdr); border-radius:8px;}
 .actbtn:active{opacity:.75;}
 
@@ -213,6 +224,33 @@ input,select,button{font-family:inherit;}
 
 .hidden{display:none !important;}
 
+/* ===== CONVERSOR — botón flotante + pantalla nativa (mismo patrón que un módulo) ===== */
+.conv-fab{
+  position:fixed; right:14px; bottom:calc(14px + var(--safe-b)); z-index:15;
+  width:50px; height:50px; border-radius:50%; background:var(--accent-dim);
+  border:1px solid var(--accent-bdr); display:flex; align-items:center; justify-content:center;
+  font-size:20px; color:var(--accent); box-shadow:0 4px 14px rgba(0,0,0,.25);
+}
+.conv-fab.active{background:var(--accent); color:var(--panel); box-shadow:0 0 0 4px var(--accent-dim), 0 4px 14px rgba(0,0,0,.3);}
+.conv-fab:active{opacity:.8;}
+.tabscroll-wrap{position:relative; margin:10px 12px 0;}
+.tabscroll{display:flex; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px;}
+.tabscroll::-webkit-scrollbar{display:none;}
+.tabscroll .fchoice{flex-shrink:0; white-space:nowrap;}
+.tabarrow{
+  position:absolute; top:0; bottom:2px; width:26px; display:flex; align-items:center;
+  font-size:15px; font-weight:800; color:var(--accent); pointer-events:none;
+  opacity:0; transition:opacity .15s;
+}
+.tabarrow-l{left:-2px; justify-content:flex-start; background:linear-gradient(to right, var(--bg) 45%, transparent);}
+.tabarrow-r{right:-2px; justify-content:flex-end; background:linear-gradient(to left, var(--bg) 45%, transparent);}
+.tabscroll-wrap.show-l .tabarrow-l{opacity:1;}
+.tabscroll-wrap.show-r .tabarrow-r{opacity:1;}
+.conv-out{margin:8px 12px 0; padding:10px 11px; background:var(--panel); border-radius:7px; border:1px solid var(--line);}
+.conv-out .row{display:flex; justify-content:space-between; padding:5px 2px; font-size:12.5px;}
+.conv-out .row .k{color:var(--dim);}
+.conv-out .row .v{font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums;}
+
 /* ===== ADAPTACIÓN A PANTALLA ANCHA (laptop/escritorio) =====
    En celular, statusbar/modhead/stage ocupan todo el ancho por diseño.
    En pantallas anchas eso los estira demasiado y el texto se ve chico
@@ -227,10 +265,99 @@ input,select,button{font-family:inherit;}
     max-width:640px;
   }
 }
+
+/* ===== MEMORIA DE CÁLCULO (exportar a PDF) =====
+   Formulario de encabezado (texto libre) + vista previa + hoja de impresión.
+   La hoja siempre es "papel" blanco, sin importar el tema claro/oscuro. */
+input.memo-in, textarea.memo-in{user-select:text; -webkit-user-select:text;}
+#memo-root{position:relative; z-index:60;}
+.memo-modal{position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:flex-end; justify-content:center; z-index:60;}
+.memo-card{width:100%; max-width:560px; max-height:92vh; display:flex; flex-direction:column; background:var(--panel2);
+  border:1px solid var(--line2); border-radius:14px 14px 0 0; padding-bottom:var(--safe-b);}
+@media (min-width:701px){ .memo-modal{align-items:center;} .memo-card{border-radius:14px;} }
+.memo-hd{display:flex; align-items:center; gap:8px; padding:14px 14px 4px;}
+.memo-hd .t{flex:1; font-size:14px; font-weight:800; color:var(--accent);}
+.memo-hd .x{width:30px; height:30px; border-radius:6px; border:1px solid var(--line2); background:var(--panel3); display:flex; align-items:center; justify-content:center; color:var(--text2);}
+.memo-sub{padding:0 14px 6px; font-size:10.5px; color:var(--text2); line-height:1.5;}
+.memo-body{overflow-y:auto; -webkit-overflow-scrolling:touch; padding:2px 14px 8px;}
+.memo-lbl{font-size:10px; letter-spacing:.08em; color:var(--dim); font-weight:800; margin:10px 0 4px;}
+.memo-in{width:100%; background:var(--panel); border:1px solid var(--line2); border-radius:6px; padding:10px; color:var(--text);
+  font-family:var(--sans); font-size:14px;}
+.memo-in:focus{outline:none; border-color:var(--accent);}
+textarea.memo-in{min-height:68px; resize:vertical;}
+.memo-row2{display:flex; gap:8px;} .memo-row2 > div{flex:1; min-width:0;}
+.memo-actions{display:flex; gap:8px; padding:10px 14px 12px;}
+.memo-btn{flex:1; text-align:center; padding:12px 8px; border-radius:8px; font-weight:700; font-size:13px;
+  border:1px solid var(--accent-bdr); color:var(--accent); background:var(--accent-dim);}
+.memo-btn.primary{background:var(--accent); color:var(--panel); border-color:var(--accent);}
+.memo-btn:active{opacity:.75;}
+.memo-preview{position:fixed; inset:0; z-index:60; background:#d9ded6; overflow-y:auto; -webkit-overflow-scrolling:touch;}
+.memo-toolbar{position:sticky; top:0; z-index:2; display:flex; gap:8px; padding:calc(8px + var(--safe-t)) 10px 8px; background:#0b1a10;}
+.memo-toolbar .memo-btn{flex:none; padding:9px 12px; font-size:12px; background:transparent; color:#39ff88; border-color:rgba(57,255,136,.4);}
+.memo-toolbar .memo-btn.primary{flex:1; background:#39ff88; color:#04120a; border-color:#39ff88;}
+.memo-hint{max-width:820px; margin:10px auto 0; padding:0 16px; font-size:10.5px; color:#4d5c47; line-height:1.5; font-family:var(--sans);}
+.memo-toast{position:fixed; left:50%; bottom:calc(80px + var(--safe-b)); transform:translateX(-50%); z-index:70; background:#222; color:#fff;
+  padding:10px 14px; border-radius:8px; font-size:12px; max-width:88vw; text-align:center;}
+
+/* --- Hoja (papel) --- */
+.memo-paper, .memo-paper *{user-select:text; -webkit-user-select:text;}
+.memo-paper{max-width:820px; margin:10px auto 26px; background:#fff; color:#14201a; padding:20px 18px 24px;
+  box-shadow:0 2px 14px rgba(0,0,0,.25); font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif; font-size:12px; line-height:1.45;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+.mp-top{display:flex; justify-content:space-between; align-items:flex-end; gap:10px; border-bottom:3px solid #0e8a3f; padding-bottom:8px;}
+.mp-title{font-size:20px; font-weight:800; letter-spacing:.03em;}
+.mp-sub{font-size:12px; color:#4d5c47; margin-top:2px;}
+.mp-brand{font-size:10px; text-align:right; color:#4d5c47; line-height:1.35; flex-shrink:0;}
+.mp-brand b{color:#0e8a3f; font-size:12px; letter-spacing:.06em;}
+.mp-meta{display:grid; grid-template-columns:2fr 1fr; gap:0 14px; margin-top:10px;}
+.mp-meta .full{grid-column:1 / -1;}
+.mp-cell{margin-top:6px;}
+.mp-cl{font-size:8.5px; letter-spacing:.1em; font-weight:800; color:#6b7a63; text-transform:uppercase;}
+.mp-cv{min-height:1.6em; border-bottom:1px solid #9aa693; padding:1px 2px; font-size:12.5px; font-weight:600; overflow-wrap:anywhere;}
+.mp-sec{margin-top:14px; page-break-inside:avoid; break-inside:avoid;}
+.mp-h{font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#0e6b30; border-left:4px solid #0e8a3f; padding:1px 0 1px 8px; margin-bottom:6px;}
+.mp-t{width:100%; border-collapse:collapse; font-size:11.5px;}
+.mp-t td{padding:4px 6px; border-bottom:1px solid #d3ddc9; vertical-align:top;}
+.mp-t td.r{text-align:right; font-weight:700; white-space:nowrap;}
+.mp-t td.u{width:52px; color:#6b7a63; font-size:10.5px;}
+.mp-step{margin-bottom:8px; page-break-inside:avoid; break-inside:avoid;}
+.mp-st{font-size:11.5px; font-weight:700; margin-bottom:2px;}
+.mp-fl{font-family:ui-monospace,'SF Mono',Consolas,'DejaVu Sans Mono',monospace; font-size:10.8px; background:#f3f6f1; border-left:2px solid #c1cdb5;
+  padding:3px 8px; margin-top:2px; white-space:pre-wrap; overflow-wrap:anywhere;}
+.mp-result{display:flex; align-items:center; justify-content:space-between; gap:10px; border:1.5px solid #0e8a3f; border-radius:6px; padding:10px 12px; margin-bottom:6px;
+  page-break-inside:avoid; break-inside:avoid;}
+.mp-result.warn{border-color:#a66c00;} .mp-result.danger{border-color:#c0362c;}
+.mp-rl{font-size:9px; letter-spacing:.1em; font-weight:800; color:#6b7a63; text-transform:uppercase;}
+.mp-rv{font-size:26px; font-weight:800; line-height:1.15;}
+.mp-rv span{font-size:13px; color:#6b7a63; margin-left:3px;}
+.mp-rs{font-size:10.5px; color:#4d5c47;}
+.mp-badge{font-size:10.5px; font-weight:800; letter-spacing:.04em; padding:5px 10px; border-radius:5px; border:1px solid #0e8a3f; background:#e3f3e8; color:#0e6b30; text-align:center; flex-shrink:0;}
+.mp-badge.warn{background:#fff3d6; color:#8a5a00; border-color:#a66c00;}
+.mp-badge.danger{background:#fde4e1; color:#a4271e; border-color:#c0362c;}
+.mp-note{font-size:10.5px; color:#4d5c47; margin-top:5px;}
+.mp-list{margin:0; padding-left:16px; font-size:11px;} .mp-list li{margin-bottom:3px;}
+.mp-warn{border:1.5px solid #a66c00; background:#fff8e6; border-radius:6px; padding:8px 10px; font-size:11px;}
+.mp-warn b{color:#8a5a00;} .mp-warn p{margin:4px 0 0;}
+.mp-usernote{border:1px solid #c1cdb5; border-radius:6px; padding:8px 10px; font-size:11.5px; white-space:pre-wrap; overflow-wrap:anywhere;}
+.mp-sign{display:grid; grid-template-columns:1fr 1fr; gap:26px; margin-top:26px; page-break-inside:avoid; break-inside:avoid;}
+.mp-sline{border-top:1px solid #14201a; padding-top:3px; font-size:10px; color:#4d5c47; min-height:2.4em;}
+.mp-sline b{display:block; font-size:11.5px; color:#14201a;}
+.mp-foot{margin-top:16px; padding-top:6px; border-top:1px solid #d3ddc9; font-size:9px; color:#6b7a63; line-height:1.45;}
+
+@page{size:letter; margin:13mm 12mm;}
+@media print{
+  html,body{height:auto !important; overflow:visible !important; position:static !important; background:#fff !important;}
+  body{background-image:none !important;}
+  #app,.conv-fab,.memo-toast,.memo-modal,.memo-toolbar,.memo-hint{display:none !important;}
+  #memo-root{position:static !important; display:block !important;}
+  .memo-preview{position:static !important; inset:auto !important; overflow:visible !important; background:#fff !important;}
+  .memo-paper{box-shadow:none !important; margin:0 !important; max-width:none !important; padding:0 !important; font-size:10.5pt;}
+}
 </style>
 </head>
 <body>
 <div id="app"></div>
+<div id="memo-root"></div>
 <script>
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
@@ -998,7 +1125,24 @@ const HERRAMIENTAS = [
    VoltRefMX · Tablero de control — MOTOR DE LA APP
    =================================================================== */
 const $app = document.getElementById('app');
-const ST = { sidebarOpen:false, screen:'home', modId:null, answers:{}, vfdOpen:{}, vfdFilter:'', theme:'light' };
+const ST = {
+  sidebarOpen:false, screen:'home', modId:null, answers:{}, vfdOpen:{}, vfdFilter:'', theme:'light', formulaOpen:{},
+  convReturn: null,
+  conv: {
+    tab:'motores',
+    vals:{
+      power:   {v:10, u:'hp'},
+      torque:  {v:10, u:'nm'},
+      rpmhz:   {v:60, mode:'hz', poles:4},
+      cable:   {awg:'12 AWG', mm2rev:'', condSize:'3/4"'},
+      pressure:{v:1, u:'bar'},
+      temp:    {v:25, u:'c'},
+      length:  {v:1, u:'m'},
+      lux:     {v:500, u:'lux'},
+      loop:    {min:0, max:100, mode:'ma', ma:12, eng:''},
+    }
+  }
+};
 
 function fmt(n,d){ if(n===null||n===undefined||isNaN(n)) return '—'; d=d===undefined?2:d; return Number(n).toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:d}); }
 // Escapa comillas en valores embebidos en atributos onclick/value (ej. tamaños de conduit tipo 1/2")
@@ -1025,6 +1169,7 @@ const MODULES_A = {
   caida: {
     id:'caida', label:'Caída de tensión', ic:'⚡', tc:'#22d3ee', tcbg:'rgba(34,211,238,.12)',
     desc:'ΔV — NOM-001 Tabla 9',
+    info:'Método de impedancia (NOM-001-SEDE-2012 Tabla 9): ΔV% = (k·I·L_km·Z)/Vn×100, con k=√3 (trifásico) o 2 (monofásico), y Z=√(R²+XL²) tomado de la Tabla 9 para conduit de acero, cobre, 75°C, 60Hz. El resultado se compara contra el límite que elijas (3% o 5%).',
     fields:[
       {key:'sistema', type:'segment', label:'Sistema', options:[{v:'tri',l:'Trifásico'},{v:'mono',l:'Monofásico'}], default:'tri'},
       {key:'vn', type:'number', label:'Tensión Vn', unit:'V', min:12, max:13800, step:1, default:220},
@@ -1042,7 +1187,16 @@ const MODULES_A = {
       const dV = pct/100*a.vn;
       const Vc = a.vn - dV;
       const cumple = pct <= a.limite;
-      return {c,Z,pct,dV,Vc,cumple,a};
+      return {c,k,Z,pct,dV,Vc,cumple,a};
+    },
+    formula(r){
+      const ksym = r.a.sistema==='tri' ? '√3' : '2';
+      return {
+        simbolica:'e% = (k × I × L_km × Z) / Vn × 100',
+        sustitucion:`e% = (${ksym} × ${r.a.i}A × ${fmt(r.a.l/1000,3)}km × ${fmt(r.Z,3)}Ω/km) / ${r.a.vn}V × 100 = ${fmt(r.pct,2)}%`,
+        norma:'NOM-001-SEDE-2012 — Tabla 9 (método de impedancia, conduit acero, Cu, 75°C, 60Hz).',
+        pendiente:'Z se calcula aquí como √(R²+XL²). Está pendiente de validar contra Z = R·cosθ + XL·senθ, que es el método de Tabla 9 más preciso — la versión actual puede sobreestimar Z (y por tanto la caída) hasta ~15%. No cambies decisiones de campo solo por este número sin margen.'
+      };
     },
     renderResult(r){
       return {
@@ -1062,6 +1216,7 @@ const MODULES_A = {
   ampacidad: {
     id:'ampacidad', label:'Ampacidad / calibre', ic:'🔌', tc:'#3b82f6', tcbg:'rgba(59,130,246,.12)',
     desc:'Calibre mínimo — NOM-001 310-15',
+    info:'Busca el calibre más pequeño cuya ampacidad base (Tabla 310-15(b)(16) a 75°C) corregida por temperatura ambiente y por número de conductores agrupados sea ≥ tu corriente de diseño: base × F.temp × F.inst ≥ I. Charola escalerilla/lisa usa un factor fijo simplificado (0.75/0.65) — para instalaciones grandes en charola, verifica la tabla completa del Art. 392.',
     fields:[
       {key:'i', type:'number', label:'Corriente I', unit:'A', min:1, max:2000, step:1, default:40},
       {key:'mat', type:'segment', label:'Material', options:[{v:'cu',l:'Cobre'},{v:'al',l:'Aluminio'}], default:'cu'},
@@ -1075,6 +1230,16 @@ const MODULES_A = {
       let pick=null;
       for(const c of COND){ const base=a.mat==='cu'?c.cu:c.al; if(!base) continue; const corr=base*Ftemp*Finst; if(corr>=a.i){ pick={c,base,corr}; break; } }
       return {pick, Ftemp, Finst, a};
+    },
+    formula(r){
+      const p = r.pick;
+      return {
+        simbolica:'Amp_corregida = Amp_base × F_temp × F_inst  —  elegir el calibre más pequeño donde Amp_corregida ≥ I_diseño',
+        sustitucion: p
+          ? `Amp_corregida = ${p.base}A × ${r.Ftemp} × ${r.Finst} = ${fmt(p.corr,1)}A  →  ${fmt(p.corr,1)}A ≥ ${r.a.i}A ✓  →  calibre ${p.c.c}`
+          : `Ningún calibre de la tabla cumple ${r.a.i}A con estos factores (temp ${r.a.temp}°C, inst. ${r.a.inst}).`,
+        norma:'NOM-001-SEDE-2012 — Tabla 310-15(b)(16), factores 310-15(b)(2)(a) [temperatura] y 310-15(b)(3)(a) [agrupamiento].'
+      };
     },
     renderResult(r){
       if(!r.pick) return {sev:'danger', badge:'FUERA DE TABLA', big:{lbl:'Calibre',val:'—',u:'',sub:'Considera conductores en paralelo — Art. 310-4'}, rows:[], note:''};
@@ -1096,6 +1261,7 @@ const MODULES_A = {
   motor: {
     id:'motor', label:'Motor eléctrico', ic:'⚙️', tc:'#f97316', tcbg:'rgba(249,115,22,.12)',
     desc:'FLC / arranque — NOM-001 Art. 430',
+    info:'FLC estimado a partir de la potencia con FP=0.85 y eficiencia=0.90 asumidos (si no capturas el FLA real de placa): I=(kW×1000)/(√3×V×FP×η) en trifásico. El breaker se calcula al 250% (Art. 430-52), el cable al 125% (Art. 430-22), y el guardamotor se ajusta al FLC calculado o al FLA de placa si lo capturas (Art. 430-32) — usa siempre el dato de placa cuando lo tengas, lo calculado es solo una estimación de diseño.',
     fields:[
       {key:'punit', type:'segment', label:'Unidad', options:[{v:'hp',l:'HP'},{v:'kw',l:'kW'}], default:'hp'},
       {key:'p', type:'number', label:'Potencia', unit:a=>a.punit==='hp'?'HP':'kW', min:0.25, max:1000, step:0.5, default:10},
@@ -1115,7 +1281,15 @@ const MODULES_A = {
       const brk = roundStd(I*2.50);
       const cableI = I*1.25;
       let cable=null; for(const c of COND){ if(c.cu>=cableI){ cable=c; break; } }
-      return {kw,I,FLA,mult,Ia,brk,cable,a};
+      return {kw,I,FLA,mult,Ia,brk,cable,cableI,a};
+    },
+    formula(r){
+      const kdenom = r.a.sistema==='tri' ? '√3×V×FP×η' : 'V×FP×η';
+      return {
+        simbolica:'FLC = (kW×1000)/('+kdenom+')  |  Cable ≥ FLC×1.25  |  Breaker = FLC×2.50  |  Ir(guardamotor) = FLA de placa',
+        sustitucion:`FLC = (${fmt(r.kw,2)}×1000)/(${r.a.sistema==='tri'?'√3×':''}${r.a.v}×0.85×0.90) = ${fmt(r.I,1)}A  →  Cable: ${fmt(r.I,1)}×1.25 = ${fmt(r.cableI,1)}A → ${r.cable?r.cable.c:'—'}  |  Breaker: ${fmt(r.I,1)}×2.50 = ${r.brk}A`,
+        norma:'NOM-001-SEDE-2012 — Art. 430-22 (conductor 125%), Tabla 430-52 (protección 250% DOL/Y-Δ), Art. 430-32 (sobrecarga 115-125% FLA placa). FP=0.85/η=0.90 son valores genéricos de campo, no de tabla — usar placa siempre que exista.'
+      };
     },
     renderResult(r){
       return {
@@ -1137,6 +1311,7 @@ const MODULES_A = {
   conduit: {
     id:'conduit', label:'Llenado de conduit', ic:'○', tc:'#39d178', tcbg:'rgba(57,209,120,.12)',
     desc:'% área — NOM-001 Cap.10',
+    info:'Compara el área ocupada por los conductores (con su diámetro exterior THHN) contra el área interior del conduit elegido (tabla EMT/IMC/RGS/PVC), aplicando el límite de llenado de la Tabla 1: 53% para 1 conductor, 31% para 2, 40% para 3 o más.',
     fields:[
       {key:'cal', type:'select', label:'Calibre', default:'12 AWG', opts:COND.filter(c=>COND_OD_THHN[c.mm2]).map(c=>({v:c.c,l:c.c}))},
       {key:'n', type:'number', label:'N° conductores', unit:'cond.', min:1, max:60, step:1, default:3},
@@ -1153,6 +1328,13 @@ const MODULES_A = {
       const limite = a.n===1?53:a.n===2?31:40;
       const pct = areaCond/Atotal*100;
       return {c,OD,cw,Atotal,areaCond,limite,pct,cumple:pct<=limite,a};
+    },
+    formula(r){
+      return {
+        simbolica:'A_conduit = π×(Ø_int/2)²  |  A_ocupada = π×(Ø_ext/2)² × n  |  % = (A_ocupada / A_conduit) × 100 ≤ límite',
+        sustitucion:`A_conduit = π×(${fmt(r.cw.d,1)}/2)² = ${fmt(r.Atotal,1)}mm²  |  A_ocupada = π×(${fmt(r.OD,2)}/2)² × ${r.a.n} = ${fmt(r.areaCond,1)}mm²  |  % = ${fmt(r.areaCond,1)}/${fmt(r.Atotal,1)} × 100 = ${fmt(r.pct,1)}%`,
+        norma:'NOM-001-SEDE-2012 — Cap. 10, Tabla 1 (límite: 53% 1 cond., 31% 2 cond., 40% 3+ cond.), Tabla 4 (Ø interior conduit), Tabla 5 (Ø exterior conductor).'
+      };
     },
     renderResult(r){
       return {
@@ -1172,6 +1354,7 @@ const MODULES_A = {
   xfmr: {
     id:'xfmr', label:'Transformador', ic:'🔄', tc:'#8b5cf6', tcbg:'rgba(139,92,246,.12)',
     desc:'Corrientes/protección — Art. 450',
+    info:'Calcula la corriente de línea en primario y secundario (I=kVA×1000/(√3×V) en trifásico), dimensiona la protección al 125% si solo hay del lado primario, o 250%/125% si hay en ambos lados (Art. 450). Estima el inrush como 10× la corriente nominal de secundario, y aproxima el %VR con una %Z típica por rango de potencia y FP=0.85 asumido — para %Z real, siempre usa el dato de placa del transformador.',
     fields:[
       {key:'kva', type:'number', label:'Potencia', unit:'kVA', min:1, max:2500, step:1, default:75},
       {key:'sistema', type:'segment', label:'Tipo', options:[{v:'tri',l:'Trifásico'},{v:'mono',l:'Monofásico'}], default:'tri'},
@@ -1187,7 +1370,17 @@ const MODULES_A = {
       const inrush = Is*10;
       const z = zDefault(a.kva), R=z*0.30, X=z*0.95, FP=0.85, sinphi=Math.sqrt(1-FP*FP);
       const vr = R*FP + X*sinphi;
-      return {Ip,Is,Bp,Bs,inrush,z,vr,a};
+      return {Ip,Is,Bp,Bs,inrush,z,R,X,FP,sinphi,vr,a};
+    },
+    formula(r){
+      const protTxt = r.a.proteccion==='solo'
+        ? `Bp = Ip×1.25 = ${fmt(r.Ip,1)}×1.25 = ${r.Bp}A (solo primaria)`
+        : `Bp = Ip×2.50 = ${fmt(r.Ip,1)}×2.50 = ${r.Bp}A  |  Bs = Is×1.25 = ${fmt(r.Is,1)}×1.25 = ${r.Bs}A`;
+      return {
+        simbolica:'Ip = (kVA×1000)/(√3×Vp)  |  Protección: sola=125%Ip · con secundaria=250%Ip/125%Is  |  Inrush≈10×Is  |  %VR≈%R×FP+%X×senφ',
+        sustitucion:`Ip = (${r.a.kva}×1000)/(√3×${r.a.vp}) = ${fmt(r.Ip,1)}A.  ${protTxt}.  Inrush = 10×${fmt(r.Is,1)} = ${fmt(r.inrush,0)}A.  %VR = ${fmt(r.R,2)}×${r.FP} + ${fmt(r.X,2)}×${fmt(r.sinphi,2)} = ${fmt(r.vr,2)}%`,
+        norma:'NOM-001-SEDE-2012 — Art. 450, Tabla 450-3(b). %VR es aproximación lineal a partir de %Z de placa (%R≈%Z×0.30, %X≈%Z×0.95), no un valor de tabla — el %Z real de placa siempre tiene prioridad.'
+      };
     },
     renderResult(r){
       const rows=[['Protección primario', r.Bp+' A']];
@@ -1205,6 +1398,7 @@ const MODULES_A = {
   caps: {
     id:'caps', label:'Banco de Capacitores', ic:'⚡', tc:'#eab308', tcbg:'rgba(234,179,8,.12)',
     desc:'Corrección de FP', historial:true,
+    info:'Corrección de factor de potencia por triángulo de potencias: kVAR = kW×(tan(φ1)-tan(φ2)), redondeado al tamaño comercial más cercano. Muestra la reducción de corriente de línea resultante. Si hay VFDs en la red, advierte sobre resonancia con armónicos y la necesidad de un reactor de bloqueo (detuned) — nunca instales capacitores fijos cerca de VFDs sin ese reactor.',
     fields:[
       {key:'kw', type:'number', label:'Potencia activa', unit:'kW', min:1, max:5000, step:1, default:100},
       {key:'fp1', type:'number', label:'FP actual', unit:'', min:0.5, max:0.99, step:0.01, default:0.80},
@@ -1223,7 +1417,14 @@ const MODULES_A = {
       const kvarResidual = a.kw*Math.tan(phi1) - kvarComercial;
       const kvaReal = Math.sqrt(a.kw*a.kw + kvarResidual*kvarResidual);
       const fpReal = a.kw/kvaReal;
-      return {kvarNecesarios,kvarComercial,kvaAntes,kvaDespues,iAntes,iDespues,reduccion,fpReal,a};
+      return {kvarNecesarios,kvarComercial,kvaAntes,kvaDespues,iAntes,iDespues,reduccion,fpReal,phi1,phi2,a};
+    },
+    formula(r){
+      return {
+        simbolica:'kVAR = kW × (tanφ1 − tanφ2)   donde φ = arccos(FP)',
+        sustitucion:`φ1=arccos(${r.a.fp1})=${fmt(r.phi1*180/Math.PI,1)}°, φ2=arccos(${r.a.fp2})=${fmt(r.phi2*180/Math.PI,1)}°  →  kVAR = ${r.a.kw} × (tan${fmt(r.phi1*180/Math.PI,1)}° − tan${fmt(r.phi2*180/Math.PI,1)}°) = ${fmt(r.kvarNecesarios,1)} kVAR  →  comercial ${r.kvarComercial} kVAR`,
+        norma:'Triángulo de potencias — no es cálculo de tabla NOM-001, es relación trigonométrica estándar de corrección de FP. Con VFDs en la red, agregar reactor de bloqueo (detuned) — ver nota de resultado.'
+      };
     },
     renderResult(r){
       const rows=[
@@ -1245,6 +1446,7 @@ const MODULES_A = {
   ups: {
     id:'ups', label:'UPS — Autonomía/Batería', ic:'🔋', tc:'#0ea5e9', tcbg:'rgba(14,165,233,.12)',
     desc:'Dimensionamiento UPS y banco', historial:true,
+    info:'Dimensiona la capacidad de UPS a partir de la carga en VA con margen de crecimiento, y calcula autonomía (a partir de los Ah de tu banco) o Ah necesarios (a partir de la autonomía deseada), según el modo. La corriente de descarga considera la eficiencia del inversor. La vida útil de baterías plomo-ácido cae a la mitad por cada 8-10°C sobre 25°C — clave si el UPS va en un cuarto caliente.',
     fields:[
       {key:'modo', type:'segment', label:'Calcular', options:[{v:'auto',l:'Autonomía'},{v:'ah',l:'Ah necesarios'}], default:'auto'},
       {key:'w', type:'number', label:'Carga total', unit:'W', min:10, max:20000, step:10, default:500},
@@ -1264,6 +1466,19 @@ const MODULES_A = {
       else { ahNecesarios = (a.w*(a.tmin/60))/(a.vdc*a.bat*a.eta); }
       const iDescarga = (a.w/a.eta)/a.vdc;
       return {vaCarga,kvaRecomendado,autoninMin,ahNecesarios,iDescarga,a};
+    },
+    formula(r){
+      const batLbl = r.a.bat==0.8?'Litio (K=0.8)':'Plomo-ácido (K=0.5)';
+      const sustitucion = r.a.modo==='auto'
+        ? `Autonomía(min) = (Ah × Vdc × K × η / W) × 60 = (${r.a.ah} × ${r.a.vdc} × ${r.a.bat} × ${r.a.eta} / ${r.a.w}) × 60 = ${fmt(r.autoninMin,1)} min`
+        : `Ah = (W × t_min/60) / (Vdc × K × η) = (${r.a.w} × ${r.a.tmin}/60) / (${r.a.vdc} × ${r.a.bat} × ${r.a.eta}) = ${fmt(r.ahNecesarios,1)} Ah`;
+      return {
+        simbolica: r.a.modo==='auto'
+          ? 'Autonomía(min) = (Ah × Vdc × K_bat × η_inversor / W) × 60'
+          : 'Ah = (W × t_min/60) / (Vdc × K_bat × η_inversor)',
+        sustitucion: sustitucion + `  |  I_descarga = (W/η)/Vdc = (${r.a.w}/${r.a.eta})/${r.a.vdc} = ${fmt(r.iDescarga,2)}A`,
+        norma:`Cálculo de ingeniería de dimensionamiento UPS/batería (no es tabla NOM-001). K_bat=${batLbl} es factor de referencia interno del proyecto, no valor normativo — confirmar contra hoja de datos del fabricante.`
+      };
     },
     renderResult(r){
       const principal = r.a.modo==='auto'
@@ -1307,6 +1522,282 @@ const REF_MODULES = [
 /* ---------------------------------------------------------------
    NAVEGACIÓN / ESTADO
 --------------------------------------------------------------- */
+/* ---------------------------------------------------------------
+   CONVERSOR — widget flotante (unidades de campo)
+   Reutiliza tablas existentes (COND) donde aplica, en vez de
+   duplicar valores — mismo criterio que los módulos de cálculo.
+--------------------------------------------------------------- */
+const CONV_TABS = [
+  {id:'motores', label:'Motores/Potencia'},
+  {id:'cable', label:'Cableado'},
+  {id:'presion', label:'Presión'},
+  {id:'temp', label:'Temperatura'},
+  {id:'longitud', label:'Longitud'},
+  {id:'lux', label:'Iluminación'},
+  {id:'loop', label:'Señal 4-20mA'},
+];
+
+// Conjuntos de conversión lineal (factor a unidad base)
+const CONV_SETS = {
+  power:    { factors:{hp:0.7457, kw:1}, labels:{hp:'HP', kw:'kW'}, dec:{hp:2,kw:3} },
+  torque:   { factors:{nm:1, lbft:1.35582, kgfcm:0.0980665}, labels:{nm:'N·m', lbft:'lb-ft', kgfcm:'kgf·cm'}, dec:{nm:2,lbft:2,kgfcm:1} },
+  pressure: { factors:{bar:1, psi:0.0689476, kpa:0.01, kgcm2:0.980665}, labels:{bar:'bar', psi:'psi', kpa:'kPa', kgcm2:'kg/cm²'}, dec:{bar:3,psi:2,kpa:2,kgcm2:3} },
+  length:   { factors:{m:1, ft:0.3048, in:0.0254}, labels:{m:'m', ft:'ft', in:'in'}, dec:{m:3,ft:2,in:2} },
+  lux:      { factors:{lux:1, fc:10.764}, labels:{lux:'lux', fc:'fc'}, dec:{lux:0,fc:1} },
+};
+
+function convCompute(setKey){
+  const set = CONV_SETS[setKey];
+  const st = ST.conv.vals[setKey];
+  if(st.v===''||st.v===null||st.v===undefined||isNaN(st.v)) return null;
+  const base = st.v * set.factors[st.u];
+  const out = {};
+  Object.keys(set.factors).forEach(u=>{ out[u] = base / set.factors[u]; });
+  return out;
+}
+
+/* ---- Salidas del conversor: bloques aislados con id propio.
+   Se regeneran solo ellos al teclear (ver App.convSet*), nunca el
+   <input> — así el input nunca pierde foco/teclado ni se le
+   reescribe el value a medio tecleo (lo que borraba el punto decimal). */
+function convOutRowsHtml(setKey){
+  const set = CONV_SETS[setKey];
+  const st = ST.conv.vals[setKey];
+  const out = convCompute(setKey);
+  return out
+    ? Object.keys(set.factors).filter(u=>u!==st.u).map(u=>`<div class="row"><div class="k">${set.labels[u]}</div><div class="v">${fmt(out[u], set.dec[u])}</div></div>`).join('')
+    : '<div class="row"><div class="k">—</div><div class="v">—</div></div>';
+}
+
+function renderLinTab(setKey, title){
+  const set = CONV_SETS[setKey];
+  const st = ST.conv.vals[setKey];
+  const segOpts = Object.keys(set.factors).map(u=>`<div class="o ${st.u===u?'active':''}" onclick="App.convSetUnit('${setKey}','${u}')">${set.labels[u]}</div>`).join('');
+  return `
+  <div class="fpanel" style="margin:10px 12px 0">
+    <div class="fhd"><div class="led ok"></div>${title}</div>
+    <div class="frow">
+      <div class="flabel">Valor</div>
+      <div class="fctrl">
+        <input class="fnum" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${st.v}" oninput="App.convSetVal('${setKey}', this.value)">
+        <div class="fseg" style="flex:1.4">${segOpts}</div>
+      </div>
+    </div>
+  </div>
+  <div class="conv-out" id="convout-${setKey}">${convOutRowsHtml(setKey)}</div>`;
+}
+
+function rpmOutHtml(){
+  const st = ST.conv.vals.rpmhz;
+  let result=null, resLbl='';
+  if(st.v!==''&&st.v!==null&&!isNaN(st.v)){
+    if(st.mode==='hz'){ result = 120*st.v/st.poles; resLbl='RPM síncronas'; }
+    else { result = st.v*st.poles/120; resLbl='Hz'; }
+  }
+  return `<div class="row"><div class="k">${resLbl||'—'}</div><div class="v">${result===null?'—':fmt(result,1)}</div></div>`;
+}
+
+function renderRpmHzTab(){
+  const st = ST.conv.vals.rpmhz;
+  const polesOpts = [2,4,6,8].map(p=>`<div class="o ${st.poles===p?'active':''}" onclick="App.convSetRpmPoles(${p})">${p}p</div>`).join('');
+  const modeOpts = `<div class="o ${st.mode==='hz'?'active':''}" onclick="App.convSetRpmMode('hz')">Hz→RPM</div><div class="o ${st.mode==='rpm'?'active':''}" onclick="App.convSetRpmMode('rpm')">RPM→Hz</div>`;
+  return `
+  <div class="fpanel" style="margin:14px 12px 0">
+    <div class="fhd"><div class="led ok"></div>RPM ↔ HZ</div>
+    <div class="frow"><div class="flabel">Modo</div><div class="fseg">${modeOpts}</div></div>
+    <div class="frow"><div class="flabel">Polos</div><div class="fseg">${polesOpts}</div></div>
+    <div class="frow">
+      <div class="flabel">${st.mode==='hz'?'Frecuencia':'RPM'}</div>
+      <div class="fctrl"><input class="fnum" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${st.v}" oninput="App.convSetRpmVal(this.value)"><div class="funit">${st.mode==='hz'?'Hz':'RPM'}</div></div>
+    </div>
+  </div>
+  <div class="conv-out" id="convout-rpmhz">${rpmOutHtml()}</div>
+  <div class="rnote" style="margin:8px 12px 0">RPM síncronas — el motor real gira con deslizamiento (~2-5% menos en motores de inducción).</div>`;
+}
+
+function cableMm2OutHtml(){
+  const st = ST.conv.vals.cable;
+  const awgC = COND.find(c=>c.c===st.awg) || COND[1];
+  return `<div class="row"><div class="k">mm² real</div><div class="v">${fmt(awgC.mm2,2)}</div></div>`;
+}
+function cableClosestOutHtml(){
+  const st = ST.conv.vals.cable;
+  let closest = null;
+  if(st.mm2rev!==''&&st.mm2rev!==null&&!isNaN(st.mm2rev)){
+    closest = COND.reduce((best,c)=> Math.abs(c.mm2-st.mm2rev) < Math.abs(best.mm2-st.mm2rev) ? c : best, COND[0]);
+  }
+  return `<div class="row"><div class="k">Calibre más cercano</div><div class="v">${closest?closest.c:'—'}</div></div>`;
+}
+// Convierte una medida comercial de conduit ('1-1/4"', '1/2"', '2"'...) a pulgadas decimales
+function conduitSizeToIn(label){
+  const s = label.replace('"','').trim();
+  const parts = s.split('-');
+  const fracPart = parts[parts.length-1];
+  const whole = parts.length===2 ? parseFloat(parts[0]) : 0;
+  let frac;
+  if(fracPart.includes('/')){ const [n,d] = fracPart.split('/').map(Number); frac = n/d; }
+  else { frac = parseFloat(fracPart); }
+  return whole + frac;
+}
+
+function cableInvOutHtml(){
+  const st = ST.conv.vals.cable;
+  const inDec = conduitSizeToIn(st.condSize);
+  const mm = inDec*25.4;
+  return `<div class="row"><div class="k">Pulgada decimal</div><div class="v">${fmt(inDec,3)}"</div></div>
+  <div class="row"><div class="k">Milímetros</div><div class="v">${fmt(mm,2)} mm</div></div>`;
+}
+
+function renderCableTab(){
+  const st = ST.conv.vals.cable;
+  return `
+  <div class="fpanel" style="margin:10px 12px 0">
+    <div class="fhd"><div class="led ok"></div>AWG/KCMIL → MM²</div>
+    <div class="frow">
+      <div class="flabel">Calibre</div>
+      <select class="fselect" onchange="App.convSetCableAwg(this.value)">
+        ${COND.map(c=>`<option value="${c.c}" ${st.awg===c.c?'selected':''}>${c.c}</option>`).join('')}
+      </select>
+    </div>
+  </div>
+  <div class="conv-out" id="convout-cable-mm2">${cableMm2OutHtml()}</div>
+
+  <div class="fpanel" style="margin:14px 12px 0">
+    <div class="fhd"><div class="led ok"></div>MM² → CALIBRE MÁS CERCANO</div>
+    <div class="frow">
+      <div class="flabel">mm² real</div>
+      <div class="fctrl"><input class="fnum" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${st.mm2rev}" oninput="App.convSetCableMm2(this.value)"></div>
+    </div>
+  </div>
+  <div class="conv-out" id="convout-cable-closest">${cableClosestOutHtml()}</div>
+
+  <div class="fpanel" style="margin:14px 12px 0">
+    <div class="fhd"><div class="led ok"></div>MEDIDA COMERCIAL DE CONDUIT → MM</div>
+    <div class="frow">
+      <div class="flabel">Tamaño</div>
+      <select class="fselect" onchange="App.convSetCableCondSize(this.value)">
+        ${CONDUIT_EMT.map(c=>`<option value="${escJs(c.n)}" ${st.condSize===c.n?'selected':''}>${c.n}</option>`).join('')}
+      </select>
+    </div>
+  </div>
+  <div class="conv-out" id="convout-cable-inv">${cableInvOutHtml()}</div>
+  <div class="rnote" style="margin:8px 12px 0">mm² tomados de la tabla maestra de conductores (COND) — mismos valores que usan Ampacidad y Caída de tensión, así que si se corrige la tabla, este conversor lo hereda automáticamente. Medidas de conduit tomadas de la tabla EMT — son la designación comercial (rosca), no el diámetro interior real.</div>`;
+}
+
+function tempOutHtml(){
+  const st = ST.conv.vals.temp;
+  let out=null;
+  if(st.v!==''&&st.v!==null&&!isNaN(st.v)){
+    out = st.u==='c' ? (st.v*9/5+32) : ((st.v-32)*5/9);
+  }
+  return `<div class="row"><div class="k">${st.u==='c'?'°F':'°C'}</div><div class="v">${out===null?'—':fmt(out,1)}</div></div>`;
+}
+
+function renderTempTab(){
+  const st = ST.conv.vals.temp;
+  const segOpts = `<div class="o ${st.u==='c'?'active':''}" onclick="App.convSetUnit('temp','c')">°C</div><div class="o ${st.u==='f'?'active':''}" onclick="App.convSetUnit('temp','f')">°F</div>`;
+  return `
+  <div class="fpanel" style="margin:10px 12px 0">
+    <div class="fhd"><div class="led ok"></div>TEMPERATURA</div>
+    <div class="frow">
+      <div class="flabel">Valor</div>
+      <div class="fctrl"><input class="fnum" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${st.v}" oninput="App.convSetVal('temp', this.value)"><div class="fseg">${segOpts}</div></div>
+    </div>
+  </div>
+  <div class="conv-out" id="convout-temp">${tempOutHtml()}</div>`;
+}
+
+function loopOutHtml(){
+  const st = ST.conv.vals.loop;
+  let result=null, resLbl='';
+  const minOk = st.min!==''&&st.min!==null&&!isNaN(st.min);
+  const maxOk = st.max!==''&&st.max!==null&&!isNaN(st.max);
+  if(st.mode==='ma'){
+    if(st.ma!==''&&st.ma!==null&&!isNaN(st.ma)&&minOk&&maxOk){
+      result = ((st.ma-4)/16)*(st.max-st.min)+st.min; resLbl='Valor de ingeniería';
+    }
+  } else {
+    if(st.eng!==''&&st.eng!==null&&!isNaN(st.eng)&&minOk&&maxOk){
+      result = ((st.eng-st.min)/(st.max-st.min))*16+4; resLbl='mA esperados';
+    }
+  }
+  return `<div class="row"><div class="k">${resLbl||'Resultado'}</div><div class="v">${result===null?'—':fmt(result,2)}</div></div>`;
+}
+
+function renderLoopTab(){
+  const st = ST.conv.vals.loop;
+  const modeOpts = `<div class="o ${st.mode==='ma'?'active':''}" onclick="App.convSetLoopMode('ma')">mA→Valor</div><div class="o ${st.mode==='eng'?'active':''}" onclick="App.convSetLoopMode('eng')">Valor→mA</div>`;
+  return `
+  <div class="fpanel" style="margin:10px 12px 0">
+    <div class="fhd"><div class="led ok"></div>LAZO 4-20mA</div>
+    <div class="frow"><div class="flabel">Modo</div><div class="fseg">${modeOpts}</div></div>
+    <div class="frow"><div class="flabel">Rango mín.</div><div class="fctrl"><input class="fnum" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${st.min}" oninput="App.convSetLoopField('min', this.value)"></div></div>
+    <div class="frow"><div class="flabel">Rango máx.</div><div class="fctrl"><input class="fnum" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${st.max}" oninput="App.convSetLoopField('max', this.value)"></div></div>
+    ${st.mode==='ma' ? `
+    <div class="frow"><div class="flabel">Lectura mA</div><div class="fctrl"><input class="fnum" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${st.ma}" oninput="App.convSetLoopField('ma', this.value)"><div class="funit">mA</div></div></div>
+    ` : `
+    <div class="frow"><div class="flabel">Valor ing.</div><div class="fctrl"><input class="fnum" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${st.eng}" oninput="App.convSetLoopField('eng', this.value)"></div></div>
+    `}
+  </div>
+  <div class="conv-out" id="convout-loop">${loopOutHtml()}</div>
+  <div class="rnote" style="margin:8px 12px 0">Valor = ((mA−4)/16) × (Rango_máx−Rango_mín) + Rango_mín.</div>`;
+}
+
+function convTabBodyHtml(){
+  const tab = ST.conv.tab;
+  if(tab==='motores') return renderLinTab('power','HP ↔ KW') + renderLinTab('torque','TORQUE') + renderRpmHzTab();
+  if(tab==='cable') return renderCableTab();
+  if(tab==='presion') return renderLinTab('pressure','PRESIÓN');
+  if(tab==='temp') return renderTempTab();
+  if(tab==='longitud') return renderLinTab('length','LONGITUD');
+  if(tab==='lux') return renderLinTab('lux','ILUMINACIÓN');
+  if(tab==='loop') return renderLoopTab();
+  return '';
+}
+
+function fabHtml(){
+  const active = ST.screen==='conv' ? ' active' : '';
+  return `<div class="conv-fab${active}" onclick="App.toggleConv()">🔁</div>`;
+}
+
+function renderConvScreen(){
+  const tabs = CONV_TABS.map(t=>`<div class="fchoice ${ST.conv.tab===t.id?'active':''}" onclick="App.setConvTab('${t.id}')">${t.label}</div>`).join('');
+  return `
+  ${statusbar('CONVERSOR DE UNIDADES')}
+  <div class="modhead">
+    <div class="sb-menu" onclick="App.toggleSidebar()">☰</div>
+    <div class="ic" style="background:var(--accent-dim)">🔁</div>
+    <div><div class="t1" style="color:var(--accent)">Conversor</div><div class="t2">Unidades de campo</div></div>
+    <div class="sb-theme" style="margin-left:auto" onclick="App.closeConvScreen()">✕</div>
+  </div>
+  <div class="stage">
+    <div class="tabscroll-wrap" id="convtabwrap">
+      <div class="tabscroll" id="convtabscroll">${tabs}</div>
+      <div class="tabarrow tabarrow-l">‹</div>
+      <div class="tabarrow tabarrow-r">›</div>
+    </div>
+    <div id="convbody">${convTabBodyHtml()}</div>
+  </div>`;
+}
+
+// Mantiene visible la pestaña activa (en vez de reiniciar el scroll a 0 en
+// cada re-render) y muestra/oculta las flechas ‹ › según si hay más
+// pestañas ocultas a cada lado — la única señal de que el scroll continúa.
+function initConvTabScroll(){
+  const wrap = document.getElementById('convtabwrap');
+  const scroller = document.getElementById('convtabscroll');
+  if(!wrap || !scroller) return;
+  const active = scroller.querySelector('.fchoice.active');
+  if(active && typeof active.scrollIntoView==='function') active.scrollIntoView({inline:'nearest', block:'nearest'});
+  const updateArrows = ()=>{
+    const max = scroller.scrollWidth - scroller.clientWidth;
+    wrap.classList.toggle('show-l', scroller.scrollLeft > 4);
+    wrap.classList.toggle('show-r', scroller.scrollLeft < max - 4);
+  };
+  updateArrows();
+  scroller.onscroll = updateArrows;
+}
+
 const App = {
   toggleTheme(){ ST.theme = ST.theme==='light'?'dark':'light'; document.body.classList.toggle('theme-dark', ST.theme==='dark'); render(); },
   toggleSidebar(){ ST.sidebarOpen=!ST.sidebarOpen; render(); },
@@ -1330,7 +1821,38 @@ const App = {
   numInput(key,val){ ST.answers[key]= val===''?'':parseFloat(val); updateResultOnly(); },
 
   toggleVfd(code){ ST.vfdOpen[code]=!ST.vfdOpen[code]; render(); },
+  toggleFormula(id){ ST.formulaOpen[id]=!ST.formulaOpen[id]; render(); },
   setVfdFilter(v){ ST.vfdFilter=v; renderVfdListOnly(); },
+
+  // ---- Conversor ----
+  toggleConv(){
+    if(ST.screen==='conv'){ ST.screen = ST.convReturn || 'home'; }
+    else { ST.convReturn = ST.screen; ST.screen = 'conv'; }
+    ST.sidebarOpen=false; render();
+  },
+  closeConvScreen(){ ST.screen = ST.convReturn || 'home'; render(); },
+  setConvTab(id){ ST.conv.tab=id; render(); },
+
+  // Nota: cada convSet* de abajo actualiza SOLO su div de salida (por id),
+  // nunca el <input> — así no se pierde el foco/teclado ni se reescribe
+  // el value a medio tecleo (eso era lo que borraba el punto decimal).
+  convSetVal(key,val){
+    ST.conv.vals[key].v = val===''?'':parseFloat(val);
+    if(key==='temp'){ const s=document.getElementById('convout-temp'); if(s) s.innerHTML = tempOutHtml(); }
+    else { const s=document.getElementById('convout-'+key); if(s) s.innerHTML = convOutRowsHtml(key); }
+  },
+  convSetUnit(key,u){ ST.conv.vals[key].u = u; render(); },
+
+  convSetRpmVal(val){ ST.conv.vals.rpmhz.v = val===''?'':parseFloat(val); const s=document.getElementById('convout-rpmhz'); if(s) s.innerHTML = rpmOutHtml(); },
+  convSetRpmMode(mode){ ST.conv.vals.rpmhz.mode = mode; render(); },
+  convSetRpmPoles(p){ ST.conv.vals.rpmhz.poles = p; render(); },
+
+  convSetCableAwg(v){ ST.conv.vals.cable.awg = v; render(); },
+  convSetCableMm2(val){ ST.conv.vals.cable.mm2rev = val===''?'':parseFloat(val); const s=document.getElementById('convout-cable-closest'); if(s) s.innerHTML = cableClosestOutHtml(); },
+  convSetCableCondSize(v){ ST.conv.vals.cable.condSize = v; render(); },
+
+  convSetLoopMode(mode){ ST.conv.vals.loop.mode = mode; render(); },
+  convSetLoopField(field,val){ ST.conv.vals.loop[field] = val===''?'':parseFloat(val); const s=document.getElementById('convout-loop'); if(s) s.innerHTML = loopOutHtml(); },
 
   goHistorial(){ ST.screen='historial'; ST.sidebarOpen=false; render(); },
 
@@ -1455,7 +1977,9 @@ function render(){
   else if(ST.screen==='ref-control') html = statusbar('REFERENCIA · CONTROL ELÉCTRICO') + renderControlRef();
   else if(ST.screen==='ref-iec') html = statusbar('REFERENCIA · IEC 61346') + renderIec();
   else if(ST.screen==='ref-acad') html = statusbar('REFERENCIA · AUTOCAD') + renderAcad();
-  $app.innerHTML = html + sidebarHtml();
+  else if(ST.screen==='conv') html = renderConvScreen();
+  $app.innerHTML = html + sidebarHtml() + fabHtml();
+  if(ST.screen==='conv') initConvTabScroll();
 }
 
 function renderHome(){
@@ -1479,8 +2003,10 @@ function renderHome(){
       <h3>ℹ️ Acerca de este tablero</h3>
       <div class="inner" style="font-size:11px;color:var(--text2);line-height:1.6">
       Todos los campos de cada calculadora están visibles a la vez; el resultado se actualiza en vivo mientras ajustas valores — sin pasos ni pantallas intermedias.<br><br>
+      <b>Versión:</b> ${APP_VERSION}<br>
       <b>Excluidos a propósito:</b> Icc y Aislamiento (sin fuente verificada en este build).<br>
-      <b>Pendiente:</b> historial persistente y exportación PDF.
+      <b>Memoria de cálculo:</b> cada calculadora tiene "Exportar a PDF" (encabezado libre, fórmulas con tus números, resultado y referencias).<br>
+      <b>Pendiente:</b> historial en todas las calculadoras (hoy solo Capacitores y UPS).
       </div>
     </div>
   </div>`;
@@ -1495,7 +2021,7 @@ function fieldRow(f){
       <div class="flabel">${f.label}</div>
       <div class="fctrl">
         <div class="fstep" onclick="App.nudge('${f.key}',-${f.step},${f.min},${f.max})">−</div>
-        <input class="fnum" type="number" inputmode="decimal" value="${val}" oninput="App.numInput('${f.key}', this.value)">
+        <input class="fnum" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${val}" oninput="App.numInput('${f.key}', this.value)">
         <div class="funit">${unit}</div>
         <div class="fstep" onclick="App.nudge('${f.key}',${f.step},${f.min},${f.max})">+</div>
       </div>
@@ -1525,6 +2051,22 @@ function fieldRow(f){
   return '';
 }
 
+function formulaBoxHtml(mod, res){
+  if(!mod.formula) return '';
+  const f = mod.formula(res);
+  const open = !!ST.formulaOpen[mod.id];
+  return `
+  <div class="fmlbox">
+    <div class="fml-toggle" onclick="App.toggleFormula('${mod.id}')"><span>📐 Ver fórmula</span><span>${open?'▲':'▼'}</span></div>
+    ${open?`<div class="fml-body">
+      <div class="fml-row"><div class="fml-k">Fórmula</div><div class="fml-v">${f.simbolica}</div></div>
+      <div class="fml-row"><div class="fml-k">Sustitución con tus datos</div><div class="fml-v">${f.sustitucion}</div></div>
+      <div class="fml-norma">${f.norma}</div>
+      ${f.pendiente?`<div class="fml-pend">⚠ Pendiente de revisión — ${f.pendiente}</div>`:''}
+    </div>`:''}
+  </div>`;
+}
+
 function resultPanelHtml(mod){
   const res = mod.compute(ST.answers);
   const rr = mod.renderResult(res);
@@ -1535,7 +2077,9 @@ function resultPanelHtml(mod){
     <div class="rbig"><div class="lbl">${rr.big.lbl}</div><div class="val">${rr.big.val}<span class="u">${rr.big.u}</span></div><div class="sub">${rr.big.sub}</div></div>
     <div class="rrows">${rr.rows.map((row,i)=>`<div class="rrow ${i===0?'hi':''}"><div class="k">${row[0]}</div><div class="v">${row[1]}</div></div>`).join('')}</div>
     ${noteObj.txt?`<div class="rnote ${noteObj.warn?'warn':''}">${noteObj.txt}</div>`:''}
+    ${formulaBoxHtml(mod, res)}
     ${mod.historial?`<div class="actbtn" onclick="App.saveToHistorial()">💾 Guardar en historial</div>`:''}
+    <div class="actbtn" onclick="Memoria.open()">📄 Exportar a PDF</div>
   </div>`;
 }
 
@@ -1738,6 +2282,370 @@ function renderHistorial(){
     </div></div>
   </div>`;
 }
+
+/* ===================================================================
+   MEMORIA DE CÁLCULO — exportar a PDF (imprimir / guardar como PDF)
+   Sin librerías: vista previa en pantalla + hoja de impresión (@media print).
+   =================================================================== */
+
+const APP_VERSION = 'tablero-3 · 23-sep-2026 · fórmulas + memoria PDF';
+
+// Por módulo: referencias que la propia app ya cita, desarrollo con números sustituidos y avisos de verificación pendiente.
+const MEMORIA_DEF = {
+
+  caida: {
+    normas:[
+      'NOM-001-SEDE-2012, Tabla 9 — resistencia y reactancia en CA (conduit de acero, Cu, 75 °C, 60 Hz).',
+      'Límite de caída de tensión (3 % o 5 %): criterio de diseño elegido por quien calcula; en la norma aparece como nota informativa, no como requisito obligatorio.'
+    ],
+    pasos(r){
+      const a=r.a, c=r.c, k=a.sistema==='tri'?Math.sqrt(3):2, Lkm=a.l/1000;
+      return [
+        {t:'Impedancia del conductor (Tabla 9)', l:[
+          `${c.c}: R = ${fmt(c.r,3)} Ω/km · XL = ${fmt(c.xl,3)} Ω/km`,
+          `Z = √(R² + XL²) = √(${fmt(c.r,3)}² + ${fmt(c.xl,3)}²) = ${fmt(r.Z,3)} Ω/km`]},
+        {t:'Caída de tensión porcentual', l:[
+          `k = ${a.sistema==='tri'?'√3 = '+fmt(k,3)+' (trifásico)':'2 (monofásico)'}   ·   L = ${fmt(a.l,1)} m = ${fmt(Lkm,4)} km`,
+          `ΔV% = (k · I · L · Z) / Vn × 100`,
+          `ΔV% = (${fmt(k,3)} × ${fmt(a.i,1)} × ${fmt(Lkm,4)} × ${fmt(r.Z,3)}) / ${fmt(a.vn,0)} × 100 = ${fmt(r.pct,2)} %`]},
+        {t:'Caída en volts y tensión en la carga', l:[
+          `ΔV = ΔV% × Vn / 100 = ${fmt(r.pct,2)} × ${fmt(a.vn,0)} / 100 = ${fmt(r.dV,2)} V`,
+          `Vc = Vn − ΔV = ${fmt(a.vn,0)} − ${fmt(r.dV,2)} = ${fmt(r.Vc,1)} V`]},
+        {t:'Verificación contra el límite', l:[
+          `${fmt(r.pct,2)} % ${r.cumple?'≤':'>'} ${a.limite} %  →  ${r.cumple?'CUMPLE':'NO CUMPLE'}`]},
+      ];
+    },
+    avisos(r){ return []; }   // el aviso de Z sale de formula().pendiente (misma redacción que en pantalla)
+  },
+
+  ampacidad: {
+    normas:[
+      'NOM-001-SEDE-2012, Tabla 310-15(b)(16) — ampacidad base (75 °C).',
+      'Tabla 310-15(b)(2)(a) — factor de corrección por temperatura ambiente.',
+      'Tabla 310-15(b)(3)(a) — factor de agrupamiento (conductores en conduit).',
+      'Art. 392 — charolas (aquí solo se usa un factor simplificado).'
+    ],
+    pasos(r){
+      const a=r.a;
+      const inst = a.inst==='conduit' ? `Conduit con ${a.n} conductores → F.inst = ${fmt(r.Finst,2)}  (agrupamiento)`
+                 : a.inst==='esc' ? `Charola escalerilla → F.inst = ${fmt(r.Finst,2)}  (factor simplificado)`
+                 : `Charola lisa → F.inst = ${fmt(r.Finst,2)}  (factor simplificado)`;
+      let prev=null, hit=null, last=null;
+      for(const c of COND){
+        const base = a.mat==='cu'?c.cu:c.al; if(!base) continue;
+        last = {c,base,corr:base*r.Ftemp*r.Finst};
+        if(last.corr>=a.i){ hit=last; break; }
+        prev = last;
+      }
+      const ln = (x,ok)=>`${x.c.c}: ${x.base} × ${fmt(r.Ftemp,2)} × ${fmt(r.Finst,2)} = ${fmt(x.corr,1)} A  ${ok?'≥':'<'}  ${fmt(a.i,1)} A  →  ${ok?'CUMPLE (calibre mínimo)':'no cumple'}`;
+      const busq = [];
+      if(prev && prev!==last) busq.push(ln(prev,false));
+      if(hit) busq.push(ln(hit,true));
+      else if(last) busq.push(`${last.c.c} (mayor de la tabla): ${fmt(last.corr,1)} A < ${fmt(a.i,1)} A  →  sin calibre en tabla; considerar conductores en paralelo (Art. 310-4)`);
+      return [
+        {t:'Factores de corrección', l:[
+          `Temperatura ambiente ${a.temp} °C → F.temp = ${fmt(r.Ftemp,2)}`, inst]},
+        {t:`Búsqueda del calibre (${a.mat==='cu'?'cobre':'aluminio'})`, l:[
+          `I corregida = I base × F.temp × F.inst  ≥  I diseño (${fmt(a.i,1)} A)`, ...busq]},
+      ];
+    },
+    avisos(r){
+      const out=[], a=r.a, p=r.pick;
+      if(a.inst!=='conduit') out.push('Verificación pendiente — charola: se usó un factor fijo simplificado (0.75 escalerilla / 0.65 lisa) sobre la Tabla 310-15(b)(16). Para charola la base de ampacidad es la Tabla 310-15(b)(17) y el Art. 392 fija condiciones y calibre mínimo (1/0 AWG en el caso general). No uses este resultado como definitivo en charola sin verificar en el texto oficial.');
+      if(a.mat==='cu' && p && ['14 AWG','12 AWG','10 AWG'].includes(p.c.c))
+        out.push('Verificación pendiente: para 14/12/10 AWG Cu la app usa 15/20/30 A, que son los límites de protección del Art. 240-4(d), no la ampacidad de la Tabla 310-15(b)(16) a 75 °C (20/25/35 A). Para protección por sobrecorriente aplica 240-4(d); para ampacidad del conductor, la tabla.');
+      if(a.mat==='al' && (!p || p.c.c==='750 kcmil'))
+        out.push('Verificación pendiente: la app usa 320 A para Al 750 kcmil; la Tabla 310-15(b)(16) a 75 °C da 385 A. Verifica antes de usar este resultado.');
+      return out;
+    }
+  },
+
+  motor: {
+    normas:[
+      'NOM-001-SEDE-2012, Art. 430-22 — conductor al 125 % de la corriente.',
+      'Art. 430-32 — protección de sobrecarga del motor.',
+      'Art. 430-52 y Tabla 430-52 — protección contra cortocircuito y falla a tierra (250 % es un máximo para interruptor de tiempo inverso, no un valor a alcanzar).',
+      'Tablas 430-250 (trifásico) y 430-248 (monofásico) — FLC de tabla que la norma exige para conductor y protección.'
+    ],
+    pasos(r){
+      const a=r.a, tri=a.sistema==='tri';
+      const pasos=[
+        {t:'Potencia', l:[ a.punit==='hp' ? `P = ${fmt(a.p,2)} HP × 0.7457 kW/HP = ${fmt(r.kw,2)} kW` : `P = ${fmt(a.p,2)} kW` ]},
+        {t:'Corriente de diseño estimada (FP 0.85, η 0.90)', l:[
+          tri ? `I = P·1000 / (√3 · V · FP · η) = (${fmt(r.kw,2)} × 1000) / (${fmt(Math.sqrt(3),3)} × ${fmt(a.v,0)} × 0.85 × 0.90) = ${fmt(r.I,1)} A`
+              : `I = P·1000 / (V · FP · η) = (${fmt(r.kw,2)} × 1000) / (${fmt(a.v,0)} × 0.85 × 0.90) = ${fmt(r.I,1)} A`]},
+        {t:`Corriente de arranque (${r.mult.label})`, l:[`Ia = I × ${r.mult.ia} = ${fmt(r.I,1)} × ${r.mult.ia} = ${fmt(r.Ia,1)} A`]},
+        {t:'Protección y conductor', l:[
+          `Protección (250 %) = ${fmt(r.I,1)} × 2.50 = ${fmt(r.I*2.5,1)} A  →  valor comercial ${r.brk} A`,
+          `Conductor (125 %) = ${fmt(r.I,1)} × 1.25 = ${fmt(r.I*1.25,1)} A  →  ${r.cable?r.cable.c+' (ampacidad '+r.cable.cu+' A, Cu)':'fuera de tabla'}`]},
+        {t:'Protección de sobrecarga (guardamotor)', l:[
+          `Ir = ${fmt(r.FLA,1)} A  (${a.tieneplaca==='si'?'FLA de placa capturado':'corriente estimada — sin dato de placa'})`]},
+      ];
+      return pasos;
+    },
+    avisos(r){
+      return ['Verificación pendiente: el conductor (125 %) y la protección (250 %) se calcularon con la corriente ESTIMADA (FP 0.85, η 0.90). El Art. 430 exige tomar la FLC de las Tablas 430-250 (trifásico) o 430-248 (monofásico), no la de placa ni la calculada. Consulta la FLC de tabla para este motor y recalcula con ella. Nota: la revisión del proyecto detectó que los valores de FLC trifásico guardados en esta app para 7.5–30 HP no coinciden con la Tabla 430-250 (p. ej. 10 HP a 460 V: la tabla da 14 A), por eso esta hoja no imprime esa referencia.'];
+    }
+  },
+
+  conduit: {
+    normas:[
+      'NOM-001-SEDE-2012, Capítulo 10, Tabla 1 — porcentaje máximo de llenado (1 cond. 53 % · 2 cond. 31 % · 3 o más 40 %).',
+      'Capítulo 10, Tabla 4 — diámetro interior del conduit por tipo y tamaño.',
+      'Capítulo 10, Tabla 5 — diámetro exterior de conductores THHN/THWN.'
+    ],
+    pasos(r){
+      const a=r.a, oneA=Math.PI*Math.pow(r.OD/2,2);
+      return [
+        {t:'Área ocupada por los conductores', l:[
+          `Ø exterior ${r.c.c} THHN/THWN = ${fmt(r.OD,2)} mm`,
+          `A = π · (Ø/2)² = π × (${fmt(r.OD/2,3)})² = ${fmt(oneA,2)} mm² por conductor`,
+          `A total = ${a.n} × ${fmt(oneA,2)} = ${fmt(r.areaCond,1)} mm²`]},
+        {t:'Área interior del conduit', l:[
+          `${CONDUIT_LABELS[a.tipo||'EMT']||a.tipo} ${r.cw.n}: Ø interior = ${fmt(r.cw.d,1)} mm`,
+          `A = π × (${fmt(r.cw.d/2,2)})² = ${fmt(r.Atotal,1)} mm²`]},
+        {t:'Porcentaje de llenado', l:[
+          `% = A conductores / A conduit × 100 = ${fmt(r.areaCond,1)} / ${fmt(r.Atotal,1)} × 100 = ${fmt(r.pct,1)} %`,
+          `Límite para ${a.n} conductor(es): ${r.limite} %`,
+          `${fmt(r.pct,1)} % ${r.cumple?'≤':'>'} ${r.limite} %  →  ${r.cumple?'CUMPLE':'EXCEDE'}`]},
+      ];
+    },
+    avisos(r){ return ['El cálculo asume que todos los conductores dentro del conduit son del mismo calibre.']; }
+  },
+
+  xfmr: {
+    normas:[
+      'NOM-001-SEDE-2012, Art. 450 — protección de transformadores. Los porcentajes (125 % solo primaria · 250 % primaria / 125 % secundaria) son máximos; se toman del criterio de este cálculo y se deben confirmar con el Art. 450-3 y sus tablas.'
+    ],
+    pasos(r){
+      const a=r.a, tri=a.sistema==='tri', R=r.z*0.30, X=r.z*0.95, sin=Math.sqrt(1-0.85*0.85);
+      const rango = a.kva<75?'< 75 kVA':(a.kva<=500?'75–500 kVA':'> 500 kVA');
+      const prot = a.proteccion==='solo'
+        ? [`Primaria (125 %) = ${fmt(r.Ip,1)} × 1.25 = ${fmt(r.Ip*1.25,1)} A  →  valor comercial ${r.Bp} A`]
+        : [`Primaria (250 %) = ${fmt(r.Ip,1)} × 2.50 = ${fmt(r.Ip*2.5,1)} A  →  valor comercial ${r.Bp} A`,
+           `Secundaria (125 %) = ${fmt(r.Is,1)} × 1.25 = ${fmt(r.Is*1.25,1)} A  →  valor comercial ${r.Bs} A`];
+      return [
+        {t:'Corrientes nominales', l:[
+          tri ? `Ip = kVA·1000 / (√3 · Vp) = ${fmt(a.kva,1)} × 1000 / (${fmt(Math.sqrt(3),3)} × ${fmt(a.vp,0)}) = ${fmt(r.Ip,1)} A`
+              : `Ip = kVA·1000 / Vp = ${fmt(a.kva,1)} × 1000 / ${fmt(a.vp,0)} = ${fmt(r.Ip,1)} A`,
+          tri ? `Is = kVA·1000 / (√3 · Vs) = ${fmt(a.kva,1)} × 1000 / (${fmt(Math.sqrt(3),3)} × ${fmt(a.vs,0)}) = ${fmt(r.Is,1)} A`
+              : `Is = kVA·1000 / Vs = ${fmt(a.kva,1)} × 1000 / ${fmt(a.vs,0)} = ${fmt(r.Is,1)} A`]},
+        {t:'Protección por sobrecorriente (Art. 450)', l:prot},
+        {t:'Corriente de energización (inrush)', l:[`Inrush ≈ 10 × Is = 10 × ${fmt(r.Is,1)} = ${fmt(r.inrush,0)} A`]},
+        {t:'Regulación de tensión estimada', l:[
+          `%Z típica (${rango}) = ${fmt(r.z,1)} %   ·   R = 0.30 × %Z = ${fmt(R,2)} %   ·   X = 0.95 × %Z = ${fmt(X,2)} %`,
+          `%VR ≈ R·FP + X·senφ = ${fmt(R,2)} × 0.85 + ${fmt(X,2)} × ${fmt(sin,3)} = ${fmt(r.vr,2)} %`]},
+      ];
+    },
+    avisos(r){
+      const out=[];
+      if(r.a.vp>600) out.push('Verificación pendiente: con tensión primaria mayor de 600 V aplica el Art. 450-3(a) (transformadores de más de 600 V), no la lógica de 450-3(b) usada aquí. Verifica los porcentajes máximos en el texto oficial.');
+      out.push('El %VR usa una %Z típica por rango de potencia (no la de placa) y FP 0.85 asumido; el inrush es una estimación (10 × Is). Para valores definitivos usa los datos de placa del transformador.');
+      return out;
+    }
+  },
+
+  caps: {
+    normas:['Método de triángulo de potencias (cálculo de ingeniería). Este módulo no cita un artículo específico de la NOM-001-SEDE.'],
+    pasos(r){
+      const a=r.a, phi1=Math.acos(a.fp1), phi2=Math.acos(a.fp2), t1=Math.tan(phi1), t2=Math.tan(phi2), rad=180/Math.PI;
+      const resid = a.kw*t1 - r.kvarComercial;
+      return [
+        {t:'Ángulos y tangentes', l:[
+          `φ1 = arccos(${fmt(a.fp1,2)}) = ${fmt(phi1*rad,2)}°  →  tan φ1 = ${fmt(t1,4)}`,
+          `φ2 = arccos(${fmt(a.fp2,2)}) = ${fmt(phi2*rad,2)}°  →  tan φ2 = ${fmt(t2,4)}`]},
+        {t:'Potencia reactiva a compensar', l:[
+          `Q = P × (tan φ1 − tan φ2) = ${fmt(a.kw,1)} × (${fmt(t1,4)} − ${fmt(t2,4)}) = ${fmt(r.kvarNecesarios,2)} kVAR`,
+          `Banco comercial: ${fmt(r.kvarComercial,1)} kVAR`]},
+        {t:'Corriente de línea antes y después', l:[
+          `S antes = P / FP1 = ${fmt(a.kw,1)} / ${fmt(a.fp1,2)} = ${fmt(r.kvaAntes,1)} kVA   →   I = S·1000 / (√3 · V) = ${fmt(r.iAntes,1)} A`,
+          `S después = P / FP2 = ${fmt(a.kw,1)} / ${fmt(a.fp2,2)} = ${fmt(r.kvaDespues,1)} kVA   →   I = ${fmt(r.iDespues,1)} A`,
+          `Reducción = (1 − ${fmt(r.iDespues,1)} / ${fmt(r.iAntes,1)}) × 100 = ${fmt(r.reduccion,1)} %`]},
+        {t:'FP real con el banco comercial', l:[
+          `Q residual = P × tan φ1 − Q banco = ${fmt(a.kw*t1,2)} − ${fmt(r.kvarComercial,1)} = ${fmt(resid,2)} kVAR`,
+          `FP real = P / √(P² + Q²) = ${fmt(r.fpReal,3)}`]},
+      ];
+    },
+    avisos(r){
+      const out=[];
+      if(r.kvarNecesarios<=0) out.push('El FP actual ya es igual o mayor al deseado: no se requiere banco. El valor comercial mostrado es solo el mínimo de la tabla, no una recomendación.');
+      return out;
+    }
+  },
+
+  ups: {
+    normas:['Cálculo de ingeniería (capacidad y autonomía). Este módulo no cita un artículo específico de la NOM-001-SEDE.'],
+    pasos(r){
+      const a=r.a, vaM=r.vaCarga*(1+a.margen);
+      const p=[
+        {t:'Capacidad del UPS', l:[
+          `VA de carga = W / FP = ${fmt(a.w,0)} / ${fmt(a.fpc,2)} = ${fmt(r.vaCarga,0)} VA`,
+          `Con margen = ${fmt(r.vaCarga,0)} × (1 + ${fmt(a.margen,2)}) = ${fmt(vaM,0)} VA = ${fmt(vaM/1000,3)} kVA  →  comercial ${r.kvaRecomendado} kVA`]},
+      ];
+      if(a.modo==='auto'){
+        p.push({t:'Autonomía', l:[`t = (Ah × Vdc × k_bat × η / W) × 60 = (${fmt(a.ah,1)} × ${fmt(a.vdc,0)} × ${fmt(a.bat,2)} × ${fmt(a.eta,2)} / ${fmt(a.w,0)}) × 60 = ${fmt(r.autoninMin,1)} min`]});
+      } else {
+        p.push({t:'Ah necesarios', l:[`Ah = W × (t/60) / (Vdc × k_bat × η) = ${fmt(a.w,0)} × (${fmt(a.tmin,0)}/60) / (${fmt(a.vdc,0)} × ${fmt(a.bat,2)} × ${fmt(a.eta,2)}) = ${fmt(r.ahNecesarios,1)} Ah`]});
+      }
+      p.push({t:'Corriente de descarga', l:[`I = (W / η) / Vdc = (${fmt(a.w,0)} / ${fmt(a.eta,2)}) / ${fmt(a.vdc,0)} = ${fmt(r.iDescarga,2)} A`]});
+      return p;
+    },
+    avisos(r){ return ['El factor de batería (0.5 plomo-ácido / 0.8 litio) y la eficiencia del inversor son valores de diseño; confirma con la hoja de datos del fabricante.']; }
+  }
+};
+
+const Memoria = {
+  KEY:'voltrefmx_encabezado',
+  PERSIST:['proyecto','cliente','elaboro','reviso'],   // lo demás es propio de cada documento
+  data:{proyecto:'', cliente:'', area:'', elaboro:'', reviso:'', fecha:'', folio:'', notas:''},
+  _title:document.title,
+
+  init(){
+    try{ const j=JSON.parse(localStorage.getItem(this.KEY)||'{}'); this.PERSIST.forEach(k=>{ if(typeof j[k]==='string') this.data[k]=j[k]; }); }catch(e){}
+    window.addEventListener('afterprint', ()=>{ document.title=this._title; });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape' && this.root().innerHTML) this.close(); });
+  },
+  save(){ try{ const o={}; this.PERSIST.forEach(k=>o[k]=this.data[k]); localStorage.setItem(this.KEY, JSON.stringify(o)); }catch(e){} },
+  root(){ return document.getElementById('memo-root'); },
+  hoy(){ return new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}); },
+  toast(msg){ const t=document.createElement('div'); t.className='memo-toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2800); },
+  set(k,v){ this.data[k]=v; },
+
+  valid(mod){
+    return App.activeFields(mod).every(f=>{ if(f.type!=='number') return true; const v=ST.answers[f.key]; return typeof v==='number' && isFinite(v); });
+  },
+
+  open(){
+    const mod=MODULES_A[ST.modId]; if(!mod) return;
+    if(!this.valid(mod)){ this.toast('Completa todos los campos numéricos antes de exportar.'); return; }
+    this.data.fecha=this.hoy(); this.data.area=''; this.data.folio=''; this.data.notas='';
+    this.showForm();
+  },
+  close(){ this.root().innerHTML=''; document.title=this._title; },
+  clear(){ Object.keys(this.data).forEach(k=>{ this.data[k]=''; }); this.save(); this.showForm(); },
+
+  showForm(){
+    const d=this.data;
+    const inp=(k,label,extra)=>`<div class="memo-lbl">${label}</div><input class="memo-in" type="text" autocomplete="off" autocapitalize="sentences" value="${esc(d[k])}" oninput="Memoria.set('${k}',this.value)" ${extra||''}>`;
+    this.root().innerHTML = `
+    <div class="memo-modal" onclick="if(event.target===this)Memoria.close()">
+      <div class="memo-card">
+        <div class="memo-hd"><div class="t">📄 Encabezado de la memoria</div><div class="x" onclick="Memoria.close()">✕</div></div>
+        <div class="memo-sub">Escribe lo que necesites en cada campo. Lo que dejes vacío sale como línea en blanco para llenarlo a mano.</div>
+        <div class="memo-body">
+          ${inp('proyecto','PROYECTO / OBRA')}
+          ${inp('cliente','CLIENTE / EMPRESA')}
+          ${inp('area','ÁREA, EQUIPO O CIRCUITO')}
+          <div class="memo-row2">
+            <div>${inp('elaboro','ELABORÓ')}</div>
+            <div>${inp('reviso','REVISÓ (OPCIONAL)')}</div>
+          </div>
+          <div class="memo-row2">
+            <div>${inp('fecha','FECHA')}</div>
+            <div>${inp('folio','FOLIO / REV. (OPCIONAL)')}</div>
+          </div>
+          <div class="memo-lbl">NOTAS U OBSERVACIONES (OPCIONAL)</div>
+          <textarea class="memo-in" oninput="Memoria.set('notas',this.value)">${esc(d.notas)}</textarea>
+        </div>
+        <div class="memo-actions">
+          <div class="memo-btn" onclick="Memoria.clear()">Limpiar</div>
+          <div class="memo-btn primary" onclick="Memoria.preview()">Vista previa →</div>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  preview(){
+    const mod=MODULES_A[ST.modId]; if(!mod) return;
+    if(!this.valid(mod)){ this.toast('Completa todos los campos numéricos antes de exportar.'); return; }
+    this.save();
+    const res=mod.compute(ST.answers);
+    this.root().innerHTML = `
+    <div class="memo-preview">
+      <div class="memo-toolbar">
+        <div class="memo-btn" onclick="Memoria.showForm()">← Editar</div>
+        <div class="memo-btn primary" onclick="Memoria.print()">🖨 Imprimir / Guardar PDF</div>
+        <div class="memo-btn" onclick="Memoria.close()">✕</div>
+      </div>
+      <div class="memo-hint">En el diálogo de impresión elige <b>Guardar como PDF</b> como destino. Si no se abre, usa el menú del navegador → Imprimir.</div>
+      <div class="memo-paper" id="memo-paper">${this.sheetHtml(mod,res)}</div>
+    </div>`;
+    const sc=this.root().querySelector('.memo-preview'); if(sc) sc.scrollTop=0;
+  },
+
+  print(){
+    const mod=MODULES_A[ST.modId]; const d=this.data;
+    const nombre=['VoltRefMX','Memoria',mod?mod.label:'',d.proyecto].filter(Boolean).join('_').replace(/[^\wáéíóúñÁÉÍÓÚÑ\-]+/g,'_').replace(/_+/g,'_');
+    document.title=nombre;
+    try{ window.print(); }catch(e){ this.toast('Usa el menú del navegador → Imprimir → Guardar como PDF'); }
+  },
+
+  // Filas de "datos de entrada" tomadas de los mismos campos de la calculadora (etiqueta, valor mostrado, unidad)
+  inputRows(mod,a){
+    return App.activeFields(mod).map(f=>{
+      let v='', u='';
+      if(f.type==='number'){ v=fmt(a[f.key],3); u=typeof f.unit==='function'?f.unit(a):(f.unit||''); }
+      else if(f.type==='segment' || f.type==='choice'){ const o=f.options.find(o=>o.v===a[f.key]); v=o?o.l:String(a[f.key]); }
+      else if(f.type==='select'){ const opts=typeof f.opts==='function'?f.opts(a):f.opts; const o=opts.find(o=>String(o.v)===String(a[f.key])); v=o?o.l:String(a[f.key]); }
+      return [f.label, v, u];
+    });
+  },
+
+  sheetHtml(mod,res){
+    const d=this.data, def=MEMORIA_DEF[mod.id], rr=mod.renderResult(res);
+    const noteObj = (rr.note && typeof rr.note==='object') ? rr.note : {warn:false, txt:rr.note||''};
+    const ahora = new Date().toLocaleString('es-MX',{dateStyle:'short',timeStyle:'short'});
+    const cell = (label,v,cls)=>`<div class="mp-cell ${cls||''}"><div class="mp-cl">${label}</div><div class="mp-cv">${(v&&String(v).trim())?esc(v):'&nbsp;'}</div></div>`;
+
+    const inRows = this.inputRows(mod,res.a).map(([k,v,u])=>`<tr><td>${esc(k)}</td><td class="r">${esc(v)}</td><td class="u">${esc(u)}</td></tr>`).join('');
+    const fml = mod.formula ? mod.formula(res) : null;
+    const fmlHtml = fml ? `<div class="mp-step"><div class="mp-st">Fórmula aplicada</div><div class="mp-fl">${fml.simbolica}</div></div>` : '';
+    const pasos  = def.pasos(res).map((p,i)=>`<div class="mp-step"><div class="mp-st">${i+1}. ${esc(p.t)}</div>${p.l.map(x=>`<div class="mp-fl">${esc(x)}</div>`).join('')}</div>`).join('');
+    const rRows  = rr.rows.map(row=>`<tr><td>${esc(row[0])}</td><td class="r">${esc(row[1])}</td></tr>`).join('');
+    const normas = def.normas.map(n=>`<li>${esc(n)}</li>`).join('');
+
+    const avisos=[]; if(noteObj.warn && noteObj.txt) avisos.push(noteObj.txt);
+    if(fml && fml.pendiente) avisos.push('Pendiente de revisión — '+fml.pendiente);
+    def.avisos(res).forEach(x=>avisos.push(x));
+    const notaSimple = (!noteObj.warn && noteObj.txt) ? noteObj.txt : '';
+
+    return `
+    <div class="mp-top">
+      <div><div class="mp-title">MEMORIA DE CÁLCULO</div><div class="mp-sub">${esc(mod.label)} — ${esc(mod.desc)}</div></div>
+      <div class="mp-brand"><b>VOLTREF·MX</b><br>Tablero de control</div>
+    </div>
+    <div class="mp-meta">
+      ${cell('Proyecto / obra', d.proyecto)}
+      ${cell('Fecha', d.fecha)}
+      ${cell('Cliente / empresa', d.cliente)}
+      ${cell('Folio / rev.', d.folio)}
+      ${cell('Área, equipo o circuito', d.area, 'full')}
+    </div>
+
+    <div class="mp-sec"><div class="mp-h">1 · Datos de entrada</div><table class="mp-t">${inRows}</table></div>
+    <div class="mp-sec" style="page-break-inside:auto;break-inside:auto"><div class="mp-h">2 · Desarrollo del cálculo</div>${fmlHtml}${pasos}</div>
+    <div class="mp-sec">
+      <div class="mp-h">3 · Resultado</div>
+      <div class="mp-result ${rr.sev}">
+        <div><div class="mp-rl">${esc(rr.big.lbl)}</div><div class="mp-rv">${esc(rr.big.val)}<span>${esc(rr.big.u)}</span></div><div class="mp-rs">${esc(rr.big.sub)}</div></div>
+        <div class="mp-badge ${rr.sev}">${esc(rr.badge)}</div>
+      </div>
+      <table class="mp-t">${rRows}</table>
+      ${notaSimple?`<div class="mp-note">${esc(notaSimple)}</div>`:''}
+    </div>
+    <div class="mp-sec"><div class="mp-h">4 · Referencias normativas</div><ul class="mp-list">${normas}</ul></div>
+    ${avisos.length?`<div class="mp-sec"><div class="mp-h">5 · Advertencias y verificación pendiente</div><div class="mp-warn">${avisos.map((x,i)=>`<p><b>⚠</b> ${esc(String(x).replace(/^\s*⚠\s*/,''))}</p>`).join('')}</div></div>`:''}
+    ${(d.notas&&d.notas.trim())?`<div class="mp-sec"><div class="mp-h">${avisos.length?'6':'5'} · Notas u observaciones</div><div class="mp-usernote">${esc(d.notas)}</div></div>`:''}
+
+    <div class="mp-sign">
+      <div class="mp-sline"><b>${esc((d.elaboro||'').trim())||'&nbsp;'}</b>Elaboró</div>
+      <div class="mp-sline"><b>${esc((d.reviso||'').trim())||'&nbsp;'}</b>Revisó</div>
+    </div>
+    <div class="mp-foot">Generado con VoltRefMX · Tablero (${esc(APP_VERSION)}) · ${esc(ahora)} — Herramienta de apoyo: verifica los valores contra el texto oficial de la NOM-001-SEDE-2012 antes de usar este documento para diseño o verificación de la instalación.</div>`;
+  }
+};
+window.Memoria = Memoria;
+Memoria.init();
 
 render();
 setInterval(()=>{ const c=document.getElementById('clockslot'); if(c) c.textContent=clockStr(); }, 15000);
