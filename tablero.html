@@ -353,6 +353,26 @@ textarea.memo-in{min-height:68px; resize:vertical;}
   .memo-preview{position:static !important; inset:auto !important; overflow:visible !important; background:#fff !important;}
   .memo-paper{box-shadow:none !important; margin:0 !important; max-width:none !important; padding:0 !important; font-size:10.5pt;}
 }
+
+/* ===== MÓDULO ITM MULTIMOTOR ===== */
+.itmrow{margin:8px 12px; padding:10px; background:var(--panel2); border:1px solid var(--line); border-radius:9px;}
+.itmhd{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:12px; color:var(--accent);}
+.itmdel{padding:4px 10px; border:1px solid var(--line2); border-radius:6px; font-size:10.5px; font-weight:800; color:var(--led-danger);}
+.itmgrid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+.itmgrid label{display:flex; flex-direction:column; gap:3px; font-size:9.5px; color:var(--dim); letter-spacing:.03em; font-weight:700; min-width:0;}
+.itmgrid label.full{grid-column:1 / -1;}
+.itmgrid label.chk{flex-direction:row; align-items:center; justify-content:space-between; gap:8px; padding:6px 8px; border:1px solid var(--line2); border-radius:6px; background:var(--panel); font-size:11px; color:var(--text2); align-self:end;}
+.itmgrid label.chk input{width:20px; height:20px;}
+.itmgrid .fselect, .itmgrid .fnum{width:100%; box-sizing:border-box; flex:none;}
+.itmbar{position:sticky; top:0; z-index:3; display:grid; grid-template-columns:repeat(4,1fr); gap:4px; padding:7px 10px; background:var(--panel2); border-bottom:1px solid var(--accent-bdr); box-shadow:0 4px 10px rgba(0,0,0,.08);}
+.itmbar div{text-align:center; min-width:0;}
+.itmbar .k{font-size:8px; color:var(--dim); letter-spacing:.06em; font-weight:800;}
+.itmbar .v{font-size:13px; font-weight:800; color:var(--accent); font-variant-numeric:tabular-nums; white-space:nowrap;}
+.itmflc{margin-top:8px; font-size:11px; color:var(--text2); line-height:1.5;}
+.itmln{font-size:11.5px; color:var(--text2); line-height:1.6; padding:2px 0; word-break:break-word;}
+.itmln b{color:var(--text);}
+.itmdim{color:var(--dim); font-size:10px;}
+.itmpend{color:var(--led-warn); font-weight:800;}
 </style>
 </head>
 <body>
@@ -371,28 +391,29 @@ if('serviceWorker' in navigator){
    Fuente: NOM-001-SEDE-2012 + KB del proyecto (KB-01 a KB-06)
    =================================================================== */
 
-// Tabla maestra de conductores — NOM-001 Tabla 310-15(b)(16) @75°C + Tabla 9 (Z)
+// Tabla maestra de conductores — NOM-001 Tabla 310-15(b)(16): cu/al = columna 75°C; cu60/al60 = columna 60°C (verificadas con la foto del PDF, 9-oct-2026) + Tabla 9 (Z)
 const COND = [
-  {c:'14 AWG', mm2:2.08, cu:15, al:null,  r:10.200, xl:0.240},
-  {c:'12 AWG', mm2:3.31, cu:20, al:null,  r:6.600,  xl:0.223},
-  {c:'10 AWG', mm2:5.26, cu:30, al:null,  r:3.900,  xl:0.207},
-  {c:'8 AWG',  mm2:8.37, cu:50, al:null,  r:2.560,  xl:0.213},
-  {c:'6 AWG',  mm2:13.3, cu:65, al:50,    r:1.610,  xl:0.210},
-  {c:'4 AWG',  mm2:21.2, cu:85, al:65,    r:1.020,  xl:0.197},
-  {c:'3 AWG',  mm2:26.7, cu:100,al:75,    r:0.820,  xl:0.194},
-  {c:'2 AWG',  mm2:33.6, cu:115,al:90,    r:0.660,  xl:0.187},
-  {c:'1 AWG',  mm2:42.4, cu:130,al:100,   r:0.520,  xl:0.187},
-  {c:'1/0 AWG',mm2:53.5, cu:150,al:120,   r:0.390,  xl:0.180},
-  {c:'2/0 AWG',mm2:67.4, cu:175,al:135,   r:0.330,  xl:0.177},
-  {c:'3/0 AWG',mm2:85.0, cu:200,al:155,   r:0.259,  xl:0.171},
-  {c:'4/0 AWG',mm2:107.0,cu:230,al:180,   r:0.207,  xl:0.167},
-  {c:'250 kcmil',mm2:126.7,cu:255,al:205, r:0.177,  xl:0.171},
-  {c:'300 kcmil',mm2:152.0,cu:285,al:230, r:0.148,  xl:0.167},
-  {c:'350 kcmil',mm2:177.3,cu:310,al:250, r:0.128,  xl:0.164},
-  {c:'400 kcmil',mm2:202.7,cu:335,al:270, r:0.115,  xl:0.161},
-  {c:'500 kcmil',mm2:253.4,cu:380,al:310, r:0.095,  xl:0.157},
-  {c:'600 kcmil',mm2:304.0,cu:420,al:340, r:0.082,  xl:0.157},
-  {c:'750 kcmil',mm2:380.0,cu:475,al:320, r:0.069,  xl:0.157},
+  // cap = tope de protección por sobrecorriente, Art. 240-4(d) (14/12/10 AWG Cu: 15/20/30 A); cu = ampacidad de tabla a 75°C
+  {c:'14 AWG', mm2:2.08, cu:20, cap:15, al:null,  r:10.200, xl:0.240, cu60:15, al60:null},
+  {c:'12 AWG', mm2:3.31, cu:25, cap:20, al:null,  r:6.600,  xl:0.223, cu60:20, al60:null},
+  {c:'10 AWG', mm2:5.26, cu:35, cap:30, al:null,  r:3.900,  xl:0.207, cu60:30, al60:null},
+  {c:'8 AWG',  mm2:8.37, cu:50, al:null,  r:2.560,  xl:0.213, cu60:40, al60:null},
+  {c:'6 AWG',  mm2:13.3, cu:65, al:50,    r:1.610,  xl:0.210, cu60:55, al60:40},
+  {c:'4 AWG',  mm2:21.2, cu:85, al:65,    r:1.020,  xl:0.197, cu60:70, al60:55},
+  {c:'3 AWG',  mm2:26.7, cu:100,al:75,    r:0.820,  xl:0.194, cu60:85, al60:65},
+  {c:'2 AWG',  mm2:33.6, cu:115,al:90,    r:0.660,  xl:0.187, cu60:95, al60:75},
+  {c:'1 AWG',  mm2:42.4, cu:130,al:100,   r:0.520,  xl:0.187, cu60:110, al60:85},
+  {c:'1/0 AWG',mm2:53.5, cu:150,al:120,   r:0.390,  xl:0.180, cu60:125, al60:100},
+  {c:'2/0 AWG',mm2:67.4, cu:175,al:135,   r:0.330,  xl:0.177, cu60:145, al60:115},
+  {c:'3/0 AWG',mm2:85.0, cu:200,al:155,   r:0.259,  xl:0.171, cu60:165, al60:130},
+  {c:'4/0 AWG',mm2:107.0,cu:230,al:180,   r:0.207,  xl:0.167, cu60:195, al60:150},
+  {c:'250 kcmil',mm2:126.7,cu:255,al:205, r:0.177,  xl:0.171, cu60:215, al60:170},
+  {c:'300 kcmil',mm2:152.0,cu:285,al:230, r:0.148,  xl:0.167, cu60:240, al60:195},
+  {c:'350 kcmil',mm2:177.3,cu:310,al:250, r:0.128,  xl:0.164, cu60:260, al60:210},
+  {c:'400 kcmil',mm2:202.7,cu:335,al:270, r:0.115,  xl:0.161, cu60:280, al60:225},
+  {c:'500 kcmil',mm2:253.4,cu:380,al:310, r:0.095,  xl:0.157, cu60:320, al60:260},
+  {c:'600 kcmil',mm2:304.0,cu:420,al:340, r:0.082,  xl:0.157, cu60:350, al60:285},
+  {c:'750 kcmil',mm2:380.0,cu:475,al:385, r:0.069,  xl:0.157, cu60:400, al60:320},
 ];
 
 // Diámetro exterior conductor THHN/THWN (mm) — NOM-001 Cap.10 Tabla 5, indexado por mm2 real
@@ -417,6 +438,78 @@ function factorAgrup(n){
   if(n<=40) return 0.40;
   return 0.35;
 }
+
+// Ampacidad de conductores al aire libre / charola con espaciamiento — NOM-001 Tabla 310-15(b)(17)
+// Base 30°C ambiente, hasta 2000V, conductores individuales aislados al aire libre.
+// Verificado contra el texto oficial (DOF) el 8-oct-2026. Aluminio 12/10/8 AWG: la tabla marca "–" (sin valor).
+// Se incluyen solo los calibres usados en la tarjeta de referencia; no es la tabla completa (faltan 18/16 AWG, 300, 400, 600, 700, 800 kcmil y mayores).
+const COND_AIRE = [
+  {c:'14 AWG',  cu60:25,  cu75:30,  cu90:35,  al60:null, al75:null, al90:null},
+  {c:'12 AWG',  cu60:30,  cu75:35,  cu90:40,  al60:null, al75:null, al90:null},
+  {c:'10 AWG',  cu60:40,  cu75:50,  cu90:55,  al60:null, al75:null, al90:null},
+  {c:'8 AWG',   cu60:60,  cu75:70,  cu90:80,  al60:null, al75:null, al90:null},
+  {c:'6 AWG',   cu60:80,  cu75:95,  cu90:105, al60:60,   al75:75,   al90:85},
+  {c:'4 AWG',   cu60:105, cu75:125, cu90:140, al60:80,   al75:100,  al90:115},
+  {c:'3 AWG',   cu60:120, cu75:145, cu90:165, al60:95,   al75:115,  al90:130},
+  {c:'2 AWG',   cu60:140, cu75:170, cu90:190, al60:110,  al75:135,  al90:150},
+  {c:'1 AWG',   cu60:165, cu75:195, cu90:220, al60:130,  al75:155,  al90:175},
+  {c:'1/0 AWG', cu60:195, cu75:230, cu90:260, al60:150,  al75:180,  al90:205},
+  {c:'2/0 AWG', cu60:225, cu75:265, cu90:300, al60:175,  al75:210,  al90:235},
+  {c:'3/0 AWG', cu60:260, cu75:310, cu90:350, al60:200,  al75:240,  al90:270},
+  {c:'4/0 AWG', cu60:300, cu75:360, cu90:405, al60:235,  al75:280,  al90:315},
+  {c:'250 kcmil',cu60:340,cu75:405, cu90:455, al60:265,  al75:315,  al90:355},
+  {c:'350 kcmil',cu60:420,cu75:505, cu90:570, al60:330,  al75:395,  al90:445},
+  {c:'500 kcmil',cu60:515,cu75:620, cu90:700, al60:405,  al75:485,  al90:545},
+  {c:'750 kcmil',cu60:655,cu75:785, cu90:885, al60:515,  al75:620,  al90:700},
+];
+
+// Factor de demanda — alumbrado general — NOM-001 Tabla 220-42
+const DEM_ALUM = [
+  {ocup:'Unidades de vivienda', tramos:[
+    {r:'Primeros 3,000 VA o menos', f:100},
+    {r:'De 3,001 a 120,000 VA', f:35},
+    {r:'Exceso sobre 120,000 VA', f:25},
+  ]},
+  {ocup:'Hospitales', tramos:[
+    {r:'Primeros 50,000 VA o menos', f:40},
+    {r:'Exceso sobre 50,000 VA', f:20},
+  ]},
+  {ocup:'Hoteles/moteles (sin cocina p/huésped)', tramos:[
+    {r:'Primeros 20,000 VA o menos', f:50},
+    {r:'De 20,001 a 100,000 VA', f:40},
+    {r:'Exceso sobre 100,000 VA', f:30},
+  ]},
+  {ocup:'Almacenes (bodegas)', tramos:[
+    {r:'Primeros 12,500 VA o menos', f:100},
+    {r:'Exceso sobre 12,500 VA', f:50},
+  ]},
+  {ocup:'Todos los demás', tramos:[
+    {r:'Total VA', f:100},
+  ]},
+];
+
+// Factor de demanda — contactos no residenciales — NOM-001 Tabla 220-44 (180 VA por salida)
+const DEM_CONT = [
+  {r:'Primeros 10,000 VA o menos', f:100},
+  {r:'Exceso sobre 10,000 VA', f:50},
+];
+
+// Factor de demanda — estufas y equipo de cocina doméstico/comercial ligero (>1.75 kW) — NOM-001 Tabla 220-55
+const DEM_COCINA = [
+  {n:'1',     a:80, b:80, c:'8 kW'},
+  {n:'2',     a:75, b:65, c:'11 kW'},
+  {n:'3',     a:65, b:55, c:'14 kW'},
+  {n:'4',     a:50, b:45, c:'17 kW'},
+  {n:'5',     a:45, b:40, c:'20 kW'},
+  {n:'6',     a:40, b:35, c:'21 kW'},
+  {n:'7',     a:40, b:35, c:'22 kW'},
+  {n:'8',     a:40, b:35, c:'23 kW'},
+  {n:'9',     a:40, b:35, c:'24 kW'},
+  {n:'10',    a:40, b:35, c:'25 kW'},
+  {n:'11-13', a:40, b:35, c:'26 kW + 1 kW por c/equipo sobre 10'},
+  {n:'14-19', a:40, b:35, c:'31 kW + 1 kW por c/equipo sobre 13'},
+  {n:'20-25', a:35, b:30, c:'35 kW + 1 kW por c/equipo sobre 19'},
+];
 
 // Conduit EMT — diámetro interior (mm) — NOM-001 Cap.10 Tabla 4
 const CONDUIT_EMT = [
@@ -464,22 +557,31 @@ const ARRANQUE = {
 const STD_AMPS = [15,20,25,30,35,40,45,50,60,70,80,90,100,110,125,150,175,200,225,250,300,350,400,450,500,600,700,800,1000,1200];
 function roundStd(a){ for(const s of STD_AMPS){ if(s>=a) return s; } return Math.ceil(a/100)*100; }
 
-// Tabla 430-150 — FLC motores trifásicos CA por HP y tensión — NOM-001-SEDE-2012
+// Tabla 430-250 — FLC motores trifásicos CA (jaula de ardilla y rotor devanado) — NOM-001-SEDE-2012
+// Verificado contra el texto oficial (DOF) con la foto del PDF del usuario (8-oct-2026 y 9-oct-2026). Columnas 460/230/208/575 V.
+// La nota de la tabla permite usar la columna 460 V en sistemas de 440 a 480 V, la de 230 V en 220 a 240 V y la de 575 V en 550 a 600 V.
+// null = casilla vacía en el PDF (250-500 HP no traen 208/230 V). 10 HP a 575 V: el PDF imprime "44" A, incongruente con los renglones
+// vecinos (7.5 HP = 9 A, 15 HP = 17 A): NO se usa (null + pend) hasta que el usuario lo confirme.
 const MOTOR_FLC_DATA = [
-  {hp:0.5, v460:1.1, v230:2.2, v208:2.4},   {hp:1, v460:1.6, v230:3.2, v208:3.5},
-  {hp:1.5, v460:2.1, v230:4.2, v208:4.6},   {hp:2, v460:2.7, v230:5.4, v208:6.0},
-  {hp:3, v460:3.9, v230:7.6, v208:8.4},     {hp:5, v460:6.1, v230:12.2, v208:13.4},
-  {hp:7.5, v460:9.0, v230:17.0, v208:19.0}, {hp:10, v460:11.0, v230:22.0, v208:24.0},
-  {hp:15, v460:14.0, v230:27.0, v208:30.0}, {hp:20, v460:21.0, v230:40.0, v208:44.0},
-  {hp:25, v460:27.0, v230:52.0, v208:57.0}, {hp:30, v460:34.0, v230:65.0, v208:72.0},
-  {hp:40, v460:52.0, v230:96.0, v208:104.0},{hp:50, v460:65.0, v230:125.0, v208:138.0},
-  {hp:60, v460:77.0, v230:150.0, v208:165.0},{hp:75, v460:96.0, v230:185.0, v208:204.0},
-  {hp:100, v460:124.0, v230:240.0, v208:265.0},
+  {hp:0.5, v460:1.1, v230:2.2, v208:2.4, v575:0.9},    {hp:0.75, v460:1.6, v230:3.2, v208:3.5, v575:1.3},
+  {hp:1, v460:2.1, v230:4.2, v208:4.6, v575:1.7},      {hp:1.5, v460:3.0, v230:6.0, v208:6.6, v575:2.4},
+  {hp:2, v460:3.4, v230:6.8, v208:7.5, v575:2.7},      {hp:3, v460:4.8, v230:9.6, v208:10.6, v575:3.9},
+  {hp:5, v460:7.6, v230:15.2, v208:16.7, v575:6.1},    {hp:7.5, v460:11.0, v230:22.0, v208:24.2, v575:9.0},
+  {hp:10, v460:14.0, v230:28.0, v208:30.8, v575:null, pend:{v575:'el PDF imprime 44 A para 10 HP a 575 V, incongruente con los renglones vecinos'}},
+  {hp:15, v460:21.0, v230:42.0, v208:46.2, v575:17.0}, {hp:20, v460:27.0, v230:54.0, v208:59.4, v575:22.0},
+  {hp:25, v460:34.0, v230:68.0, v208:74.8, v575:27.0}, {hp:30, v460:40.0, v230:80.0, v208:88.0, v575:32.0},
+  {hp:40, v460:52.0, v230:104.0, v208:114.0, v575:41.0},{hp:50, v460:65.0, v230:130.0, v208:143.0, v575:52.0},
+  {hp:60, v460:77.0, v230:154.0, v208:169.0, v575:62.0},{hp:75, v460:96.0, v230:192.0, v208:211.0, v575:77.0},
+  {hp:100, v460:124.0, v230:248.0, v208:273.0, v575:99.0},{hp:125, v460:156.0, v230:312.0, v208:343.0, v575:125.0},
+  {hp:150, v460:180.0, v230:360.0, v208:396.0, v575:144.0},{hp:200, v460:240.0, v230:480.0, v208:528.0, v575:192.0},
+  {hp:250, v460:302.0, v230:null, v208:null, v575:242.0},{hp:300, v460:361.0, v230:null, v208:null, v575:289.0},
+  {hp:350, v460:414.0, v230:null, v208:null, v575:336.0},{hp:400, v460:477.0, v230:null, v208:null, v575:382.0},
+  {hp:450, v460:515.0, v230:null, v208:null, v575:412.0},{hp:500, v460:590.0, v230:null, v208:null, v575:472.0},
 ];
 
 // Tabla 430-248 — FLC motores monofásicos CA por HP y tensión — NOM-001-SEDE-2012
 const MOTOR_FLC_MONO_DATA = [
-  {hp:'1/8', v115:4.4, v127:4,    v208:2.4, v230:2.2},
+  {hp:'1/6', v115:4.4, v127:4,    v208:2.4, v230:2.2},
   {hp:'1/4', v115:5.8, v127:5.3,  v208:3.2, v230:2.9},
   {hp:'1/3', v115:7.2, v127:6.5,  v208:4,   v230:3.6},
   {hp:'1/2', v115:9.8, v127:8.9,  v208:5.4, v230:4.9},
@@ -493,11 +595,49 @@ const MOTOR_FLC_MONO_DATA = [
   {hp:'10',  v115:100, v127:91,   v208:55,  v230:50},
 ];
 
-// Tabla 250-122 — Calibre mínimo CPTE (tierra de equipo) por amperaje de protección — NOM-001-SEDE-2012
+// FLC de tabla para el módulo Motor (Art. 430-6(a)): tri → 430-250, mono → 430-248.
+// Solo usa columnas verificadas; si la tensión o los HP no caen en la tabla cargada devuelve ok:false (el módulo avisa y estima).
+function hpNum(h){ if(typeof h==='number') return h; return String(h).trim().split(/\s+/).reduce((t,x)=>t+(x.includes('/')?(+x.split('/')[0])/(+x.split('/')[1]):+x),0); }
+function motorFlcTabla(sistema, v, hpCalc){
+  const tri = sistema==='tri';
+  const data = tri ? MOTOR_FLC_DATA : MOTOR_FLC_MONO_DATA;
+  const tabla = tri ? '430-250' : '430-248';
+  let col=null, colTxt='';
+  if(tri){
+    if(v>=440 && v<=480){ col='v460'; colTxt='460 V (sistemas de 440–480 V)'; }
+    else if(v>=220 && v<=240){ col='v230'; colTxt='230 V (sistemas de 220–240 V)'; }
+    else if(v===208){ col='v208'; colTxt='208 V'; }
+    else if(v>=550 && v<=600){ col='v575'; colTxt='575 V (sistemas de 550–600 V)'; }
+  } else {
+    if(v>=110 && v<=120){ col='v115'; colTxt='115 V (110–120 V)'; }
+    else if(v>=121 && v<=130){ col='v127'; colTxt='127 V'; }
+    else if(v===208){ col='v208'; colTxt='208 V'; }
+    else if(v>=220 && v<=240){ col='v230'; colTxt='230 V (220–240 V)'; }
+  }
+  if(!col) return {ok:false, tabla, motivo:`la tensión ${v} V no coincide con una columna verificada de la Tabla ${tabla}`};
+  const row = data.find(m=>hpNum(m.hp) >= hpCalc/1.04);   // 4 % de tolerancia para el par kW↔HP comercial: 0.75 kW ≈ 1 HP, 2.2 kW ≈ 3 HP, 90 kW ≈ 125 HP
+  if(!row) return {ok:false, tabla, motivo:`la potencia (${fmt(hpCalc,1)} HP) rebasa las filas cargadas de la Tabla ${tabla} (máx. ${data[data.length-1].hp} HP)`};
+  if(row[col]==null){
+    const why = row.pend && row.pend[col] ? row.pend[col] : 'la Tabla '+tabla+' no trae valor en esa casilla (vacía en el PDF)';
+    return {ok:false, tabla, motivo:`${row.hp} HP a ${colTxt}: ${why}`};
+  }
+  return {ok:true, tabla, col, colTxt, hp:row.hp, I:row[col], exacto: Math.abs(hpNum(row.hp)-hpCalc)/hpCalc <= 0.04};
+}
+
+// Tabla 250-122 — Tamaño mínimo del conductor de puesta a tierra de equipos (CPTE) — NOM-001-SEDE-2012
+// Verificado contra el texto oficial (DOF) el 8-oct-2026. a = capacidad o ajuste del dispositivo de protección "sin exceder de" (A).
+// Aluminio: la tabla marca "–" hasta 100 A (no hay valor).
 const CPTE_DATA = [
-  {a:'15', c:'14'}, {a:'20', c:'12'}, {a:'30–60', c:'10'}, {a:'100', c:'8'},
-  {a:'200', c:'6'}, {a:'300', c:'4'}, {a:'400', c:'3'}, {a:'500–600', c:'2'},
-  {a:'800', c:'1/0'}, {a:'1 000', c:'2/0'}, {a:'1 200', c:'3/0'}, {a:'1 600–2 000', c:'4/0'},
+  {a:'15',   cu:'14',  al:null},        {a:'20',   cu:'12',  al:null},
+  {a:'60',   cu:'10',  al:null},        {a:'100',  cu:'8',   al:null},
+  {a:'200',  cu:'6',   al:'4'},         {a:'300',  cu:'4',   al:'2'},
+  {a:'400',  cu:'2',   al:'1'},         {a:'500',  cu:'2',   al:'1/0'},
+  {a:'600',  cu:'1',   al:'2/0'},       {a:'800',  cu:'1/0', al:'3/0'},
+  {a:'1 000',cu:'2/0', al:'4/0'},       {a:'1 200',cu:'3/0', al:'250 kcmil'},
+  {a:'1 600',cu:'4/0', al:'350 kcmil'}, {a:'2 000',cu:'250 kcmil', al:'400 kcmil'},
+  {a:'2 500',cu:'350 kcmil', al:'600 kcmil'}, {a:'3 000',cu:'400 kcmil', al:'600 kcmil'},
+  {a:'4 000',cu:'500 kcmil', al:'750 kcmil'}, {a:'5 000',cu:'700 kcmil', al:'1200 kcmil'},
+  {a:'6 000',cu:'800 kcmil', al:'1200 kcmil'},
 ];
 const STD_KVAR = [2.5,5,7.5,10,15,20,25,30,40,50,60,75,100,125,150,200,250,300,400,500];
 function roundStdKvar(v){ for(const s of STD_KVAR){ if(s>=v) return s; } return Math.ceil(v/50)*50; }
@@ -1228,7 +1368,13 @@ const MODULES_A = {
       const Ftemp = (FTEMP.find(t=>t.t==a.temp)||FTEMP[0]).f;
       const Finst = a.inst==='conduit' ? factorAgrup(a.n||3) : (a.inst==='esc'?0.75:0.65);
       let pick=null;
-      for(const c of COND){ const base=a.mat==='cu'?c.cu:c.al; if(!base) continue; const corr=base*Ftemp*Finst; if(corr>=a.i){ pick={c,base,corr}; break; } }
+      for(const c of COND){
+        const base=a.mat==='cu'?c.cu:c.al; if(!base) continue;
+        const raw=base*Ftemp*Finst;
+        // Art. 240-4(d): 14/12/10 AWG Cu no pasan de 15/20/30 A de protección → se topa la ampacidad utilizable
+        const corr=(a.mat==='cu' && c.cap) ? Math.min(raw,c.cap) : raw;
+        if(corr>=a.i){ pick={c,base,corr,raw,topado:corr<raw}; break; }
+      }
       return {pick, Ftemp, Finst, a};
     },
     formula(r){
@@ -1236,9 +1382,11 @@ const MODULES_A = {
       return {
         simbolica:'Amp_corregida = Amp_base × F_temp × F_inst  —  elegir el calibre más pequeño donde Amp_corregida ≥ I_diseño',
         sustitucion: p
-          ? `Amp_corregida = ${p.base}A × ${r.Ftemp} × ${r.Finst} = ${fmt(p.corr,1)}A  →  ${fmt(p.corr,1)}A ≥ ${r.a.i}A ✓  →  calibre ${p.c.c}`
+          ? `Amp_corregida = ${p.base}A × ${r.Ftemp} × ${r.Finst} = ${fmt(p.raw,1)}A`
+            + (p.topado ? `  →  topada a ${p.c.cap}A por Art. 240-4(d)` : '')
+            + `  →  ${fmt(p.corr,1)}A ≥ ${r.a.i}A ✓  →  calibre ${p.c.c}`
           : `Ningún calibre de la tabla cumple ${r.a.i}A con estos factores (temp ${r.a.temp}°C, inst. ${r.a.inst}).`,
-        norma:'NOM-001-SEDE-2012 — Tabla 310-15(b)(16), factores 310-15(b)(2)(a) [temperatura] y 310-15(b)(3)(a) [agrupamiento].'
+        norma:'NOM-001-SEDE-2012 — Tabla 310-15(b)(16), factores 310-15(b)(2)(a) [temperatura] y 310-15(b)(3)(a) [agrupamiento]. Cobre 14/12/10 AWG: tope de protección 15/20/30 A según Art. 240-4(d).'
       };
     },
     renderResult(r){
@@ -1253,7 +1401,9 @@ const MODULES_A = {
           ['Factor instalación', '×'+r.Finst],
           ['Material', r.a.mat==='cu'?'Cobre':'Aluminio'],
         ],
-        note:'Criterio: base × F.temp × F.inst ≥ I diseño — NOM-001 310-15(b).'
+        note: p.topado
+          ? {warn:true, txt:`Ampacidad topada a ${p.c.cap} A (Art. 240-4(d)): la protección de ${p.c.c} Cu no puede exceder ese valor, aunque la tabla y los factores den ${fmt(p.raw,1)} A. Criterio: base × F.temp × F.inst ≥ I diseño — NOM-001 310-15(b).`}
+          : 'Criterio: base × F.temp × F.inst ≥ I diseño — NOM-001 310-15(b).'
       };
     }
   },
@@ -1261,7 +1411,7 @@ const MODULES_A = {
   motor: {
     id:'motor', label:'Motor eléctrico', ic:'⚙️', tc:'#f97316', tcbg:'rgba(249,115,22,.12)',
     desc:'FLC / arranque — NOM-001 Art. 430',
-    info:'FLC estimado a partir de la potencia con FP=0.85 y eficiencia=0.90 asumidos (si no capturas el FLA real de placa): I=(kW×1000)/(√3×V×FP×η) en trifásico. El breaker se calcula al 250% (Art. 430-52), el cable al 125% (Art. 430-22), y el guardamotor se ajusta al FLC calculado o al FLA de placa si lo capturas (Art. 430-32) — usa siempre el dato de placa cuando lo tengas, lo calculado es solo una estimación de diseño.',
+    info:'Cable y breaker se calculan con la FLC de TABLA (Art. 430-6(a)): Tabla 430-250 en trifásico, 430-248 en monofásico — nunca con la placa ni con una corriente calculada. El cable va al 125% (Art. 430-22) y el breaker al 250% como máximo para tiempo inverso (Art. 430-52). El guardamotor/relevador se ajusta al FLA de placa si lo capturas (Art. 430-32); si no, se deja en la FLC de tabla como referencia. Si la tensión o los HP no caen en la tabla cargada, el módulo usa una corriente estimada (FP 0.85, η 0.90) y lo avisa. Si das kW, se pasa a HP y se toma el renglón de tabla de esa potencia (tolerancia 4 %, por los pares comerciales kW↔HP como 90 kW ≈ 125 HP); si no existe el HP exacto se toma el siguiente mayor.',
     fields:[
       {key:'punit', type:'segment', label:'Unidad', options:[{v:'hp',l:'HP'},{v:'kw',l:'kW'}], default:'hp'},
       {key:'p', type:'number', label:'Potencia', unit:a=>a.punit==='hp'?'HP':'kW', min:0.25, max:1000, step:0.5, default:10},
@@ -1274,36 +1424,49 @@ const MODULES_A = {
     compute(a){
       const kw = a.punit==='hp' ? a.p*0.7457 : a.p;
       const FP=0.85, eff=0.90;
-      const I = a.sistema==='tri' ? (kw*1000)/(Math.sqrt(3)*a.v*FP*eff) : (kw*1000)/(a.v*FP*eff);
+      const Iest = a.sistema==='tri' ? (kw*1000)/(Math.sqrt(3)*a.v*FP*eff) : (kw*1000)/(a.v*FP*eff);
+      const hpCalc = kw/0.7457;
+      const T = motorFlcTabla(a.sistema, a.v, hpCalc);   // Art. 430-6(a): conductor y protección con FLC de tabla
+      const I = T.ok ? T.I : Iest;
       const FLA = a.tieneplaca==='si' ? a.fla : I;
       const mult = ARRANQUE[a.arranque];
       const Ia = I*mult.ia;
       const brk = roundStd(I*2.50);
       const cableI = I*1.25;
       let cable=null; for(const c of COND){ if(c.cu>=cableI){ cable=c; break; } }
-      return {kw,I,FLA,mult,Ia,brk,cable,cableI,a};
+      return {kw,I,Iest,T,hpCalc,FLA,mult,Ia,brk,cable,cableI,a};
     },
     formula(r){
       const kdenom = r.a.sistema==='tri' ? '√3×V×FP×η' : 'V×FP×η';
+      const T=r.T;
+      const flcTxt = T.ok
+        ? `FLC (Tabla ${T.tabla}, ${T.hp} HP, col. ${T.colTxt}) = ${fmt(r.I,1)}A`
+        : `FLC ESTIMADA = (${fmt(r.kw,2)}×1000)/(${r.a.sistema==='tri'?'√3×':''}${r.a.v}×0.85×0.90) = ${fmt(r.I,1)}A  (${T.motivo})`;
       return {
-        simbolica:'FLC = (kW×1000)/('+kdenom+')  |  Cable ≥ FLC×1.25  |  Breaker = FLC×2.50  |  Ir(guardamotor) = FLA de placa',
-        sustitucion:`FLC = (${fmt(r.kw,2)}×1000)/(${r.a.sistema==='tri'?'√3×':''}${r.a.v}×0.85×0.90) = ${fmt(r.I,1)}A  →  Cable: ${fmt(r.I,1)}×1.25 = ${fmt(r.cableI,1)}A → ${r.cable?r.cable.c:'—'}  |  Breaker: ${fmt(r.I,1)}×2.50 = ${r.brk}A`,
-        norma:'NOM-001-SEDE-2012 — Art. 430-22 (conductor 125%), Tabla 430-52 (protección 250% DOL/Y-Δ), Art. 430-32 (sobrecarga 115-125% FLA placa). FP=0.85/η=0.90 son valores genéricos de campo, no de tabla — usar placa siempre que exista.'
+        simbolica: T.ok
+          ? `FLC = valor de Tabla ${T.tabla}  |  Cable ≥ FLC×1.25  |  Breaker = FLC×2.50  |  Ir(guardamotor) = FLA de placa`
+          : `FLC estimada = (kW×1000)/(${kdenom})  |  Cable ≥ FLC×1.25  |  Breaker = FLC×2.50  |  Ir(guardamotor) = FLA de placa`,
+        sustitucion:`${flcTxt}  →  Cable: ${fmt(r.I,1)}×1.25 = ${fmt(r.cableI,1)}A → ${r.cable?r.cable.c:'—'}  |  Breaker: ${fmt(r.I,1)}×2.50 = ${fmt(r.I*2.5,1)}A → ${r.brk}A`,
+        norma:'NOM-001-SEDE-2012 — Art. 430-6(a) (FLC de tabla para conductor y protección), Tablas 430-250 / 430-248, Art. 430-22 (conductor 125%), Tabla 430-52 (protección 250% DOL/Y-Δ, máximo), Art. 430-32 (sobrecarga 115-125% FLA placa).'+(T.ok?'':' La FLC estimada con FP=0.85/η=0.90 NO es de tabla: sirve solo como orientación.')
       };
     },
     renderResult(r){
+      const T=r.T, sis=r.a.sistema==='tri'?'Trifásico':'Monofásico';
       return {
-        sev:'warn', badge:'FÓRMULA · ART.430',
-        big:{lbl:'Corriente diseño (FLC)', val:fmt(r.I,1), u:'A', sub:`${fmt(r.kw,2)}kW · ${r.a.sistema==='tri'?'Trifásico':'Monofásico'} ${r.a.v}V · FP.85/η.90`},
+        sev:T.ok?'ok':'warn', badge:T.ok?('TABLA '+T.tabla):'ESTIMADO · SIN TABLA',
+        big:{lbl:T.ok?('FLC de tabla ('+T.tabla+')'):'Corriente diseño (ESTIMADA)', val:fmt(r.I,1), u:'A',
+             sub:T.ok ? `${fmt(r.kw,2)}kW ≈ ${T.hp} HP · ${sis} ${r.a.v}V · col. ${T.col.replace('v','')} V${T.exacto?'':' · HP superior'}` : `${fmt(r.kw,2)}kW · ${sis} ${r.a.v}V · FP.85/η.90`},
         rows:[
           [`Arranque (${r.mult.label})`, `Ia≈${fmt(r.Ia,1)}A`],
           ['Breaker mín. (250%)', r.brk+' A'],
           ['Cable (125%→calibre)', r.cable?r.cable.c:'—'],
           ['Guardamotor Ir', fmt(r.FLA,1)+' A'],
         ],
-        note: r.a.tieneplaca==='no'
-          ? {warn:true, txt:'Guardamotor ajustado a corriente calculada, no a placa. Usa FLA real en cuanto tengas el motor — Art. 430-32.'}
-          : 'Guardamotor ajustado al FLA de placa — correcto según Art. 430-32.'
+        note: !T.ok
+          ? {warn:true, txt:`SIN FLC DE TABLA: ${T.motivo}. Cable y breaker salen de una corriente estimada (FP 0.85, η 0.90); verifica en la Tabla ${T.tabla} de la NOM antes de instalar.`}
+          : (r.a.tieneplaca==='no'
+              ? {warn:true, txt:'Guardamotor puesto en la FLC de tabla, no en placa. Ajusta al FLA real en cuanto tengas el motor — Art. 430-32.'}
+              : 'Cable y breaker con FLC de tabla (Art. 430-6(a)); guardamotor ajustado al FLA de placa — Art. 430-32.')
       };
     }
   },
@@ -1504,9 +1667,10 @@ const MODULES_A = {
 
 const REF_MODULES = [
   {id:'conductores', label:'Conductores', ic:'⚡', tc:'#3b82f6', tcbg:'rgba(59,130,246,.12)', desc:'Ampacidades e impedancias'},
-  {id:'flc', label:'FLC — Motores', ic:'⚙️', tc:'#f97316', tcbg:'rgba(249,115,22,.12)', desc:'Tri y monofásicos — 430-150/248'},
+  {id:'factores', label:'Factores de corrección', ic:'🌡️', tc:'#38bdf8', tcbg:'rgba(56,189,248,.12)', desc:'Temperatura y agrupamiento'},
+  {id:'flc', label:'FLC — Motores', ic:'⚙️', tc:'#f97316', tcbg:'rgba(249,115,22,.12)', desc:'Tri y monofásicos — 430-250/248'},
   {id:'cpte', label:'CPTE — Tierra equipo', ic:'🟢', tc:'#39d178', tcbg:'rgba(57,209,120,.12)', desc:'Tabla 250-122'},
-  {id:'calibres', label:'Calibres comerciales', ic:'🔢', tc:'#a78bfa', tcbg:'rgba(167,139,250,.12)', desc:'Tabla 240-6'},
+  {id:'calibres', label:'Breakers comerciales', ic:'🔢', tc:'#a78bfa', tcbg:'rgba(167,139,250,.12)', desc:'Tabla 240-6'},
   {id:'colores', label:'Colores de cable', ic:'🎨', tc:'#06b6d4', tcbg:'rgba(6,182,212,.12)', desc:'Comparativo por norma'},
   {id:'vfd', label:'VFD Delta — Alarmas', ic:'📟', tc:'#f97316', tcbg:'rgba(249,115,22,.12)', desc:'20 códigos'},
   {id:'curvas', label:'Curvas de protección', ic:'📈', tc:'#eab308', tcbg:'rgba(234,179,8,.12)', desc:'Breakers, fusibles'},
@@ -1798,6 +1962,328 @@ function initConvTabScroll(){
   scroller.onscroll = updateArrows;
 }
 
+/* =================================================================
+   MÓDULO · ITM PRINCIPAL DE TABLERO MULTIMOTOR
+   Art. 430-24 (alimentador), 430-52 (ramal), 430-62 (máximo del alimentador)
+   ================================================================= */
+// Tabla 430-52 — % máximo de la FLC de tabla para el dispositivo de cortocircuito y falla a tierra del ramal.
+// PENDIENTE DE VERIFICAR: esta tabla NO está en las capturas del PDF. El 250 % (tiempo inverso) lo indicó el usuario en su caso de prueba;
+// los demás porcentajes son de referencia y NO están confirmados contra la NOM. Poner ITM_PEND_430_52=false solo después de compararlos con la foto.
+const ITM_PEND_430_52 = true;
+const ITM_PEND_240_6  = true;   // lista de comerciales (STD_AMPS 15–1200 A) sin captura del Art. 240-6
+const ITM_TIPOS = {
+  inv:    {l:'Termomagnético tiempo inverso', pct:250},
+  inst:   {l:'Instantáneo / guardamotor',     pct:800},
+  fusret: {l:'Fusible con retardo',           pct:175},
+  fussin: {l:'Fusible sin retardo',           pct:300},
+};
+const ITM_VOLTS = [208,230,460,575];
+const ITM_MAX_MOTORES = 12, ITM_MAX_EXTRAS = 4;
+const r2 = x => Math.round(x*100)/100;
+function itmFloorStd(a){ let r=null; for(const s of STD_AMPS){ if(s<=a) r=s; else break; } return r; }
+function itmMotor(hp,v,tipo,vfd){ return {hp:hp, v:v, fla:'', tipo:tipo||'inv', vfd:!!vfd, ivfd:''}; }
+function itmDefault(){
+  // Precarga = caso de prueba (460 V): 2, 3, 2, 3, 3, 5 HP y un 2 HP con VFD
+  return {vsis:460, term:75, copiado:false,
+    motores:[itmMotor(2,460),itmMotor(3,460),itmMotor(2,460),itmMotor(3,460),itmMotor(3,460),itmMotor(5,460),itmMotor(2,460,'inv',true)],
+    extras:[]};
+}
+
+function itmCalc(S){
+  const R={ok:false, err:[], av:[], motores:[], extras:[], S:S};
+  const vs=+S.vsis;
+  if(!S.motores.length){ R.err.push('Agrega al menos un motor.'); return R; }
+  S.motores.forEach((m,i)=>{
+    const hp=+m.hp, v=+m.v;
+    const T=motorFlcTabla('tri', v, hp);
+    const row={n:i+1, hp:hp, v:v, tipo:m.tipo, vfd:!!m.vfd, T:T, flc:null, iuso:null, dev:null, devCalc:null, pct:null, fla:null, ivfd:null};
+    R.motores.push(row);
+    if(!T.ok){ R.err.push('M'+(i+1)+' ('+hp+' HP, '+v+' V): '+T.motivo+'. PENDIENTE DE VERIFICAR.'); return; }
+    row.flc=T.I; row.col=T.colTxt;
+    const fla=parseFloat(m.fla); row.fla=(isFinite(fla)&&fla>0)?fla:null;
+    const iv=parseFloat(m.ivfd);  row.ivfd=(m.vfd&&isFinite(iv)&&iv>0)?iv:null;
+    row.iuso = row.ivfd!=null ? row.ivfd : row.flc;
+    if(row.ivfd==null){
+      const pct=ITM_TIPOS[m.tipo].pct; row.pct=pct; row.devCalc=r2(row.flc*pct/100); row.dev=roundStd(row.devCalc);
+    }
+    if(row.fla!=null && row.fla>row.flc) R.av.push('M'+(i+1)+': el FLA de placa ('+fmt(row.fla,1)+' A) es mayor que la FLC de tabla ('+fmt(row.flc,1)+' A). El alimentador se dimensiona con la tabla (Art. 430-6(a)), pero revisa el motor y el ajuste del guardamotor (Art. 430-32).');
+    if(v!==vs) R.av.push('M'+(i+1)+': su tensión ('+v+' V) no es la del sistema ('+vs+' V). Todos los motores de un mismo alimentador deben ser de la tensión del sistema.');
+    if(m.vfd && row.ivfd==null) R.av.push('M'+(i+1)+' (VFD): se usó la FLC de tabla del motor. El alimentador de un VFD se dimensiona con la corriente de ENTRADA de placa del variador: captúrala en el renglón. PENDIENTE DE VERIFICAR el artículo en tu PDF (430-6(a)(2) / 430-122).');
+    if(m.vfd && row.ivfd!=null) R.av.push('M'+(i+1)+' (VFD): se usó la corriente de entrada de placa ('+fmt(row.ivfd,1)+' A). La protección de ramal de ese variador es la que indique el fabricante: no se calcula con 430-52 y no entra como "dispositivo mayor". PENDIENTE DE VERIFICAR el artículo en tu PDF.');
+  });
+  S.extras.forEach((e,i)=>{
+    const va=parseFloat(e.va), v=parseFloat(e.v);
+    if(!(va>0 && v>0)){ R.err.push('Carga adicional '+(i+1)+': captura VA y tensión de primario mayores a 0.'); return; }
+    const I=r2(e.f===3 ? va/(Math.sqrt(3)*v) : va/v);
+    R.extras.push({n:i+1, va:va, v:v, f:(e.f===3?3:1), I:I});
+  });
+  if(R.err.length) return R;
+
+  R.sumMot=r2(R.motores.reduce((s,m)=>s+m.iuso,0));
+  R.sumExt=r2(R.extras.reduce((s,e)=>s+e.I,0));
+  let kMax=0; R.motores.forEach((m,i)=>{ if(m.iuso>R.motores[kMax].iuso) kMax=i; });
+  R.kMax=kMax; R.iMax=R.motores[kMax].iuso; R.resto=r2(R.sumMot-R.iMax);
+  R.diseno=r2(1.25*R.iMax + R.resto + R.sumExt);
+
+  const col = (+S.term===60) ? 'cu60' : 'cu';
+  R.colTxt = (+S.term===60) ? '60 °C' : '75 °C';
+  R.cond=null; for(const c of COND){ if(c[col]>=R.diseno){ R.cond=c; break; } }
+  R.condAmp = R.cond ? R.cond[col] : null;
+
+  let kDev=-1;
+  R.motores.forEach((m,i)=>{
+    if(m.dev==null) return;
+    if(kDev<0 || m.dev>R.motores[kDev].dev || (m.dev===R.motores[kDev].dev && m.iuso>R.motores[kDev].iuso)) kDev=i;
+  });
+  if(kDev<0){ R.err.push('Ningún motor tiene dispositivo de ramal calculable por 430-52 (todos son VFD con corriente de entrada capturada). Sin dispositivo de ramal no se puede aplicar 430-62.'); return R; }
+  R.kDev=kDev; R.devMax=R.motores[kDev].dev;
+  R.restoDev=r2(R.sumMot-R.motores[kDev].iuso);
+  R.max62=r2(R.devMax + R.restoDev + R.sumExt);
+  R.itm=itmFloorStd(R.max62);
+  R.itmOk=(R.itm!=null && R.itm>=R.diseno);
+  if(kDev!==kMax && R.motores[kDev].iuso!==R.motores[kMax].iuso)
+    R.av.push('El dispositivo de ramal mayor ('+R.devMax+' A, M'+(kDev+1)+') no es el del motor de mayor corriente (M'+(kMax+1)+'). Se aplicó 430-62 con el dispositivo de ramal mayor y se restó la FLC de ESE motor al sumar los demás. Confírmalo con tu PDF (decisión pendiente de tu revisión).');
+  if(R.max62>1200 || R.devMax>1200) R.av.push('La lista de comerciales cargada llega a 1200 A (Art. 240-6 sin verificar). Valores mayores quedan fuera de esta herramienta.');
+  if(vs>480) R.av.push('Sistema de '+vs+' V: excede los 480 V CA de tensión nominal del ITM de esta herramienta. Usa un ITM con tensión nominal suficiente.');
+  if(!R.cond) R.av.push('Corriente de diseño fuera de la columna de '+R.colTxt+' cargada (más de '+COND[COND.length-1][col]+' A): considera conductores en paralelo.');
+  if(R.itm==null) R.av.push('El máximo de 430-62 ('+fmt(R.max62,1)+' A) es menor que el comercial mínimo de la lista (15 A): no hay ITM que cumpla.');
+  else if(!R.itmOk) R.av.push('NO existe un ITM comercial que cumpla ambas condiciones: el comercial inmediato por debajo del máximo ('+R.itm+' A) es MENOR que la corriente de diseño ('+fmt(R.diseno,1)+' A). Revisa: tipo de dispositivo de ramal, separar el tablero en dos alimentadores, o rediseñar. No se sugiere ITM.');
+  if(R.cond && R.itmOk && R.itm>R.condAmp) R.av.push('El ITM ('+R.itm+' A) es mayor que la ampacidad del conductor ('+R.condAmp+' A a '+R.colTxt+'). Para alimentadores de motores 430-62 rige sobre la protección ordinaria del conductor; PENDIENTE DE VERIFICAR la redacción exacta (430-62 / 240-4) en tu PDF.');
+  R.ok=true;
+  return R;
+}
+
+function itmTexto(R){
+  const S=R.S, L=[], pend=' [PENDIENTE DE VERIFICAR]';
+  L.push('VoltRefMX · ITM principal de tablero multimotor');
+  L.push('NOM-001-SEDE-2012 · Sistema '+S.vsis+' V · terminales '+S.term+' °C · '+new Date().toLocaleDateString('es-MX'));
+  L.push('Redondeo: corrientes a 0.01 A; ramal = comercial inmediato SUPERIOR; ITM = comercial inmediato INFERIOR (≤) al máximo.');
+  L.push('');
+  if(!R.ok){ R.err.forEach(e=>L.push('ERROR: '+e)); return L.join('\n'); }
+  L.push('RESUMEN');
+  L.push('  Corriente de diseño (430-24): '+fmt(R.diseno,2)+' A');
+  L.push('  Conductor mínimo (310-15(b)(16), Cu, '+R.colTxt+'): '+(R.cond?R.cond.c+' ('+R.condAmp+' A)':'fuera de tabla'));
+  L.push('  Máximo del ITM (430-62): '+fmt(R.max62,2)+' A');
+  L.push('  ITM sugerido: '+(R.itmOk?R.itm+' A':'NO EXISTE comercial que cumpla'));
+  L.push('');
+  L.push('1) FLC por motor — Tabla 430-250 (Art. 430-6(a))');
+  R.motores.forEach(m=>L.push('  M'+m.n+': '+m.hp+' HP, '+m.v+' V, col. '+m.col+' = '+fmt(m.flc,2)+' A'+(m.ivfd!=null?' → VFD: se usa I entrada de placa '+fmt(m.ivfd,2)+' A':'')));
+  L.push('  Suma de motores = '+fmt(R.sumMot,2)+' A');
+  R.extras.forEach(e=>L.push('  Carga adicional '+e.n+': transformador '+fmt(e.va,0)+' VA / '+fmt(e.v,0)+' V ('+(e.f===3?'3φ':'1φ')+') = '+fmt(e.I,2)+' A'));
+  if(R.extras.length) L.push('  Suma de cargas adicionales = '+fmt(R.sumExt,2)+' A');
+  L.push('2) Corriente de diseño (Art. 430-24)');
+  L.push('  = 1.25 × '+fmt(R.iMax,2)+' (mayor, M'+(R.kMax+1)+') + '+fmt(R.resto,2)+' (demás motores) + '+fmt(R.sumExt,2)+' (adicionales) = '+fmt(R.diseno,2)+' A');
+  L.push('3) Conductor mínimo (Art. 310, Tabla 310-15(b)(16), Cu, columna '+R.colTxt+')');
+  L.push('  Primer calibre con ampacidad ≥ '+fmt(R.diseno,2)+' A → '+(R.cond?R.cond.c+' ('+R.condAmp+' A)':'fuera de la tabla cargada'));
+  L.push('4) Dispositivo de ramal (Art. 430-52'+(ITM_PEND_430_52?pend:'')+'; comerciales 240-6'+(ITM_PEND_240_6?pend:'')+')');
+  R.motores.forEach(m=>L.push('  M'+m.n+': '+(m.dev!=null ? fmt(m.flc,2)+' A × '+m.pct+' % ('+ITM_TIPOS[m.tipo].l+') = '+fmt(m.devCalc,2)+' A → '+m.dev+' A' : 'VFD: protección según fabricante (no 430-52)')));
+  L.push('  Dispositivo de ramal mayor = '+R.devMax+' A (M'+(R.kDev+1)+')');
+  L.push('5) Máximo del ITM (Art. 430-62)');
+  L.push('  = '+R.devMax+' (ramal mayor) + '+fmt(R.restoDev,2)+' (suma FLC de los demás motores) + '+fmt(R.sumExt,2)+' (adicionales) = '+fmt(R.max62,2)+' A');
+  L.push('6) ITM sugerido');
+  L.push('  Comercial inmediato inferior (≤) a '+fmt(R.max62,2)+' A = '+(R.itm!=null?R.itm+' A':'ninguno')+'; debe ser ≥ diseño '+fmt(R.diseno,2)+' A → '+(R.itmOk?'CUMPLE':'NO CUMPLE'));
+  if(R.av.length){ L.push(''); L.push('AVISOS'); R.av.forEach(a=>L.push('  - '+a)); }
+  L.push('');
+  L.push('ALERTAS FIJAS');
+  ITM_ALERTAS.forEach(a=>L.push('  - '+a));
+  L.push('');
+  L.push('PENDIENTE DE VERIFICAR contra el PDF: '+ITM_PENDIENTES.join('; ')+'.');
+  return L.join('\n');
+}
+
+const ITM_ALERTAS = [
+  'La capacidad interruptiva del ITM debe ser MAYOR que la corriente de cortocircuito disponible en el tablero.',
+  'Tensión nominal del ITM: 480 V CA. Verifica que la placa del interruptor cubra la tensión del sistema.',
+  'Coordina el ITM con los guardamotores y dispositivos de ramal (selectividad / tipo de coordinación del fabricante).',
+  'Este cálculo no sustituye la revisión de caída de tensión ni de los factores de corrección por temperatura y agrupamiento.',
+];
+const ITM_PENDIENTES = [
+  'porcentajes de la Tabla 430-52 (solo el 250 % de tiempo inverso viene de tu caso de prueba)',
+  'lista de comerciales del Art. 240-6 (15–1200 A)',
+  'redacción de 430-24, 430-62 y del tratamiento de VFD',
+  'FLC de 575 V para 10 HP (el PDF imprime 44 A, incongruente)',
+];
+
+const ITM = {
+  S(){ return ST.itm; },
+  _render(){
+    const st=document.querySelector('.stage'); const y=st?st.scrollTop:0;
+    render();
+    const st2=document.querySelector('.stage'); if(st2) st2.scrollTop=y;
+  },
+  refresh(){
+    const slot=document.getElementById('itm-out'); if(slot) slot.outerHTML=itmOutHtml();
+    const bar=document.getElementById('itm-bar'); if(bar) bar.outerHTML=itmBarHtml();
+    const R=itmCalc(ST.itm);
+    ST.itm.motores.forEach((m,i)=>{ const s=document.getElementById('itm-ri-'+i); if(s) s.innerHTML=itmRowInfo(R.motores[i]); });
+  },
+  setSys(v){ ST.itm.vsis=+v; ST.itm.motores.forEach(m=>{ m.v=+v; }); this._render(); },
+  setTerm(t){ ST.itm.term=+t; this._render(); },
+  addMotor(){ if(ST.itm.motores.length>=ITM_MAX_MOTORES) return; ST.itm.motores.push(itmMotor(5,ST.itm.vsis)); this._render(); },
+  delMotor(i){ ST.itm.motores.splice(i,1); this._render(); },
+  setM(i,k,val){
+    const m=ST.itm.motores[i]; if(!m) return;
+    if(k==='hp'||k==='v') m[k]=+val; else if(k==='vfd') m.vfd=!!val; else m[k]=val;
+    this._render();
+  },
+  numM(i,k,val){ ST.itm.motores[i][k]=val; this.refresh(); },
+  addExtra(){ if(ST.itm.extras.length>=ITM_MAX_EXTRAS) return; ST.itm.extras.push({va:500, v:ST.itm.vsis, f:1}); this._render(); },
+  delExtra(i){ ST.itm.extras.splice(i,1); this._render(); },
+  setE(i,k,val){ ST.itm.extras[i][k]=(k==='f'?+val:val); this._render(); },
+  numE(i,k,val){ ST.itm.extras[i][k]=val; this.refresh(); },
+  limpiar(){ ST.itm.motores=[itmMotor(5,ST.itm.vsis)]; ST.itm.extras=[]; this._render(); },
+  caso(){ const t=itmDefault(); t.term=ST.itm.term; ST.itm=t; this._render(); },
+  copiar(){
+    const txt=itmTexto(itmCalc(ST.itm));
+    const ok=()=>Memoria.toast('Desglose copiado al portapapeles');
+    const fb=()=>{
+      try{
+        const ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly',''); ta.style.cssText='position:fixed;top:0;left:0;opacity:0';
+        document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,txt.length);
+        const r=document.execCommand('copy'); ta.remove();
+        if(r) ok(); else Memoria.toast('No se pudo copiar: mantén presionado el texto del desglose');
+      }catch(e){ Memoria.toast('No se pudo copiar'); }
+    };
+    if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(txt).then(ok, fb); } else fb();
+  },
+};
+window.ITM = ITM;
+
+function itmRowInfo(row){
+  if(!row) return '';
+  if(!row.T.ok) return '<span class="itmpend">⚠ '+esc(row.T.motivo)+' — PENDIENTE DE VERIFICAR</span>';
+  let s='FLC tabla 430-250: <b>'+fmt(row.flc,1)+' A</b> <span class="itmdim">· col. '+esc(row.col)+'</span>';
+  if(row.ivfd!=null) s+=' · I entrada VFD usada: <b>'+fmt(row.ivfd,1)+' A</b> · ramal: según fabricante';
+  else s+=' · ramal '+row.pct+' % = '+fmt(row.devCalc,1)+' A → <b>'+row.dev+' A</b>';
+  if(row.vfd && row.ivfd==null) s+=' <span class="itmpend">· captura I entrada del VFD</span>';
+  return s;
+}
+
+function itmMotorRowHtml(m,i,row){
+  const hpOpts=MOTOR_FLC_DATA.map(o=>'<option value="'+o.hp+'"'+(+m.hp===o.hp?' selected':'')+'>'+o.hp+' HP</option>').join('');
+  const vOpts=ITM_VOLTS.map(v=>'<option value="'+v+'"'+(+m.v===v?' selected':'')+'>'+v+' V</option>').join('');
+  const tOpts=Object.keys(ITM_TIPOS).map(k=>'<option value="'+k+'"'+(m.tipo===k?' selected':'')+'>'+ITM_TIPOS[k].l+' ('+ITM_TIPOS[k].pct+' %)</option>').join('');
+  return '<div class="itmrow">'
+   +'<div class="itmhd"><b>M'+(i+1)+'</b><div class="itmdel" onclick="ITM.delMotor('+i+')">Quitar ✕</div></div>'
+   +'<div class="itmgrid">'
+   +'<label>Potencia<select class="fselect" onchange="ITM.setM('+i+',\'hp\',this.value)">'+hpOpts+'</select></label>'
+   +'<label>Tensión<select class="fselect" onchange="ITM.setM('+i+',\'v\',this.value)">'+vOpts+'</select></label>'
+   +'<label class="full">Dispositivo de ramal (Tabla 430-52)<select class="fselect" onchange="ITM.setM('+i+',\'tipo\',this.value)">'+tOpts+'</select></label>'
+   +'<label>FLA placa (A, opcional)<input class="fnum" type="text" inputmode="decimal" value="'+esc(m.fla)+'" oninput="ITM.numM('+i+',\'fla\',this.value)"></label>'
+   +'<label class="chk"><span>Alimentado por VFD</span><input type="checkbox" '+(m.vfd?'checked':'')+' onchange="ITM.setM('+i+',\'vfd\',this.checked)"></label>'
+   +(m.vfd?'<label class="full">I entrada de placa del VFD (A, opcional)<input class="fnum" type="text" inputmode="decimal" value="'+esc(m.ivfd)+'" oninput="ITM.numM('+i+',\'ivfd\',this.value)"></label>':'')
+   +'</div><div class="itmflc" id="itm-ri-'+i+'">'+itmRowInfo(row)+'</div></div>';
+}
+
+function itmExtraRowHtml(e,i){
+  return '<div class="itmrow">'
+   +'<div class="itmhd"><b>Transformador de mando '+(i+1)+'</b><div class="itmdel" onclick="ITM.delExtra('+i+')">Quitar ✕</div></div>'
+   +'<div class="itmgrid">'
+   +'<label>Potencia (VA)<input class="fnum" type="text" inputmode="decimal" value="'+esc(e.va)+'" oninput="ITM.numE('+i+',\'va\',this.value)"></label>'
+   +'<label>Tensión de primario (V)<input class="fnum" type="text" inputmode="decimal" value="'+esc(e.v)+'" oninput="ITM.numE('+i+',\'v\',this.value)"></label>'
+   +'<label class="full">Fases<select class="fselect" onchange="ITM.setE('+i+',\'f\',this.value)"><option value="1"'+(e.f!==3?' selected':'')+'>Monofásico: I = VA / V</option><option value="3"'+(e.f===3?' selected':'')+'>Trifásico: I = VA / (√3 × V)</option></select></label>'
+   +'</div></div>';
+}
+
+function itmBarHtml(){
+  const R=itmCalc(ST.itm), ok=R.ok;
+  const cell=(k,v)=>'<div><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';
+  return '<div class="itmbar" id="itm-bar">'
+    +cell('ITM', ok&&R.itmOk ? R.itm+' A' : '—')
+    +cell('DISEÑO', ok ? fmt(R.diseno,1)+' A' : '—')
+    +cell('MÁX 430-62', ok ? fmt(R.max62,1)+' A' : '—')
+    +cell('CALIBRE', ok&&R.cond ? R.cond.c.replace(' AWG','').replace(' kcmil','k') : '—')
+    +'</div>';
+}
+
+function itmOutHtml(){
+  const R=itmCalc(ST.itm);
+  if(!R.ok){
+    return '<div id="itm-out"><div class="rpanel"><div class="rhd"><div class="led danger live"></div><div class="t">RESUMEN · ITM PRINCIPAL</div><div class="badge danger">SIN RESULTADO</div></div>'
+      +'<div class="rnote warn" style="margin-top:10px">'+R.err.map(esc).join('<br>')+'</div>'
+      +'<div style="height:10px"></div></div></div>';
+  }
+  const pend = ITM_PEND_430_52 || ITM_PEND_240_6;
+  const sev = !R.itmOk ? 'danger' : (pend ? 'warn' : 'ok');
+  const badge = !R.itmOk ? 'SIN ITM QUE CUMPLA' : (pend ? 'CON PENDIENTES' : 'CALCULADO');
+  const ln = s => '<div class="itmln">'+s+'</div>';
+  const P = (flag)=> flag ? ' <span class="itmpend">[PENDIENTE DE VERIFICAR]</span>' : '';
+  const step = (t,body)=>'<div class="refcard"><h3>'+t+'</h3><div class="inner">'+body+'</div></div>';
+  const m = R.motores, ex=R.extras;
+  const s1 = m.map(x=>ln('<b>M'+x.n+'</b> · '+x.hp+' HP · '+x.v+' V · col. '+esc(x.col)+' → <b>'+fmt(x.flc,2)+' A</b>'+(x.ivfd!=null?' → VFD: se usa I entrada '+fmt(x.ivfd,2)+' A':''))).join('')
+    + ln('Σ motores = <b>'+fmt(R.sumMot,2)+' A</b>')
+    + ex.map(e=>ln('Transformador '+e.n+': '+fmt(e.va,0)+' VA / '+fmt(e.v,0)+' V ('+(e.f===3?'3φ':'1φ')+') = <b>'+fmt(e.I,2)+' A</b>')).join('')
+    + (ex.length?ln('Σ adicionales = <b>'+fmt(R.sumExt,2)+' A</b>'):'');
+  const s2 = ln('I<sub>dis</sub> = 1.25 × I<sub>mayor</sub> + Σ demás + Σ adicionales')
+    + ln('= 1.25 × '+fmt(R.iMax,2)+' (M'+(R.kMax+1)+') + '+fmt(R.resto,2)+' + '+fmt(R.sumExt,2)+' = <b>'+fmt(R.diseno,2)+' A</b>');
+  const s3 = ln('Primer calibre Cu con ampacidad ≥ '+fmt(R.diseno,2)+' A, columna de '+R.colTxt+' (temperatura de terminales)')
+    + ln('→ <b>'+(R.cond?R.cond.c+' ('+R.condAmp+' A)':'fuera de la tabla cargada')+'</b>');
+  const s4 = m.map(x=>ln('<b>M'+x.n+'</b> · '+(x.dev!=null? fmt(x.flc,2)+' A × '+x.pct+' % = '+fmt(x.devCalc,2)+' A → <b>'+x.dev+' A</b> <span class="itmdim">('+esc(ITM_TIPOS[x.tipo].l)+')</span>' : 'VFD: protección según fabricante'))).join('')
+    + ln('Dispositivo de ramal mayor = <b>'+R.devMax+' A</b> (M'+(R.kDev+1)+')');
+  const s5 = ln('Máx = ramal mayor + Σ FLC de los demás motores + Σ adicionales')
+    + ln('= '+R.devMax+' + '+fmt(R.restoDev,2)+' + '+fmt(R.sumExt,2)+' = <b>'+fmt(R.max62,2)+' A</b>');
+  const s6 = ln('Comercial inmediato inferior (≤) a '+fmt(R.max62,2)+' A = <b>'+(R.itm!=null?R.itm+' A':'ninguno')+'</b>')
+    + ln('Condición ITM ≥ I<sub>dis</sub>: '+(R.itm!=null?R.itm+' ≥ '+fmt(R.diseno,2):'—')+' → <b>'+(R.itmOk?'CUMPLE':'NO CUMPLE')+'</b>');
+  return '<div id="itm-out">'
+   +'<div class="rpanel"><div class="rhd"><div class="led '+sev+' live"></div><div class="t">RESUMEN · ITM PRINCIPAL</div><div class="badge '+sev+'">'+badge+'</div></div>'
+   +'<div class="rbig"><div class="lbl">ITM SUGERIDO</div><div class="val">'+(R.itmOk?R.itm:'—')+'<span class="u">A</span></div><div class="sub">Sistema '+ST.itm.vsis+' V · terminales '+ST.itm.term+' °C</div></div>'
+   +'<div class="rrows">'
+   +'<div class="rrow hi"><div class="k">Corriente de diseño (430-24)</div><div class="v">'+fmt(R.diseno,1)+' A</div></div>'
+   +'<div class="rrow"><div class="k">Calibre mínimo Cu ('+R.colTxt+')</div><div class="v">'+(R.cond?R.cond.c:'—')+'</div></div>'
+   +'<div class="rrow"><div class="k">Máximo del ITM (430-62)</div><div class="v">'+fmt(R.max62,1)+' A</div></div>'
+   +'<div class="rrow"><div class="k">Ramal mayor / Σ motores</div><div class="v">'+R.devMax+' A / '+fmt(R.sumMot,1)+' A</div></div>'
+   +'</div>'
+   +(pend?'<div class="rnote warn">Valores marcados PENDIENTE DE VERIFICAR: '+ITM_PENDIENTES.map(esc).join('; ')+'.</div>':'')
+   +R.av.map(a=>'<div class="rnote warn" style="margin-top:6px">'+esc(a)+'</div>').join('')
+   +'<div style="height:6px"></div></div>'
+   +step('1 · FLC por motor — Tabla 430-250 (Art. 430-6(a))', s1)
+   +step('2 · Corriente de diseño — Art. 430-24', s2)
+   +step('3 · Conductor mínimo — Art. 310 (310-15(b)(16))', s3)
+   +step('4 · Dispositivo de ramal — Art. 430-52'+P(ITM_PEND_430_52)+' · 240-6'+P(ITM_PEND_240_6), s4)
+   +step('5 · Máximo del ITM — Art. 430-62', s5)
+   +step('6 · ITM sugerido', s6)
+   +'<div class="refcard"><h3>⚠ Alertas fijas</h3><div class="inner">'+ITM_ALERTAS.map(a=>ln('• '+esc(a))).join('')+'</div></div>'
+   +'<div class="rnote">Redondeos: corrientes a 0.01 A; dispositivo de ramal = comercial inmediato superior; ITM = comercial inmediato inferior (≤ al máximo). Unidades en amperes (A).</div>'
+   +'<div class="actbtn" style="margin-top:10px" onclick="ITM.copiar()">📋 Copiar desglose como texto</div>'
+   +'</div>';
+}
+
+function itmScreenHtml(){
+  const S=ST.itm;
+  const R=itmCalc(S);
+  const sysOpts=ITM_VOLTS.map(v=>'<option value="'+v+'"'+(+S.vsis===v?' selected':'')+'>'+v+' V</option>').join('');
+  return itmBarHtml()+'<div class="fpanel"><div class="fhd"><div class="led ok"></div>SISTEMA</div>'
+    +'<div class="frow"><div class="flabel">Tensión del sistema</div><select class="fselect" onchange="ITM.setSys(this.value)">'+sysOpts+'</select></div>'
+    +'<div class="frow"><div class="flabel">Terminales del ITM</div><div class="fseg">'
+      +'<div class="o '+(+S.term===60?'active':'')+'" onclick="ITM.setTerm(60)">60 °C</div>'
+      +'<div class="o '+(+S.term===75?'active':'')+'" onclick="ITM.setTerm(75)">75 °C</div></div></div></div>'
+    +'<div class="panel-hd"><div class="t">MOTORES ('+S.motores.length+'/'+ITM_MAX_MOTORES+')</div><div class="line"></div></div>'
+    +S.motores.map((m,i)=>itmMotorRowHtml(m,i,R.motores[i])).join('')
+    +'<div class="actbtn" style="margin-top:8px" onclick="ITM.addMotor()">＋ Agregar motor</div>'
+    +'<div class="panel-hd"><div class="t">CARGAS ADICIONALES</div><div class="line"></div></div>'
+    +S.extras.map((e,i)=>itmExtraRowHtml(e,i)).join('')
+    +'<div class="actbtn" style="margin-top:8px" onclick="ITM.addExtra()">＋ Transformador de mando</div>'
+    +'<div style="display:flex;gap:8px;margin:0 12px 6px"><div class="actbtn" style="flex:1;margin:0" onclick="ITM.caso()">Caso de prueba 460 V</div><div class="actbtn" style="flex:1;margin:0" onclick="ITM.limpiar()">Limpiar lista</div></div>'
+    +'<div class="panel-hd"><div class="t">RESULTADO</div><div class="line"></div></div>'
+    +itmOutHtml();
+}
+
+MODULES_A.itm = {
+  id:'itm', label:'ITM tablero multimotor', ic:'🔌', tc:'#f97316', tcbg:'rgba(249,115,22,.12)',
+  desc:'ITM principal — NOM-001 430-24 / 52 / 62',
+  info:'ITM principal de un tablero con varios motores: corriente de diseño (430-24), calibre mínimo, máximo (430-62) y ITM comercial sugerido.',
+  custom:true, fields:[],
+  init(){ ST.itm=itmDefault(); },
+  renderScreen(){
+    if(!ST.itm) ST.itm=itmDefault();
+    return statusbar('MÓDULO ACTIVO')
+      +'<div class="modhead"><div class="sb-menu" onclick="App.toggleSidebar()">☰</div><div class="ic" style="background:var(--accent-dim)">'+this.ic+'</div>'
+      +'<div><div class="t1" style="color:var(--accent)">'+this.label+'</div><div class="t2">'+this.desc+'</div></div></div>'
+      +'<div class="stage">'+itmScreenHtml()+'</div>';
+  }
+};
+
+
 const App = {
   toggleTheme(){ ST.theme = ST.theme==='light'?'dark':'light'; document.body.classList.toggle('theme-dark', ST.theme==='dark'); render(); },
   toggleSidebar(){ ST.sidebarOpen=!ST.sidebarOpen; render(); },
@@ -1806,6 +2292,7 @@ const App = {
   openModule(id){
     ST.modId=id; ST.answers={};
     MODULES_A[id].fields.forEach(f=>{ if(typeof f.default!=='undefined') ST.answers[f.key]=f.default; });
+    if(MODULES_A[id].init) MODULES_A[id].init();
     ST.screen='mod'; ST.sidebarOpen=false; render();
   },
   openRef(id){ ST.screen='ref-'+id; ST.sidebarOpen=false; render(); },
@@ -1963,6 +2450,7 @@ function render(){
   if(ST.screen==='home') html = statusbar('DASHBOARD PRINCIPAL') + renderHome();
   else if(ST.screen==='mod') html = renderModuleScreen();
   else if(ST.screen==='ref-conductores') html = statusbar('REFERENCIA · CONDUCTORES') + renderConductoresRef();
+  else if(ST.screen==='ref-factores') html = statusbar('REFERENCIA · FACTORES DE CORRECCIÓN') + renderFactoresRef();
   else if(ST.screen==='ref-flc') html = statusbar('REFERENCIA · FLC MOTORES') + renderFlcRef();
   else if(ST.screen==='ref-cpte') html = statusbar('REFERENCIA · CPTE') + renderCpteRef();
   else if(ST.screen==='ref-calibres') html = statusbar('REFERENCIA · CALIBRES') + renderCalibresRef();
@@ -2091,6 +2579,7 @@ function updateResultOnly(){
 
 function renderModuleScreen(){
   const mod = MODULES_A[ST.modId];
+  if(mod.custom) return mod.renderScreen();
   const fields = App.activeFields(mod);
   return `
   ${statusbar('MÓDULO ACTIVO')}
@@ -2117,13 +2606,87 @@ function renderConductoresRef(){
   </div>`;
 }
 
-/* ---- REFERENCIA: FLC MOTORES (Tabla 430-150) ---- */
+/* ---- REFERENCIA: FACTORES DE CORRECCIÓN (Tablas 310-15(b)(2)(a) y 310-15(b)(3)(a)) ---- */
+function renderFactoresRef(){
+  const rowsTemp = FTEMP.map(t=>[t.t+' °C', fmt(t.f,2)]);
+  const agrupRanges = [
+    {r:'1 – 3', f:1.00}, {r:'4 – 6', f:0.80}, {r:'7 – 9', f:0.70},
+    {r:'10 – 20', f:0.50}, {r:'21 – 30', f:0.45}, {r:'31 – 40', f:0.40}, {r:'41 o más', f:0.35}
+  ];
+  const rowsAgrup = agrupRanges.map(x=>[x.r, fmt(x.f,2)]);
+  return `<div class="stage">
+    <div class="refcard"><div class="inner" style="font-size:11px;color:var(--text2);line-height:1.5">🌡️ NOM-001-SEDE-2012. Ambos factores se aplican sobre la ampacidad base de Tabla 310-15(b)(16) @75°C, y se multiplican entre sí cuando ambas condiciones aplican: <b>Amp. corregida = Amp. base × F.temp × F.agrup</b>.</div></div>
+    <div class="refcard"><h3>🌡️ Corrección por temperatura ambiente</h3><div class="inner">${rtable(['Temp. ambiente','Factor'], rowsTemp)}
+      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 310-15(b)(2)(a), columna de conductores 75°C (coincide con la base de ampacidad usada en este módulo). Si tu conductor tiene aislamiento 90°C, verifica la columna correspondiente en el texto oficial — los factores cambian.</div>
+    </div></div>
+    <div class="refcard"><h3>🔗 Factor de agrupamiento (conduit)</h3><div class="inner">${rtable(['N.º de conductores portadores de corriente','Factor'], rowsAgrup)}
+      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 310-15(b)(3)(a). Cuenta solo conductores portadores de corriente en el mismo conduit — no cuentan CPTE ni neutro sin corriente de retorno en cargas balanceadas. Este factor es independiente del cálculo de llenado de conduit (% de área ocupada), que solo verifica espacio físico. Este mismo factor aplica cuando varios circuitos comparten una charola — se cuentan TODOS los conductores portadores de corriente de TODOS los circuitos en esa charola, no solo los de un circuito.</div>
+    </div></div>
+
+    <div class="refcard"><h3>🗄️ Charola — Cables multiconductores</h3><div class="inner" style="font-size:11px;color:var(--text2);line-height:1.6">
+      <b>Charola tipo escalera, malla o fondo ventilado (Art. 392-80(a)(1)):</b><br>
+      Ampacidad base = Tabla 310-15(b)(16) (misma que en conduit). Si hay más de un cable multiconductor sin espacio entre ellos, se multiplica por el factor de agrupamiento de arriba (Tabla 310-15(b)(3)(a)) según el número total de conductores portadores de corriente.<br><br>
+      <b>Charola de fondo sólido:</b><br>
+      • Una sola capa, sin espaciamiento → factor <b>0.75</b> sobre Tabla 310-15(b)(16).<br>
+      • Apilados o en más de una capa → <b style="color:var(--led-danger)">no existe factor directo de tabla</b> — la ampacidad se reduce bajo criterios especiales de diseño e inspección. No apliques un número genérico aquí.
+    </div></div>
+
+    <div class="refcard"><h3>🗄️ Charola — Conductores individuales (monoconductores)</h3><div class="inner">
+      <div style="font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:8px">
+        Art. 392-80(a)(2), charola tipo escalera o ventilada, hasta 2000V.<br>
+        • <b>Con espacio libre</b> ≥ diámetro del conductor mayor, una sola capa → ampacidad = Tabla 310-15(b)(17) directa (abajo).<br>
+        • <b>Sin espacio libre</b>, una sola capa en contacto: charola tipo escalera → Tabla 310-15(b)(17) × <b>0.75</b>; charola ventilada de fondo liso → × <b>0.65</b>.
+      </div>
+      ${rtable(['Calibre','Cu 60°C','Cu 75°C','Cu 90°C','Al 60°C','Al 75°C','Al 90°C'], COND_AIRE.map(c=>[c.c, c.cu60+' A', c.cu75+' A', c.cu90+' A', c.al60?c.al60+' A':'—', c.al75?c.al75+' A':'—', c.al90?c.al90+' A':'—']))}
+      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 310-15(b)(17) — 30°C ambiente, 1 a 3 conductores aislados directamente al aire libre. Aluminio de 14 a 8 AWG: la tabla no da valor ("—"). Cobre 14/12/10 AWG: la tabla marca "**" — véase 240-4(d) para limitaciones de protección contra sobrecorriente. Se muestran solo los calibres más usados, no la tabla completa. No confundir con la Tabla 310-15(b)(16) (conduit) — los valores son mayores porque hay más disipación de calor al aire libre.</div>
+    </div></div>
+
+    <div class="refcard"><h3>⏱️ Continuidad de carga — 125%</h3><div class="inner" style="font-size:11px;color:var(--text2);line-height:1.6">
+      NOM-001 Art. 210-19(a) y Art. 215-2. Para cargas continuas (operan a plena corriente 3 horas o más), el conductor y la protección se dimensionan al <b>125% de la corriente</b>, no al 100%.<br><br>
+      <b>Ejemplo:</b> carga continua de 40 A → dimensiona conductor y breaker para 40 × 1.25 = <b>50 A</b>.<br>
+      Es de los factores que más se pasan por alto en campo — no es opcional cuando la carga es continua.
+    </div></div>
+
+    <div class="refcard"><h3>🔌 Límite por terminales — 60°C / 75°C</h3><div class="inner" style="font-size:11px;color:var(--text2);line-height:1.6">
+      NOM-001 Art. 110-14(c). El límite real de ampacidad casi siempre no lo pone el conductor sino la terminal del equipo (breaker, contactor, guardamotor).<br><br>
+      • Circuitos ≤100 A o conductores 14-1 AWG → usa la columna de <b>60°C</b> de ampacidad, salvo que el equipo esté marcado explícitamente para 75°C o 90°C.<br>
+      • Circuitos &gt;100 A o conductores 1/0 AWG y mayores → usa la columna de <b>75°C</b>, salvo marca explícita de 90°C.<br><br>
+      Aunque tu conductor sea aislamiento 90°C, si la terminal del equipo es de 60°C o 75°C, la ampacidad de diseño se detiene en esa columna.
+    </div></div>
+
+    <div class="refcard"><h3>🔀 Conductores en paralelo</h3><div class="inner" style="font-size:11px;color:var(--text2);line-height:1.6">
+      NOM-001 Art. 310-4. Al dividir una carga grande en 2, 3 o más conductores por fase (para evitar un calibre impráctico), cada conjunto debe cumplir:<br><br>
+      • Mismo material (todo Cu o todo Al, sin mezclar).<br>
+      • Mismo calibre y misma longitud en cada fase.<br>
+      • Mismo tipo de aislamiento.<br>
+      • Instalados juntos (mismo conduit/charola) o con el mismo arreglo físico en cada canalización paralela.<br>
+      • El CPTE (tierra de equipo) se dimensiona por la protección del conjunto completo (Tabla 250-122), no se reparte ni se reduce por conductor individual.
+    </div></div>
+
+    <div class="refcard"><div class="inner" style="font-size:11px;color:var(--text2);line-height:1.5">📐 NOM-001-SEDE-2012 Art. 220. Los siguientes factores de demanda son para dimensionar la <b>carga total de la instalación</b> (acometida, alimentador principal) — no se aplican al dimensionar un circuito derivado individual. Su uso es más común en diseño comercial/residencial; en instalaciones industriales revisa si tu proyecto realmente cae en alguna de estas ocupaciones antes de aplicarlos.</div></div>
+
+    <div class="refcard"><h3>📐 Factor de demanda — Alumbrado general</h3><div class="inner">${rtable(['Ocupación','Tramo','Factor'], DEM_ALUM.flatMap(g=>g.tramos.map((t,i)=>[i===0?g.ocup:'', t.r, t.f+'%'])))}
+      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 220-42.</div>
+    </div></div>
+
+    <div class="refcard"><h3>📐 Factor de demanda — Contactos no residenciales</h3><div class="inner">${rtable(['Carga (VA, a 180 VA/salida)','Factor'], DEM_CONT.map(x=>[x.r, x.f+'%']))}
+      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 220-44.</div>
+    </div></div>
+
+    <div class="refcard"><h3>📐 Factor de demanda — Estufas y equipo de cocina</h3><div class="inner">${rtable(['N.º equipos','Col. A (&lt;3.5 kW)','Col. B (3.5-8.75 kW)','Col. C máx. (8.75-12 kW)'], DEM_COCINA.map(x=>[x.n, x.a+'%', x.b+'%', x.c]))}
+      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 220-55. Aplica a equipos residenciales/comerciales ligeros mayores a 1.75 kW — poco frecuente en industrial, pero se incluye para instalaciones mixtas (comedor, cocineta de planta).</div>
+    </div></div>
+  </div>`;
+}
+
+/* ---- REFERENCIA: FLC MOTORES (Tabla 430-250 trifásicos / 430-248 monofásicos) ---- */
 function renderFlcRef(){
-  const rowsTri = MOTOR_FLC_DATA.map(m=>[m.hp+' HP', fmt(m.v460,1)+' A', fmt(m.v230,1)+' A', fmt(m.v208,1)+' A']);
+  const cA = (m,k)=> m[k]==null ? (m.pend&&m.pend[k] ? '⚠ pend.' : '—') : fmt(m[k],1)+' A';
+  const rowsTri = MOTOR_FLC_DATA.map(m=>[m.hp+' HP', cA(m,'v460'), cA(m,'v230'), cA(m,'v208'), cA(m,'v575')]);
   const rowsMono = MOTOR_FLC_MONO_DATA.map(m=>[m.hp+' HP', fmt(m.v115,1)+' A', fmt(m.v127,1)+' A', fmt(m.v208,1)+' A', fmt(m.v230,1)+' A']);
   return `<div class="stage">
-    <div class="refcard"><h3>⚙️ FLC — Motores trifásicos CA</h3><div class="inner">${rtable(['HP','460V','230V','208V'], rowsTri)}
-      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 430-150. En México (440/480V) usa la columna 460V — es la que corresponde a motores NEMA para 480V. Para dimensionar conductor (Art.430-22, ×1.25) y protección contra cortocircuito (Art.430-52) usa ESTE valor de tabla, NO el calculado ni el FLA de placa. El FLA de placa se usa solo para ajustar el guardamotor/relé térmico (Art.430-32).</div>
+    <div class="refcard"><h3>⚙️ FLC — Motores trifásicos CA</h3><div class="inner">${rtable(['HP','460V','230V','208V','575V'], rowsTri)}
+      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 430-250. Según la nota de la tabla, la columna 460V se permite para sistemas de 440 a 480V (la de 230V para 220 a 240V y la de 575V para 550 a 600V). "—" = casilla vacía en la tabla. 575V / 10 HP: el PDF imprime 44 A, incongruente con los renglones vecinos — no se usa (pendiente de verificar). Para dimensionar conductor (Art.430-22, ×1.25) y protección contra cortocircuito (Art.430-52) usa ESTE valor de tabla, NO el calculado ni el FLA de placa. El FLA de placa se usa solo para ajustar el guardamotor/relé térmico (Art.430-32).</div>
     </div></div>
     <div class="refcard"><h3>⚙️ FLC — Motores monofásicos CA</h3><div class="inner">${rtable(['HP','115V','127V','208V','230V'], rowsMono)}
       <div class="rnote" style="margin-top:8px">NOM-001 Tabla 430-248. Las columnas 115V y 230V son las nominales de norma (rango 110-120V y 220-240V respectivamente); 127V y 208V se incluyen por ser tensiones comunes en instalaciones mexicanas. Mismo criterio que trifásicos: usa este valor de tabla para conductor y protección, no el calculado.</div>
@@ -2133,10 +2696,11 @@ function renderFlcRef(){
 
 /* ---- REFERENCIA: CPTE — TIERRA DE EQUIPO (Tabla 250-122) ---- */
 function renderCpteRef(){
-  const rows = CPTE_DATA.map(x=>[x.a+' A', x.c+' AWG Cu']);
+  const sz = v => v==null ? '—' : (/kcmil/.test(v) ? v : v+' AWG');
+  const rows = CPTE_DATA.map(x=>[x.a+' A', sz(x.cu), sz(x.al)]);
   return `<div class="stage">
-    <div class="refcard"><h3>🟢 CPTE — Tierra de equipo</h3><div class="inner">${rtable(['Protección del circuito','Calibre mínimo CPTE'], rows)}
-      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 250-122. No confundir con la Tabla 250-66 (conductor de tierra del sistema/neutro) — son conductores con función distinta. El CPTE conecta carcasas metálicas a tierra; el conductor de tierra del sistema referencia el neutro.</div>
+    <div class="refcard"><h3>🟢 CPTE — Tierra de equipo</h3><div class="inner">${rtable(['Protección del circuito (sin exceder de)','Cobre','Aluminio o Al-Cu'], rows)}
+      <div class="rnote" style="margin-top:8px">NOM-001 Tabla 250-122. Se entra con la capacidad o ajuste del dispositivo de protección antes del equipo: usa el renglón de ese valor o, si no cae exacto, el inmediato superior. "—" = la tabla no da valor en aluminio. El CPTE puede ser de mayor tamaño que el de la tabla para cumplir 250-4(a)(5) o (b)(4). Véase 250-120 para restricciones de instalación. No confundir con la Tabla 250-66 (conductor de tierra del sistema/neutro) — son conductores con función distinta. El CPTE conecta carcasas metálicas a tierra; el conductor de tierra del sistema referencia el neutro.</div>
     </div></div>
   </div>`;
 }
@@ -2145,7 +2709,7 @@ function renderCpteRef(){
 function renderCalibresRef(){
   const chunks=[]; for(let i=0;i<STD_AMPS.length;i+=6){ chunks.push(STD_AMPS.slice(i,i+6).map(a=>a+' A')); }
   return `<div class="stage">
-    <div class="refcard"><h3>🔢 Calibres comerciales — Breaker / Fusible</h3><div class="inner">${rtable([], chunks, true)}
+    <div class="refcard"><h3>🔢 Breakers comerciales — Breaker / Fusible</h3><div class="inner">${rtable([], chunks, true)}
       <div class="rnote" style="margin-top:8px">NOM-001 Tabla 240-6. Si el cálculo (breaker, fusible) no cae en un valor de esta lista, se redondea al siguiente disponible arriba.</div>
     </div></div>
   </div>`;
@@ -2288,7 +2852,7 @@ function renderHistorial(){
    Sin librerías: vista previa en pantalla + hoja de impresión (@media print).
    =================================================================== */
 
-const APP_VERSION = 'tablero-3 · 23-sep-2026 · fórmulas + memoria PDF';
+const APP_VERSION = 'tablero-7 · 9-oct-2026 · + módulo ITM tablero multimotor (430-24/52/62), FLC 575 V y columna 60 °C de 310-15(b)(16); 430-52 y 240-6 PENDIENTES de verificar';
 
 // Por módulo: referencias que la propia app ya cita, desarrollo con números sustituidos y avisos de verificación pendiente.
 const MEMORIA_DEF = {
@@ -2333,11 +2897,13 @@ const MEMORIA_DEF = {
       let prev=null, hit=null, last=null;
       for(const c of COND){
         const base = a.mat==='cu'?c.cu:c.al; if(!base) continue;
-        last = {c,base,corr:base*r.Ftemp*r.Finst};
+        const raw = base*r.Ftemp*r.Finst;
+        const lim = (a.mat==='cu' && c.cap) ? Math.min(raw,c.cap) : raw;   // Art. 240-4(d)
+        last = {c,base,raw,corr:lim,topado:lim<raw};
         if(last.corr>=a.i){ hit=last; break; }
         prev = last;
       }
-      const ln = (x,ok)=>`${x.c.c}: ${x.base} × ${fmt(r.Ftemp,2)} × ${fmt(r.Finst,2)} = ${fmt(x.corr,1)} A  ${ok?'≥':'<'}  ${fmt(a.i,1)} A  →  ${ok?'CUMPLE (calibre mínimo)':'no cumple'}`;
+      const ln = (x,ok)=>`${x.c.c}: ${x.base} × ${fmt(r.Ftemp,2)} × ${fmt(r.Finst,2)} = ${fmt(x.raw,1)} A${x.topado?' → topada a '+x.c.cap+' A (Art. 240-4(d))':''}  ${ok?'≥':'<'}  ${fmt(a.i,1)} A  →  ${ok?'CUMPLE (calibre mínimo)':'no cumple'}`;
       const busq = [];
       if(prev && prev!==last) busq.push(ln(prev,false));
       if(hit) busq.push(ln(hit,true));
@@ -2352,10 +2918,6 @@ const MEMORIA_DEF = {
     avisos(r){
       const out=[], a=r.a, p=r.pick;
       if(a.inst!=='conduit') out.push('Verificación pendiente — charola: se usó un factor fijo simplificado (0.75 escalerilla / 0.65 lisa) sobre la Tabla 310-15(b)(16). Para charola la base de ampacidad es la Tabla 310-15(b)(17) y el Art. 392 fija condiciones y calibre mínimo (1/0 AWG en el caso general). No uses este resultado como definitivo en charola sin verificar en el texto oficial.');
-      if(a.mat==='cu' && p && ['14 AWG','12 AWG','10 AWG'].includes(p.c.c))
-        out.push('Verificación pendiente: para 14/12/10 AWG Cu la app usa 15/20/30 A, que son los límites de protección del Art. 240-4(d), no la ampacidad de la Tabla 310-15(b)(16) a 75 °C (20/25/35 A). Para protección por sobrecorriente aplica 240-4(d); para ampacidad del conductor, la tabla.');
-      if(a.mat==='al' && (!p || p.c.c==='750 kcmil'))
-        out.push('Verificación pendiente: la app usa 320 A para Al 750 kcmil; la Tabla 310-15(b)(16) a 75 °C da 385 A. Verifica antes de usar este resultado.');
       return out;
     }
   },
@@ -2371,20 +2933,30 @@ const MEMORIA_DEF = {
       const a=r.a, tri=a.sistema==='tri';
       const pasos=[
         {t:'Potencia', l:[ a.punit==='hp' ? `P = ${fmt(a.p,2)} HP × 0.7457 kW/HP = ${fmt(r.kw,2)} kW` : `P = ${fmt(a.p,2)} kW` ]},
-        {t:'Corriente de diseño estimada (FP 0.85, η 0.90)', l:[
-          tri ? `I = P·1000 / (√3 · V · FP · η) = (${fmt(r.kw,2)} × 1000) / (${fmt(Math.sqrt(3),3)} × ${fmt(a.v,0)} × 0.85 × 0.90) = ${fmt(r.I,1)} A`
-              : `I = P·1000 / (V · FP · η) = (${fmt(r.kw,2)} × 1000) / (${fmt(a.v,0)} × 0.85 × 0.90) = ${fmt(r.I,1)} A`]},
+        r.T.ok
+          ? {t:`Corriente de diseño — FLC de Tabla ${r.T.tabla}`, l:[
+              `Potencia equivalente = ${fmt(r.kw,2)} kW / 0.7457 = ${fmt(r.hpCalc,2)} HP  →  renglón de ${r.T.hp} HP${r.T.exacto?'':' (siguiente HP mayor de la tabla)'}`,
+              `Columna ${r.T.colTxt}: FLC = ${fmt(r.I,1)} A  (Art. 430-6(a))`,
+              `Referencia (no se usa): I calculada con FP 0.85 y η 0.90 = ${fmt(r.Iest,1)} A`]}
+          : {t:'Corriente de diseño ESTIMADA (FP 0.85, η 0.90) — sin FLC de tabla', l:[
+              (tri ? `I = P·1000 / (√3 · V · FP · η) = (${fmt(r.kw,2)} × 1000) / (${fmt(Math.sqrt(3),3)} × ${fmt(a.v,0)} × 0.85 × 0.90) = ${fmt(r.I,1)} A`
+                   : `I = P·1000 / (V · FP · η) = (${fmt(r.kw,2)} × 1000) / (${fmt(a.v,0)} × 0.85 × 0.90) = ${fmt(r.I,1)} A`),
+              `Motivo: ${r.T.motivo}.`]},
         {t:`Corriente de arranque (${r.mult.label})`, l:[`Ia = I × ${r.mult.ia} = ${fmt(r.I,1)} × ${r.mult.ia} = ${fmt(r.Ia,1)} A`]},
         {t:'Protección y conductor', l:[
           `Protección (250 %) = ${fmt(r.I,1)} × 2.50 = ${fmt(r.I*2.5,1)} A  →  valor comercial ${r.brk} A`,
           `Conductor (125 %) = ${fmt(r.I,1)} × 1.25 = ${fmt(r.I*1.25,1)} A  →  ${r.cable?r.cable.c+' (ampacidad '+r.cable.cu+' A, Cu)':'fuera de tabla'}`]},
         {t:'Protección de sobrecarga (guardamotor)', l:[
-          `Ir = ${fmt(r.FLA,1)} A  (${a.tieneplaca==='si'?'FLA de placa capturado':'corriente estimada — sin dato de placa'})`]},
+          `Ir = ${fmt(r.FLA,1)} A  (${a.tieneplaca==='si'?'FLA de placa capturado':(r.T.ok?'FLC de tabla como referencia — sin dato de placa':'corriente estimada — sin dato de placa')})`]},
       ];
       return pasos;
     },
     avisos(r){
-      return ['Verificación pendiente: el conductor (125 %) y la protección (250 %) se calcularon con la corriente ESTIMADA (FP 0.85, η 0.90). El Art. 430 exige tomar la FLC de las Tablas 430-250 (trifásico) o 430-248 (monofásico), no la de placa ni la calculada. Consulta la FLC de tabla para este motor y recalcula con ella. Nota: la revisión del proyecto detectó que los valores de FLC trifásico guardados en esta app para 7.5–30 HP no coinciden con la Tabla 430-250 (p. ej. 10 HP a 460 V: la tabla da 14 A), por eso esta hoja no imprime esa referencia.'];
+      const out=[];
+      if(!r.T.ok) out.push(`Sin FLC de tabla: ${r.T.motivo}. El conductor (125 %) y la protección (250 %) se calcularon con una corriente ESTIMADA (FP 0.85, η 0.90); el Art. 430-6(a) exige la FLC de la Tabla ${r.T.tabla}. Verifícala en la NOM antes de instalar.`);
+      else if(!r.T.exacto) out.push(`La potencia ${fmt(r.kw,2)} kW (${fmt(r.hpCalc,2)} HP) no coincide con un HP de la tabla; se tomó el renglón de ${r.T.hp} HP (siguiente mayor, del lado seguro). Si el motor tiene placa, confirma que el conductor cubra el 125 % de esa FLC.`);
+      if(r.a.arranque==='vfd') out.push('Con VFD el conductor de alimentación al variador se dimensiona con la corriente de entrada nominal del variador (Art. 430-122), no con este cálculo; aquí se muestra la referencia del motor.');
+      return out;
     }
   },
 
